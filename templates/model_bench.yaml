@@ -1,0 +1,18 @@
+config_type: model_bench
+
+random_seed: 44
+
+output_dir: trials/smoke_test/model_bench
+
+model:
+  model_name : Qwen/Qwen3-4B
+  quant_type : bf16
+  device_map : auto
+
+bench:
+  bench_name : GSM8K
+  num_fewshot : 1
+  batch_size : 2
+  max_length : 512
+  limit : 5
+  log_samples : true
