@@ -76,12 +76,10 @@ class LM_EVAL(Bench):
         if res is None or "results" not in res:
             raise RuntimeError("lm_eval returned no results")
 
-        # save the benchmark results
         summary = {k: v for k, v in res.items() if k != "samples"}
         print(" >> Saving the results to", output_dir / "result.json")
         save_json(summary, output_dir / "result.json")
 
-        # save the examples
         for task, records in res.get("samples", {}).items():
             samples_path = output_dir / f"samples_{task}.jsonl"
             print(" >> Saving the samples to", samples_path)

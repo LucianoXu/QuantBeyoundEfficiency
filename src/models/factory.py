@@ -27,7 +27,6 @@ def HF_standard_model_factory(model_args: dict[str, Any]) -> tuple[PreTrainedTok
     model_name = model_args["model_name"]
     quant_type = model_args["quant_type"]
 
-    # decide the quantization
     if quant_type == "bf16":
         quant_config = None
 
