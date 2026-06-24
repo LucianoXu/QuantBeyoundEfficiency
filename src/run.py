@@ -38,7 +38,7 @@ def run(args: dict[str, Any] | str | Path) -> Any:
         raise ValueError("Invalid Config Type.")
 
 
-def run_model_bench(args: dict[str, Any]):
+def run_model_bench(args: dict[str, Any], tokenizer: Any = None, model: Any = None):
 
     output_dir = Path(args['output_dir'])
     # create a folder, and raise an error if it already exists
@@ -53,8 +53,8 @@ def run_model_bench(args: dict[str, Any]):
 
         model_args = args['model']
         model_args['config_type'] = "model"
-
-        tokenizer, model = model_factory(model_args)
+        if model is None or tokenizer is None: 
+            tokenizer, model = model_factory(model_args)
 
         bench_args = args['bench']
         bench_args['config_type'] = "bench"
@@ -77,7 +77,6 @@ def run_model_bench_matrix(args: dict[str, Any]):
     output_dir = Path(args['output_dir'])
     # create a folder, and raise an error if it already exists
     output_dir.mkdir(parents=True, exist_ok=False)
-
     # mirror all console output of this run into output_dir/log.txt
     with tee_console(output_dir / "log.txt"):
 
@@ -105,6 +104,7 @@ def run_model_bench_matrix(args: dict[str, Any]):
         # dispatch all works
         for model_args in model_args_ls:
 
+            tokenizer, model = model_factory(model_args)
             model_args = model_args.copy()
             model_id = model_args["id"]
             del model_args["id"]
@@ -115,7 +115,6 @@ def run_model_bench_matrix(args: dict[str, Any]):
                 bench_id = bench_args["id"]
                 del bench_args["id"]
 
-
                 model_bench_config = {
                     "config_type" : "model_bench",
                     "random_seed" : args['random_seed'],
@@ -124,5 +123,4 @@ def run_model_bench_matrix(args: dict[str, Any]):
                     "bench" : bench_args
                 }
 
-
-                run_model_bench(model_bench_config)
+                run_model_bench(model_bench_config, tokenizer, model)
