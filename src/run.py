@@ -42,7 +42,7 @@ def run(args: dict[str, Any] | str | Path) -> Any:
 
 
 def run_model_bench(args: dict[str, Any], tokenizer: Any = None, model: Any = None):
-    model_not_loaded_prev = model is None or tokenizer is None
+    model_not_passed = model is None or tokenizer is None
     output_dir = Path(args['output_dir'])
     # create a folder, and raise an error if it already exists
     output_dir.mkdir(parents=True, exist_ok=False)
@@ -56,7 +56,7 @@ def run_model_bench(args: dict[str, Any], tokenizer: Any = None, model: Any = No
 
         model_args = args['model']
         model_args['config_type'] = "model"
-        if model_not_loaded_prev: 
+        if model_not_passed: 
             tokenizer, model = model_factory(model_args)
 
         bench_args = args['bench']
@@ -72,7 +72,7 @@ def run_model_bench(args: dict[str, Any], tokenizer: Any = None, model: Any = No
         save_json(collect_environment(), output_dir / "env.json")
 
         res = bench.eval(tokenizer, model, output_dir)
-        if model_not_loaded_prev:
+        if model_not_passed:
             del tokenizer, model
             gc.collect()
             torch.cuda.empty_cache()
@@ -110,6 +110,7 @@ def run_model_bench_matrix(args: dict[str, Any]):
 
         # dispatch all works
         for model_args in model_args_ls:
+        
             print(" >>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Loading Model >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> ")
             tokenizer, model = model_factory(model_args)
             model_args = model_args.copy()
@@ -132,4 +133,4 @@ def run_model_bench_matrix(args: dict[str, Any]):
                 run_model_bench(model_bench_config, tokenizer, model)
             del tokenizer, model  
             gc.collect()
-            torch.cuda.empty_cache()          
+            torch.cuda.empty_cache()  
