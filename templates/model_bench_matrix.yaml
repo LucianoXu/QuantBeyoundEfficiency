@@ -14,12 +14,13 @@ models:
     model_name : Qwen/Qwen3-1.7B
     quant_type : int8
     device_map : auto
-
+    
 benches:
   - id : GSM8K
     bench_name : GSM8K
     num_fewshot : 1
     batch_size : 2
     max_length : 512
-    limit : 5
+    limit : 1
     log_samples : true
+

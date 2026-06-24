@@ -1,5 +1,7 @@
 from typing import Any
 from pathlib import Path
+import torch
+import gc
 
 from .utils import (
     load_yaml_config,
@@ -13,6 +15,7 @@ from .utils import (
 from .models.factory import model_factory
 from .benches.factory import bench_factory
 
+
 def run(args: dict[str, Any] | str | Path) -> Any:
 
     print(" >> Experiment Top-level")
@@ -25,13 +28,13 @@ def run(args: dict[str, Any] | str | Path) -> Any:
     if args["config_type"] == "model":
         return model_factory(args)
     
-    if args["config_type"] == "bench":
+    elif args["config_type"] == "bench":
         return bench_factory(args)
     
-    if args["config_type"] == "model_bench":
+    elif args["config_type"] == "model_bench":
         return run_model_bench(args)
     
-    if args["config_type"] == "model_bench_matrix":
+    elif args["config_type"] == "model_bench_matrix":
         return run_model_bench_matrix(args)
     
     else:
@@ -39,7 +42,7 @@ def run(args: dict[str, Any] | str | Path) -> Any:
 
 
 def run_model_bench(args: dict[str, Any], tokenizer: Any = None, model: Any = None):
-
+    model_not_loaded = model is None or tokenizer is None
     output_dir = Path(args['output_dir'])
     # create a folder, and raise an error if it already exists
     output_dir.mkdir(parents=True, exist_ok=False)
@@ -53,7 +56,7 @@ def run_model_bench(args: dict[str, Any], tokenizer: Any = None, model: Any = No
 
         model_args = args['model']
         model_args['config_type'] = "model"
-        if model is None or tokenizer is None: 
+        if model_not_loaded: 
             tokenizer, model = model_factory(model_args)
 
         bench_args = args['bench']
@@ -69,6 +72,10 @@ def run_model_bench(args: dict[str, Any], tokenizer: Any = None, model: Any = No
         save_json(collect_environment(), output_dir / "env.json")
 
         res = bench.eval(tokenizer, model, output_dir)
+        if model_not_loaded:
+            del tokenizer, model
+            gc.collect()
+            torch.cuda.empty_cache()
 
     return res
 
@@ -103,14 +110,14 @@ def run_model_bench_matrix(args: dict[str, Any]):
 
         # dispatch all works
         for model_args in model_args_ls:
-
+            print(" >>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Loading Model >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> ")
             tokenizer, model = model_factory(model_args)
             model_args = model_args.copy()
             model_id = model_args["id"]
             del model_args["id"]
 
             for bench_args in bench_args_ls:
-
+                print(" >>>>>>>>>>>>>>>>>>>>>>>>>> Loading Benchmark >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> ")
                 bench_args = bench_args.copy()
                 bench_id = bench_args["id"]
                 del bench_args["id"]
@@ -122,5 +129,7 @@ def run_model_bench_matrix(args: dict[str, Any]):
                     "model" : model_args,
                     "bench" : bench_args
                 }
-
                 run_model_bench(model_bench_config, tokenizer, model)
+            del tokenizer, model  
+            gc.collect()
+            torch.cuda.empty_cache()          
