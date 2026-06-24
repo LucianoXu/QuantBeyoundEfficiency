@@ -92,30 +92,36 @@ def run_model_bench_matrix(args: dict[str, Any]):
         seed_everything(args['random_seed'])
 
         model_args_ls = args['models']
-        bench_args_ls = args['benches']
 
         # record the environment for the matrix root (each pair also gets its own)
         save_json(collect_environment(), output_dir / "env.json")
 
         # check whether all model ids and bench ids are unique
         model_ids = [m["id"] for m in model_args_ls]
-        bench_ids = [b["id"] for b in bench_args_ls]
-        for kind, ids in (("model", model_ids), ("bench", bench_ids)):
-            duplicates = sorted({i for i in ids if ids.count(i) > 1})
-            if duplicates:
-                raise ValueError(
-                    f"Duplicate {kind} id(s) {duplicates}: each {kind} id must be unique "
-                    f"(ids form the per-run output folder name '<model_id>-<bench_id>')."
-                )
+        model_duplicates = sorted({i for i in model_ids if model_ids.count(i) > 1})
+        if model_duplicates:
+            raise ValueError(
+                f"Duplicate model id(s) {model_duplicates}: each model id must be unique "
+                f"(ids form the per-run output folder name '<model_id>-<bench_id>')."
+            )
 
         # dispatch all works
         for model_args in model_args_ls:
-        
-            print(" >>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Loading Model >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> ")
-            tokenizer, model = model_factory(model_args)
             model_args = model_args.copy()
             model_id = model_args["id"]
-            del model_args["id"]
+            bench_args_ls = model_args.pop("benches")
+
+            # check whether all model ids and bench ids are unique
+            bench_ids = [b["id"] for b in bench_args_ls]
+            bench_duplicates = sorted({i for i in bench_ids if bench_ids.count(i) > 1})
+            if bench_duplicates:
+                raise ValueError(
+                    f"Duplicate bench id(s) {bench_duplicates} from model {model_id}: each bench id under a model must be unique "
+                )
+
+            print(" >>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Loading Model >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> ")
+            tokenizer, model = model_factory(model_args)
+
 
             for bench_args in bench_args_ls:
                 print(" >>>>>>>>>>>>>>>>>>>>>>>>>> Loading Benchmark >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> ")
