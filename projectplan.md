@@ -37,7 +37,10 @@ If such a gap exists, this would support the current belief that many model prov
  
 # Plan: 
 **First Week:** 
-* Each picks one eval detail
+Larger goal: Build up a base of benchmarks largely avaliable in the eval harness and create our Minimal Viable Product in the first week.
+Perform a broad range of benchmarks to avoid risk of accidental cherrypicking. First a benchmark for standard performance, then multiple benchmarks for different types of largely unexplored or underexplored topics => It could be a good idea to benchmark an equal amount in both types. To answer the research question 2 we can also perform benchmarks with int4 to observe if the gap between the standard inference and unexplored benchmark increases. The idea was that more common benchmarks are more likely to be finetuned on common performance benchmarks. If that was the case, then we could notice a gap increase between int4 and int8 compared to int8 and bf16. Maybe the "memorized" performance benchmark knowledge would be more stable to the higher degradation than other benchmarks. 
+
+Each picks one eval detail
 	* Research details
 	* how do models perform
 	* existing research on this method?
