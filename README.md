@@ -47,7 +47,9 @@
 [ ] Solve Issues: 
   => Model should be deleted from vram once the full benchmark run is finished, if used with jupyter notebook the model stays on memory
   => If one model multiple runs => Model gets unnessesarily reloaded after every run
+  
 [ ] Central board for benchmarks needed
+
 [ ] Each member picks one eval detail
 
     Research details
@@ -56,6 +58,7 @@
     anything related to quantization
 
 [ ] Write the code for the each eval based on existing pipeline => Same seed, same model, config,
+
 [ ] Perform smoke test on own hardware
 
 [ ] Each member needs to implement own 
