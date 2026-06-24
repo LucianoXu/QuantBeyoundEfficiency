@@ -61,6 +61,6 @@
 
 [ ] Perform smoke test on own hardware
 
-[ ] Each member needs to implement own 
 [ ] Refine the scope.
+
 [ ] Current interface may need adoption for interpretability analysis.
