@@ -6,12 +6,12 @@ output_dir: trials/smoke_test/model_bench_matrix
 
 models:
   - id : Qwen3
-    model_name : Qwen/Qwen3-4B
+    model_name : Qwen/Qwen3-1.7B
     quant_type : bf16
     device_map : auto
 
   - id : Qwen3_INT8
-    model_name : Qwen/Qwen3-4B
+    model_name : Qwen/Qwen3-1.7B
     quant_type : int8
     device_map : auto
 

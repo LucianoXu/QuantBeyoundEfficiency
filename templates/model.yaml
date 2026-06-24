@@ -1,6 +1,6 @@
 config_type: model
 
-model_name : Qwen/Qwen3-4B
+model_name : Qwen/Qwen3-1.7B
 
 # bf16 | int8 | nf4
 quant_type : bf16

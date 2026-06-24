@@ -5,7 +5,7 @@ random_seed: 44
 output_dir: trials/smoke_test/model_bench
 
 model:
-  model_name : Qwen/Qwen3-4B
+  model_name : Qwen/Qwen3-1.7B
   quant_type : bf16
   device_map : auto
 
