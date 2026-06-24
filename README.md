@@ -46,7 +46,10 @@
 ## TODOS
 [ ] Solve Issues: 
   => Model should be deleted from vram once the full benchmark run is finished, if used with jupyter notebook the model stays on memory
-  => If one model multiple runs => Model gets unnessesarily reloaded after every run
+  
+  => If one model multiple runs 
+  
+  => Model gets unnecessarily reloaded after every run
   
 [ ] Central board for benchmarks needed
 
