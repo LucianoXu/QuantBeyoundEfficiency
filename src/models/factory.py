@@ -16,7 +16,8 @@ def model_factory(model_args: dict[str, Any] | str | Path) -> tuple[PreTrainedTo
 
     if model_args["model_name"] == "Qwen/Qwen3-4B":
         return HF_standard_model_factory(model_args)
-    
+    elif model_args["model_name"] == "Qwen/Qwen3-1.7B":
+        return HF_standard_model_factory(model_args)
     else:
         raise ValueError("Invalid Model Name: ", model_args["model_name"])
     
@@ -26,7 +27,6 @@ def HF_standard_model_factory(model_args: dict[str, Any]) -> tuple[PreTrainedTok
     model_name = model_args["model_name"]
     quant_type = model_args["quant_type"]
 
-    # decide the quantization
     if quant_type == "bf16":
         quant_config = None
 
