@@ -6,6 +6,9 @@ Standard benchmarks such as accuracy in GSM8K have been well studied. The impact
 **RQ2:** Does the gap between commonly known pure performance benchmarks and benchmarks that test more edge cases/subtle behaviour change while comparing the different quantization methods? 
 If such a gap exists, this would support the current belief that many model providers are specifically training models to perform better on commonly used datasets. 
 
+# Background
+This paper supports the hypothesis that safety evals show less robustness than utility evals for quantization. In Section 3.2 this is shown. 
+https://openreview.net/pdf?id=jywq7qJLt5
 
 # Initial tests
 
