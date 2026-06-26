@@ -18,6 +18,18 @@ class Bench(ABC):
              output_dir: Path) -> dict[str, Any]:
         ...
 
+LM_EVAL_TASKS: dict[str, str] = {
+    "GSM8K": "gsm8k",
+    "MMLU": "mmlu",
+    "MMLU-Pro": "mmlu_pro",
+    "HellaSwag": "hellaswag",
+    "ARC": "arc_challenge",
+    "TruthfulQA": "truthfulqa_mc2",
+    "BBH": "bbh",
+    "MATH": "minerva_math",
+    "HumanEval": "humaneval",
+}
+
 
 def bench_factory(bench_args: dict[str, Any] | str | Path) -> Bench:
 
@@ -27,11 +39,12 @@ def bench_factory(bench_args: dict[str, Any] | str | Path) -> Bench:
     if isinstance(bench_args, (str, Path)):
         bench_args = load_yaml_config(bench_args)
 
-    if bench_args["bench_name"] == "GSM8K":
-        return LM_EVAL(bench_args, "gsm8k")
+    bench_name = bench_args["bench_name"]
+    if bench_name in LM_EVAL_TASKS:
+        return LM_EVAL(bench_args, LM_EVAL_TASKS[bench_name])
 
     else:
-        raise ValueError("Invalid Benchmark Name: ", bench_args["bench_name"])
+        raise ValueError("Invalid Benchmark Name: ", bench_name)
     
 
 class LM_EVAL(Bench):
@@ -67,6 +80,7 @@ class LM_EVAL(Bench):
             num_fewshot=self.bench_args.get("num_fewshot"),
             limit=self.bench_args.get("limit"),
             log_samples=log_samples,
+            confirm_run_unsafe_code=True,   # For HumanEval to execute python code on evaluation
             random_seed=seed,
             numpy_random_seed=seed,
             torch_random_seed=seed,
