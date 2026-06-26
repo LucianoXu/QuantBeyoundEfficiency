@@ -1,4 +1,4 @@
-[Projectplan] SEE WIKI | [Devlog](./devlog.md)
+[Report] SEE WIKI | [Devlog](./devlog.md)
 
 # Quant Beyound Efficiency
 
