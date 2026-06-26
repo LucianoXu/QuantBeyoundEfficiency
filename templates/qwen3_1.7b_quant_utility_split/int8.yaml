@@ -1,0 +1,66 @@
+config_type: model_bench_matrix
+
+random_seed: 44
+
+output_dir: trials/utility_matrix_qwen3_1.7b/int8
+
+models:
+  - id: Qwen3-1.7B-int8
+    model_name: Qwen/Qwen3-1.7B
+    quant_type: int8
+    device_map: auto
+    benches:
+      - id: GSM8K
+        bench_name: GSM8K
+        num_fewshot: 5
+        batch_size: auto
+        max_length: 4096
+        limit: 100
+        log_samples: true
+      - id: MMLU
+        bench_name: MMLU
+        num_fewshot: 5
+        batch_size: auto
+        max_length: 4096
+        limit: 25          # per-subtask x 57 subtasks
+        log_samples: true
+      - id: MMLU-Pro
+        bench_name: MMLU-Pro
+        num_fewshot: 5
+        batch_size: auto
+        max_length: 4096
+        limit: 25          # per-subtask
+        log_samples: true
+      - id: HellaSwag
+        bench_name: HellaSwag
+        num_fewshot: 10
+        batch_size: auto
+        max_length: 4096
+        limit: 100
+        log_samples: true
+      - id: ARC
+        bench_name: ARC
+        num_fewshot: 25
+        batch_size: auto
+        max_length: 4096
+        limit: 100
+        log_samples: true
+      - id: TruthfulQA
+        bench_name: TruthfulQA
+        num_fewshot: 0
+        batch_size: auto
+        max_length: 4096
+        limit: 100
+        log_samples: true
+      - id: BBH
+        bench_name: BBH
+        batch_size: auto
+        max_length: 4096
+        limit: 20          # per-subtask in 27 subtasks
+        log_samples: true
+      - id: MATH
+        bench_name: MATH
+        batch_size: auto
+        max_length: 4096
+        limit: 50          # per-subtask
+        log_samples: true

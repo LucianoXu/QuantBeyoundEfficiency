@@ -1,6 +1,6 @@
 # Benchmarking harness (pulls in transformers/torch/accelerate/numpy transitively,
 # but we pin the ones we import directly below for reproducibility).
-lm_eval[hf]==0.4.12
+lm_eval[hf,math]==0.4.12
 
 # Model loading and quantization
 transformers==5.12.1

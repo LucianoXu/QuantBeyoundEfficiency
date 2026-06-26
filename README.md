@@ -17,6 +17,7 @@
 - `results/`: important experiment results (tracked)
 - `trials/`: intermediate experiment results (gitignored)
 - `src/`: python source files
+- `scripts/`: script files for all jobs
 - `templates/`: task configuration templates
 - `.env`: environment variable configuration (gitignored)
 - `devlog.md`: development and progress log
