@@ -5,19 +5,6 @@ random_seed: 44
 output_dir: trials/smoke_test/model_bench_matrix
 
 models:
-  - id : Qwen3
-    model_name : Qwen/Qwen3-1.7B
-    quant_type : bf16
-    device_map : auto
-    benches:
-      - id: GSM8K
-        bench_name: GSM8K
-        num_fewshot: 1
-        batch_size: 2
-        max_length: 512
-        limit: 2
-        log_samples: true
-
   - id : Qwen3_INT8
     model_name : Qwen/Qwen3-1.7B
     quant_type : int8
@@ -26,7 +13,7 @@ models:
       - id: GSM8K
         bench_name: GSM8K
         num_fewshot: 1
-        batch_size: 2
+        batch_size: 32
         max_length: 512
-        limit: 2
+        limit: null
         log_samples: true
