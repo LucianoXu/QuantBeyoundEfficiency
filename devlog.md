@@ -1,3 +1,12 @@
+## June 27
+
+Yingte:
+
+SORRY-Bench implemented and tested on Qwen3-1.7B bf16/int8/nf4. Minor degrade in jailbreak refusal observaed for int8 quantization.
+
+Raw data of two experiments synced in git.
+
+
 ## June 26
 
 Yingte: 
