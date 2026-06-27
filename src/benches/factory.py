@@ -28,6 +28,10 @@ LM_EVAL_TASKS: dict[str, str] = {
     "BBH": "bbh",
     "MATH": "minerva_math",
     "HumanEval": "humaneval",
+    "eq_bench": "eq_bench",
+    "hendrycks_ethics": "hendrycks_ethics",
+    "toxigen": "toxigen",
+
 }
 
 

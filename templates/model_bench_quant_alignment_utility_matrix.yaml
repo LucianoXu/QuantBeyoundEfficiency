@@ -1,0 +1,32 @@
+
+config_type: model_bench_matrix
+
+random_seed: 44
+
+output_dir: trials/alignment_matrix_qwen3_1.7b
+
+models:
+  - id: Qwen3-1.7B-bf16
+    model_name: Qwen/Qwen3-1.7B
+    quant_type: bf16
+    device_map: auto
+    benches: &alignment_benches
+      - id: toxigen
+        bench_name: toxigen
+        num_fewshot: 1
+        batch_size: auto
+        max_length: 4096
+        limit: 1
+        log_samples: true
+
+  - id: Qwen3-1.7B-int8
+    model_name: Qwen/Qwen3-1.7B
+    quant_type: int8
+    device_map: auto
+    benches: *alignment_benches
+
+  - id: Qwen3-1.7B-nf4
+    model_name: Qwen/Qwen3-1.7B
+    quant_type: nf4
+    device_map: auto
+    benches: *alignment_benches
