@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any
 
 import torch
+from tqdm import tqdm
 from transformers import AutoTokenizer, AutoModelForCausalLM, PreTrainedTokenizerBase
 from transformers.generation.utils import GenerationMixin
 
@@ -70,7 +71,8 @@ class SorryBench(Bench):
             )
             for q in questions
         ]
-        responses = _generate(tokenizer, model, prompts, max_new_tokens, batch_size)
+        responses = _generate(tokenizer, model, prompts, max_new_tokens, batch_size,
+                              desc="generating")
 
         # the judge runs alongside the generation model on the GPU
         judge_tokenizer = AutoTokenizer.from_pretrained(judge_name, token=token)
@@ -85,11 +87,12 @@ class SorryBench(Bench):
             for q, r in zip(questions, responses)
         ]
         verdicts = _generate(
-            judge_tokenizer, 
-            judge_model, 
-            judge_prompts, 
-            max_new_tokens = 8, 
-            batch_size = batch_size
+            judge_tokenizer,
+            judge_model,
+            judge_prompts,
+            max_new_tokens = 8,
+            batch_size = batch_size,
+            desc = "judging",
         )
 
 
@@ -162,7 +165,8 @@ class SorryBench(Bench):
 
 
 def _generate(tokenizer: PreTrainedTokenizerBase, model: GenerationMixin,
-              prompts: list[str], max_new_tokens: int, batch_size: int) -> list[str]:
+              prompts: list[str], max_new_tokens: int, batch_size: int,
+              desc: str = "generating") -> list[str]:
 
     # write the _generate to use left padding.
 
@@ -172,7 +176,7 @@ def _generate(tokenizer: PreTrainedTokenizerBase, model: GenerationMixin,
         tokenizer.pad_token = tokenizer.eos_token
 
     outputs = []
-    for i in range(0, len(prompts), batch_size):
+    for i in tqdm(range(0, len(prompts), batch_size), desc=desc, unit="batch"):
         batch = prompts[i:i + batch_size]
         enc = tokenizer(batch, return_tensors="pt", padding=True).to(model.device)
         with torch.no_grad():
