@@ -18,6 +18,10 @@ def model_factory(model_args: dict[str, Any] | str | Path) -> tuple[PreTrainedTo
         return HF_standard_model_factory(model_args)
     elif model_args["model_name"] == "Qwen/Qwen3-1.7B":
         return HF_standard_model_factory(model_args)
+    elif model_args["model_name"] == "Qwen/Qwen3-0.6B":
+        return HF_standard_model_factory(model_args)
+    elif model_args["model_name"] == "tiny-random/qwen3":
+        return HF_standard_model_factory(model_args)
     else:
         raise ValueError("Invalid Model Name: ", model_args["model_name"])
     
