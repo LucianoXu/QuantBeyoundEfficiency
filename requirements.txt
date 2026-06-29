@@ -3,13 +3,14 @@
 lm_eval[hf,math]==0.4.12
 
 # Model loading and quantization
-transformers==5.12.1
+transformers==5.10.1
 torch==2.12.0
-accelerate==1.14.0        # required for device_map="auto"
+accelerate==1.13.0        # required for device_map="auto"
 bitsandbytes==0.49.2      # int8 / nf4 quantization (CUDA only)
 optimum-quanto==0.2.7
+llmcompressor==0.12.0     # AWQ (W4A16) calibration-based PTQ; CUDA/Linux only
 
 # Config, env, and seeding
 pyyaml==6.0.3
 python-dotenv==1.2.1
-numpy==1.26.4
+numpy==2.2.6
