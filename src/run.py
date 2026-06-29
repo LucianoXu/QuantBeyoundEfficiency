@@ -46,10 +46,9 @@ def run_model_bench(args: dict[str, Any], tokenizer: Any = None, model: Any = No
     output_dir = Path(args['output_dir'])
     # create a folder, and raise an error if it already exists
     output_dir.mkdir(parents=True, exist_ok=False)
-
+    res = None
     # mirror all console output of this run into output_dir/log.txt
     with tee_console(output_dir / "log.txt"):
-
         print(" >> Model-Benchmark Pair Experiment")
 
         seed_everything(args['random_seed'])
@@ -70,8 +69,10 @@ def run_model_bench(args: dict[str, Any], tokenizer: Any = None, model: Any = No
         # write the config and the environment snapshot to the folder
         save_yaml_config(args, output_dir / "config.yaml")
         save_json(collect_environment(), output_dir / "env.json")
-
-        res = bench.eval(tokenizer, model, output_dir)
+        try: 
+            res = bench.eval(tokenizer, model, output_dir)
+        except Exception as e: 
+            print(f" [ERROR] Benchmark '{args['bench']}' failed: {e}")
         if model_not_passed:
             del tokenizer, model
             gc.collect()

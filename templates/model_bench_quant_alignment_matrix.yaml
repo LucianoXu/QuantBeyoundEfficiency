@@ -1,9 +1,8 @@
-
 config_type: model_bench_matrix
 
 random_seed: 44
 
-output_dir: trials/crows_pairs_qwen3_1.7b
+output_dir: trials/alignment2_eval_qwen3_1.7b
 
 models:
   - id: Qwen3-1.7B-bf16
@@ -11,12 +10,36 @@ models:
     quant_type: bf16
     device_map: auto
     benches: &alignment_benches
-      - id: crows_pairs
-        bench_name: crows_pairs
-        num_fewshot: 1
+      - id: eq_bench
+        bench_name: eq_bench
+        num_fewshot: 5
         batch_size: auto
         max_length: 4096
-        limit: null
+        limit: 100
+        log_samples: true
+
+      - id: simple_cooccurrence_bias
+        bench_name: simple_cooccurrence_bias
+        num_fewshot: 5
+        batch_size: auto
+        max_length: 4096
+        limit: 100
+        log_samples: true
+
+      - id: toxigen
+        bench_name: toxigen
+        num_fewshot: 5
+        batch_size: auto
+        max_length: 4096
+        limit: 1000
+        log_samples: true
+
+      - id: truthfulqa
+        bench_name: truthfulqa
+        num_fewshot: 5
+        batch_size: auto
+        max_length: 4096
+        limit: 100
         log_samples: true
 
 

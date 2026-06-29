@@ -19,6 +19,7 @@ class Bench(ABC):
         ...
 
 LM_EVAL_TASKS: dict[str, str] = {
+    # Original benchmarks
     "GSM8K": "gsm8k",
     "MMLU": "mmlu",
     "MMLU-Pro": "mmlu_pro",
@@ -28,12 +29,30 @@ LM_EVAL_TASKS: dict[str, str] = {
     "BBH": "bbh",
     "MATH": "minerva_math",
     "HumanEval": "humaneval",
+    
+    # Alignment, Safety, and Bias additions
+    "bbq": "bbq",
+    "cabbq": "cabbq",
+    "esbbq": "esbbq",
+    "crows_pairs": "crows_pairs",
+    "discrim_eval": "discrim_eval",
     "eq_bench": "eq_bench",
+    "eq-bench_es": "eq_bench_es",
+    "eq-bench_ca": "eq_bench_ca",
     "hendrycks_ethics": "hendrycks_ethics",
+    "histoires_morales": "histoires_morales",
+    "moral_stories": "moral_stories",
+    "model_written_evals": "model_written_evals",
+    "prost": "prost",
+    "realtoxicityprompts": "realtoxicityprompts",
+    "simple_cooccurrence_bias": "simple_cooccurrence_bias",
     "toxigen": "toxigen",
-
+    "truthfulqa": "truthfulqa_mc2",
+    "truthfulqa-multi": "truthfulqa_multilingual",
+    "okapi_truthfulqa_multilingual": "okapi/truthfulqa_multilingual",
+    "winogender": "winogender",
+    "wmdp": "wmdp",  # Maps to the broad 'wmdp' suite in lm-eval
 }
-
 
 def bench_factory(bench_args: dict[str, Any] | str | Path) -> Bench:
 
