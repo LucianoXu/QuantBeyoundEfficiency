@@ -43,6 +43,10 @@ def bench_factory(bench_args: dict[str, Any] | str | Path) -> Bench:
     if bench_name in LM_EVAL_TASKS:
         return LM_EVAL(bench_args, LM_EVAL_TASKS[bench_name])
 
+    elif bench_name == "SORRY-Bench":
+        from .sorry_bench import SorryBench
+        return SorryBench(bench_args)
+
     else:
         raise ValueError("Invalid Benchmark Name: ", bench_name)
     
