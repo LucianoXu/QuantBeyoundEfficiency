@@ -19,15 +19,9 @@ def model_factory(model_args: dict[str, Any] | str | Path) -> tuple[PreTrainedTo
         model_args = load_yaml_config(model_args)
 
     model_name = model_args["model_name"]
-    quant_type = model_args["quant_type"]
 
     if model_name not in SUPPORTED_MODELS: 
         raise ValueError("Invalid Model Name: ", model_name)
-
-    if quant_type == "awq":
-        if not model_name in AWQ_MODEL_MAP:
-            raise ValueError("No AWQ Model specified for: ", model_name)
-        model_args["model_name"] = AWQ_MODEL_MAP[model_name]
 
     return HF_standard_model_factory(model_args)
     
