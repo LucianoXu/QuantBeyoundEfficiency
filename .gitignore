@@ -150,3 +150,7 @@ Thumbs.db
 # Generated experiment outputs
 trials/
 offload/
+
+# benchmark log and samples
+results/**/samples_*.jsonl
+results/**/log.txt
