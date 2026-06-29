@@ -7,10 +7,6 @@ from transformers.generation.utils import GenerationMixin
 
 from ..utils import load_yaml_config
 
-AWQ_MODEL_MAP = {
-    "Qwen/Qwen3-1.7B": "Orion-zhen/Qwen3-1.7B-AWQ"
-}
-
 SUPPORTED_MODELS = {
     "Qwen/Qwen3-4B", 
     "Qwen/Qwen3-1.7B", 
@@ -61,6 +57,8 @@ def HF_standard_model_factory(model_args: dict[str, Any]) -> tuple[PreTrainedTok
         quant_config = QuantoConfig(weights='int2')
     else:
         raise ValueError("Invalid quantization type.")
+
+    #TODO load llmcompressor, and quantize the model if awq is chosen
 
     tokenizer = AutoTokenizer.from_pretrained(model_name)
     model = AutoModelForCausalLM.from_pretrained(
