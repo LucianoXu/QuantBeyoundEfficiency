@@ -1,0 +1,74 @@
+config_type: model_bench_matrix
+random_seed: 44
+output_dir: trials/qwen3_1.7b_quant_bench_matrix_0629/int8
+models:
+- id: Qwen3-1.7B-int8
+  model_name: Qwen/Qwen3-1.7B
+  quant_type: int8
+  device_map: auto
+  benches:
+  - id: GSM8K
+    bench_name: GSM8K
+    num_fewshot: 0
+    batch_size: auto
+    max_length: 4096
+    limit: 100
+    log_samples: true
+  - id: MMLU
+    bench_name: MMLU
+    num_fewshot: 0
+    batch_size: auto
+    max_length: 4096
+    limit: 25
+    log_samples: true
+  - id: MMLU-Pro
+    bench_name: MMLU-Pro
+    num_fewshot: 0
+    batch_size: auto
+    max_length: 4096
+    limit: 25
+    log_samples: true
+  - id: HellaSwag
+    bench_name: HellaSwag
+    num_fewshot: 0
+    batch_size: auto
+    max_length: 4096
+    limit: 100
+    log_samples: true
+  - id: ARC
+    bench_name: ARC
+    num_fewshot: 0
+    batch_size: auto
+    max_length: 4096
+    limit: 100
+    log_samples: true
+  - id: TruthfulQA
+    bench_name: TruthfulQA
+    num_fewshot: 0
+    batch_size: auto
+    max_length: 4096
+    limit: 100
+    log_samples: true
+  - id: BBH
+    bench_name: BBH
+    num_fewshot: 0
+    batch_size: auto
+    max_length: 4096
+    limit: 20
+    log_samples: true
+  - id: MATH
+    bench_name: MATH
+    num_fewshot: 0
+    batch_size: auto
+    max_length: 4096
+    limit: 50
+    log_samples: true
+  - id: SORRY-Bench
+    bench_name: SORRY-Bench
+    prompt_style: base
+    judge_model: sorry-bench/ft-mistral-7b-instruct-v0.2-sorry-bench-202406
+    batch_size: 32
+    max_new_tokens: 512
+    chat_template_kwargs:
+      enable_thinking: false
+    log_samples: true
