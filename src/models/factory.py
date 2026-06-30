@@ -14,7 +14,7 @@ SUPPORTED_MODELS = {
     "Qwen/Qwen3-1.7B", 
 }
 
-def model_factory(model_args: dict[str, Any] | str | Path) -> tuple[PreTrainedTokenizerBase, GenerationMixin]:
+def model_factory(model_args: dict[str, Any] | str | Path, seed: int = None) -> tuple[PreTrainedTokenizerBase, GenerationMixin]:
     print(" >> Model Factory for", model_args)
 
     if isinstance(model_args, (str, Path)):
@@ -25,10 +25,10 @@ def model_factory(model_args: dict[str, Any] | str | Path) -> tuple[PreTrainedTo
     if model_name not in SUPPORTED_MODELS: 
         raise ValueError("Invalid Model Name: ", model_name)
 
-    return HF_standard_model_factory(model_args)
+    return HF_standard_model_factory(model_args, seed=seed)
     
 
-def HF_standard_model_factory(model_args: dict[str, Any]) -> tuple[PreTrainedTokenizerBase, GenerationMixin]:
+def HF_standard_model_factory(model_args: dict[str, Any], seed: int = None) -> tuple[PreTrainedTokenizerBase, GenerationMixin]:
 
     model_name = model_args["model_name"]
     quant_type = model_args["quant_type"]
@@ -53,7 +53,7 @@ def HF_standard_model_factory(model_args: dict[str, Any]) -> tuple[PreTrainedTok
         quant_config = QuantoConfig(weights='int2')
 
     elif quant_type == "awq-w4a16-asym":
-        return awq_model_factory(model_args, 'W4A16_ASYM')
+        return awq_model_factory(model_args, 'W4A16_ASYM',seed=seed)
 
     else:
         raise ValueError("Invalid quantization type.")

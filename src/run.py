@@ -26,7 +26,7 @@ def run(args: dict[str, Any] | str | Path) -> Any:
 
 
     if args["config_type"] == "model":
-        return model_factory(args)
+        return model_factory(args, seed=args.get("random_seed"))
     
     elif args["config_type"] == "bench":
         return bench_factory(args)
@@ -57,7 +57,7 @@ def run_model_bench(args: dict[str, Any], tokenizer: Any = None, model: Any = No
         model_args = args['model']
         model_args['config_type'] = "model"
         if model_not_passed: 
-            tokenizer, model = model_factory(model_args)
+            tokenizer, model = model_factory(model_args, seed=args['random_seed'])
 
         bench_args = args['bench']
         bench_args['config_type'] = "bench"
@@ -71,7 +71,12 @@ def run_model_bench(args: dict[str, Any], tokenizer: Any = None, model: Any = No
         save_yaml_config(args, output_dir / "config.yaml")
         save_json(collect_environment(), output_dir / "env.json")
 
-        res = bench.eval(tokenizer, model, output_dir)
+        res = None
+        try: 
+            res = bench.eval(tokenizer, model, output_dir)
+        except Exception as e: 
+            print(f"ERROR: Benchmark {bench_args} failed with error: {e}")
+
         if model_not_passed:
             del tokenizer, model
             gc.collect()
@@ -120,7 +125,7 @@ def run_model_bench_matrix(args: dict[str, Any]):
                 )
 
             print(" >>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Loading Model >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> ")
-            tokenizer, model = model_factory(model_args)
+            tokenizer, model = model_factory(model_args, seed=args['random_seed'])
 
 
             for bench_args in bench_args_ls:
@@ -139,4 +144,4 @@ def run_model_bench_matrix(args: dict[str, Any]):
                 run_model_bench(model_bench_config, tokenizer, model)
             del tokenizer, model  
             gc.collect()
-            torch.cuda.empty_cache()  
+            torch.cuda.empty_cache()
