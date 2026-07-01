@@ -5,6 +5,7 @@ import torch
 from transformers import PreTrainedTokenizerBase, AutoTokenizer, AutoModelForCausalLM
 from transformers.generation.utils import GenerationMixin
 
+DEFAULT_AWQ_SAVE_DIR= Path("./awq_calibration")
 
 def awq_checkpoint_ready(save_dir: Path) -> bool:
     return save_dir.is_dir() and (save_dir / "config.json").exists() and any(save_dir.glob("*.safetensors"))
@@ -13,7 +14,14 @@ def awq_checkpoint_ready(save_dir: Path) -> bool:
 def awq_model_factory(model_args: dict[str, Any], awq_scheme: str, seed: int) -> tuple[PreTrainedTokenizerBase, GenerationMixin]:
     model_name = model_args["model_name"]
     device_map = model_args["device_map"]
-    save_dir = Path(model_args["awq_save_dir"])
+
+    save_dir = model_args.get("awq_save_dir")
+    if not save_dir:
+        print(f"Could not find awq_save_dir for {model_name}")
+        print(f"Falling back the default directory {DEFAULT_AWQ_SAVE_DIR}")
+        save_dir = DEFAULT_AWQ_SAVE_DIR / model_name
+    else:
+        save_dir = Path(save_dir)
 
     tokenizer = AutoTokenizer.from_pretrained(model_name)
 
