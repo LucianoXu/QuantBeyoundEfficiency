@@ -28,7 +28,15 @@ LM_EVAL_TASKS: dict[str, str] = {
     "BBH": "bbh",
     "MATH": "minerva_math",
     "HumanEval": "humaneval",
+    "gpqa": "gpqa_main_n_shot",
+    "mgsm_direct": "mgsm_direct",
+    # built-in hendrycks_ethics is unusable under datasets>=5.0
+    "hendrycks_ethics": "hendrycks_ethics_local",
+    "bbq": "bbq",
 }
+
+# Local lm_eval task configs shipped with this repo (e.g. the script-free hendrycks_ethics).
+LM_EVAL_INCLUDE_PATH = str(Path(__file__).parent / "lm_eval_tasks")
 
 
 def bench_factory(bench_args: dict[str, Any] | str | Path) -> Bench:
@@ -64,12 +72,15 @@ class LM_EVAL(Bench):
         # surpress false positive typing errors
         from lm_eval import simple_evaluate as _simple_evaluate
         from lm_eval.models.huggingface import HFLM as _HFLM
+        from lm_eval.tasks import TaskManager as _TaskManager
         simple_evaluate: Any = _simple_evaluate
         HFLM: Any = _HFLM
 
+        # Make this repo's local task configs for script-free hendrycks_ethics
+        task_manager: Any = _TaskManager(include_path=LM_EVAL_INCLUDE_PATH)
+
         log_samples = self.bench_args.get("log_samples", True)
-        # single run-level seed drives all of lm_eval's internal RNGs, otherwise it
-        # falls back to its own defaults (0 / 1234) and ignores our global seeding.
+
         seed = self.bench_args.get("random_seed", 0)
 
         lm = HFLM(
@@ -81,6 +92,7 @@ class LM_EVAL(Bench):
         res = simple_evaluate(
             model=lm,
             tasks=self.bench_args.get("tasks", [self.task]),
+            task_manager=task_manager,
             num_fewshot=self.bench_args.get("num_fewshot"),
             limit=self.bench_args.get("limit"),
             log_samples=log_samples,
