@@ -1,3 +1,9 @@
+## July 2
+
+Yingte:
+
+We agreed on doing experiment1. The infrastructure for hendrycks_ethics_local is manually built. Experiments finished.
+
 ## June 27
 
 Yingte:

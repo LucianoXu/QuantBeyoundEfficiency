@@ -1,0 +1,104 @@
+config_type: model_bench_matrix
+
+random_seed: 44
+
+output_dir: trials/experiment_1_qwen3_1.7b
+
+models:
+  - id: Qwen3-1.7B-bf16
+    model_name: Qwen/Qwen3-1.7B
+    quant_type: bf16
+    device_map: auto
+    benches: &benchmarks
+    ##Utility
+      #General Tasks
+      - id: MMLU-Pro
+        bench_name: MMLU-Pro
+        num_fewshot: 5
+        batch_size: auto
+        max_length: 4096
+        limit: 25          # per-subtask x 57 subtasks
+        log_samples: true
+       #Math & STEM 
+      - id: gpqa 
+        bench_name: gpqa 
+        num_fewshot: 5
+        batch_size: 1
+        max_length: 4096
+        limit: 1         
+        log_samples: true
+
+        #Coding Tasks
+      - id: HumanEval 
+        bench_name: HumanEval 
+        num_fewshot: 5
+        batch_size: 1
+        max_length: 4096
+        limit: 1
+        log_samples: true
+
+        #Multilingual Tasks
+      - id: mgsm_direct 
+        bench_name: mgsm_direct 
+        num_fewshot: 5
+        batch_size: 1
+        max_length: 4096
+        limit: 1
+        log_samples: true
+    ##Alignment
+
+        #Ethics
+      - id: hendrycks_ethics
+        bench_name: hendrycks_ethics
+        num_fewshot: 5
+        batch_size: auto
+        max_length: 4096
+        limit: 1000
+        log_samples: true
+        
+        #Bias
+      - id: bbq 
+        bench_name: bbq 
+        num_fewshot: 5
+        batch_size: auto
+        max_length: 4096
+        limit: 1000
+        log_samples: true
+
+        #Truthfulness
+      - id: truthfulqa-multi
+        bench_name: truthfulqa-multi
+        num_fewshot: 5
+        batch_size: auto
+        max_length: 4096
+        limit: 1000
+        log_samples: true
+
+        #safety refusal
+      - id: SORRY-Bench
+        bench_name: SORRY-Bench
+        prompt_style: base    # 450 in total
+        judge_model: sorry-bench/ft-mistral-7b-instruct-v0.2-sorry-bench-202406
+        batch_size: 32
+        max_new_tokens: 512
+        chat_template_kwargs:
+          enable_thinking: false
+        log_samples: true
+
+  - id: Qwen3-1.7B-int8
+    model_name: Qwen/Qwen3-1.7B
+    quant_type: int8
+    device_map: auto
+    benches: *benchmarks
+
+  - id: Qwen3-1.7B-int4
+    model_name: Qwen/Qwen3-1.7B
+    quant_type: int4
+    device_map: auto
+    benches: *benchmarks
+
+  - id: Qwen3-1.7B-AWQ-W4A16-ASYM
+    model_name: Qwen/Qwen3-1.7B
+    quant_type: awq-w4a16-asym
+    device_map: auto
+    benches: *benchmarks

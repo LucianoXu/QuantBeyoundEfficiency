@@ -65,6 +65,4 @@ def HF_standard_model_factory(model_args: dict[str, Any], seed: int = None) -> t
         torch_dtype=torch.bfloat16,
         device_map=model_args["device_map"]
     )
-    if quant_type in ["int4", "int2"]:
-        model = torch.compile(model)
     return tokenizer, model
