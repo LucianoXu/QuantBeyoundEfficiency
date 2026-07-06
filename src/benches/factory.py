@@ -33,6 +33,8 @@ LM_EVAL_TASKS: dict[str, str] = {
     # built-in hendrycks_ethics is unusable under datasets>=5.0
     "hendrycks_ethics": "hendrycks_ethics_local",
     "bbq": "bbq",
+    "med_concepts_qa": "med_concepts_qa",
+    "crows_pairs_english": "crows_pairs_english"
 }
 
 # Local lm_eval task configs shipped with this repo (e.g. the script-free hendrycks_ethics).
@@ -69,7 +71,7 @@ class LM_EVAL(Bench):
         
         print(" >> Evaluating. Will output to", output_dir)
 
-        # surpress false positive typing errors
+        # supress false positive typing errors
         from lm_eval import simple_evaluate as _simple_evaluate
         from lm_eval.models.huggingface import HFLM as _HFLM
         from lm_eval.tasks import TaskManager as _TaskManager

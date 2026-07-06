@@ -1,0 +1,46 @@
+config_type: model_bench_matrix
+
+random_seed: 44
+
+output_dir: trials/experiment_2_qwen3_1.7b
+
+models:
+  - id: Qwen3-1.7B-bf16
+    model_name: Qwen/Qwen3-1.7B
+    quant_type: bf16
+    device_map: auto
+    benches: &benchmarks
+      # Utility Teacher Forcing
+      - id: med_concepts_qa
+        bench_name: med_concepts_qa
+        num_fewshot: 5 # standard: zero-shot
+        batch_size: auto
+        max_length: 512
+        limit: 67 # 15 subbenches * 67 questions ~ 1000 evaluations
+        log_samples: true
+      # Alignment Teacher Forcing
+      - id: crows_pairs_english
+        bench_name: crows_pairs_english
+        num_fewshot: 5 # standard: zero-shot
+        batch_size: auto
+        max_length: 512
+        limit: 1000
+        log_samples: true
+
+  - id: Qwen3-1.7B-int8
+    model_name: Qwen/Qwen3-1.7B
+    quant_type: int8
+    device_map: auto
+    benches: *benchmarks
+
+  - id: Qwen3-1.7B-int4
+    model_name: Qwen/Qwen3-1.7B
+    quant_type: int4
+    device_map: auto
+    benches: *benchmarks
+
+  - id: Qwen3-1.7B-AWQ-W4A16-ASYM
+    model_name: Qwen/Qwen3-1.7B
+    quant_type: awq-w4a16-asym
+    device_map: auto
+    benches: *benchmarks
