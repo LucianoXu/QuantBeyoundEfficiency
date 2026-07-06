@@ -1,5 +1,6 @@
 \documentclass{article}
 
+\PassOptionsToPackage{numbers,sort&compress}{natbib}
 \usepackage[final]{neurips_2019}
 
 \usepackage[utf8]{inputenc}
@@ -14,7 +15,7 @@
 \usepackage{xcolor}
 \usepackage{lipsum}
 
-\newcommand{\note}[1]{\textcolor{blue}{{#1}}}
+\newcommand{\yx}[1]{\textcolor{blue}{{[YX: #1]}}}
 
 \title{
   Quant Beyond Efficiency \\
@@ -44,68 +45,111 @@
 \maketitle
 
 \begin{abstract}
-An abstract should concisely (less than 300 words) motivate the problem, describe your aims, describe your contribution, and highlight your main finding(s).
+Quantization is a widely adopted technique that deploys machine learning models for efficient inference. A great number of research has been conducted to understand the gap between full and quantized models, including utilitarian and alignment aspects. \yx{citations}
+This work investigate the overlooked loopholes in evaluations of this gap. 
+We \yx{describe the experiments}
+Through matrix experiments and comparison, we discovered that alignment can degrade more severely than utility on quantized small models around 4B. \yx{need to confirm}
+Also, we successfully constructed universal adversarial suffix attacks that are benign for full model but jailbreak quantized models.
+The findings indicate that the gap between full and quantized models are broader, more sophisticated than previously believed. It is risky to assume that the performance and robustness can transfer from utility to alignment, or from full models to quantized models.
+
+% During quantization, same utility does not transfer to same alignment, and the robustness of full models does not transfer to quantized models.
 \end{abstract}
 
 
-\section{Key Information to include}
-\begin{itemize}
-    \item Mentor:
-    \item External Collaborators (if you have any):
-    \item Sharing project:
-\end{itemize}
-
-% {\color{red} This template does not contain the full instruction set for this assignment; please refer back to the milestone instructions PDF.}
-
 \section{Introduction}
-The introduction explains the problem, why it's difficult, interesting, or important, how and why current methods succeed/fail at the problem, and explains the key ideas of your approach and results. Though an introduction covers similar material as an abstract, the introduction gives more space for motivation, detail, references to existing work, and to capture the reader's interest.
 
-\section{Related Work}
-This section helps the reader understand the research context of your work by providing an overview of existing work in the area.
+Since quantizations work by approximating the model of full precision, it seems to be reasonable to assume that the model abilities in all aspects also change consistently.
 
-\section{Approach}
-This section details your approach(es) to the problem.
-For example, this is where you describe the architecture of your neural network(s), and any other key methods or algorithms.
+\section{Backgrounds and Related Work}
 
-\section{Experiments}
-This section contains the following.
+\section{Benchmarking Utility and Alignment}
 
-\subsection{Data}
-Describe the dataset(s) you are using (provide references). If it's not already clear, make sure the associated task is clearly described.
-Being precise about the exact form of the input and output can be very useful for readers attempting to understand your work, especially if you've defined your own task.
+\section{Quantization-Aware Adversarial Suffix Attack}
 
-\subsection{Evaluation method}
-Describe the evaluation metric(s) you use, plus any other details necessary to understand your evaluation.
-Some projects will have clear metrics from prior work on given datasets, but we realize that other projects will define their own metrics.
-If you're defining your own metrics, be clear as to what you're hoping to measure with each evaluation method (whether quantitative or qualitative, automatic or human-defined!), and how it's defined.
+The matrix study on benchmarks shows the performance difference of full and quantized models in their usage of the intended scenario.
+But when deployed in real-world applications, models are also exposed to malicious adversaries that try mount attacks in unexpected ways.
+Therefore, the static evaluations of the models against benchmarks are not sufficient to guarantee their safety. There can still be vulnerabilities that adversaries can utilize. 
 
-\subsection{Experimental details}
-Report how you ran your experiments (e.g., model configurations, learning rate, training time, etc.)
+During the deployment of quantized models, the vulnerabilities against attacks are easily overlooked.
+People tend to assume that the robustness of full models will transfer to the quantized ones, but it does not hold in general.
 
-\subsection{Results}
-Report the quantitative results that you have found. Use a table or plot to compare results and compare against baselines.
+This section introduces our novel discovery of quantization-aware adversarial suffix attacks.
+This technique combines two concepts:
 \begin{itemize}
-    \item If you're a default project team, you should \textbf{report the accuracy and Pearson correlation scores you obtained on the test leaderboard} in this section. You can also report dev set results if you'd like.
-    \item Comment on your quantitative results. Are they what you expected? Better than you expected? Worse than you expected? Why do you think that is? What does that tell you about your approach?
+  \item \textbf{Adversarial suffix attacks} try to find prompt suffix that jailbreaks the model to induce misaligned generations. Zou et al.~\cite{GCG} reported universal adversarial suffixes that jailbreaks the open source Vicuna-7B models, and the same attack suffixes even generalize to work on closed-source models including GPT-3.5. Later works~\cite{Faster-GCG,I-GCG} improve the efficiency of finding the adversarial suffix.
+  \item \textbf{Quantization-aware attacks} refer to the utilization of difference between full and quantized models. Researchers from ETH Zürich~\cite{QCB} first reported the technique to train a model that is benign in full precision, but misaligned after quantization.
 \end{itemize}
 
-\section{Analysis}
-Your report should include \textit{qualitative evaluation}. That is, try to understand your system (e.g., how it works, when it succeeds and when it fails) by inspecting key characteristics or outputs of your model.
+Quantization-aware attacks sharply demonstrate the risk of the gap between full and quantized models.
+The robustness of full-model does not necessary transfer, and worse still, it can even be maliciously utilized to mount a supply-chain attack. On the other hand, the suffix attacks have a more practical adversary model: it works on commonly used open source models, and the suffixes are generic to a certain extent. The question 
 
 \section{Conclusion}
-Summarize the main findings of your project and what you have learned. Highlight your achievements, and note the primary limitations of your work. If you'd like, you can describe avenues for future work.
 
-\section{Ethics Statement}
-What are the ethical challenges and possible societal risks of your project, and
-what are mitigation strategies?
+% quantization awared attacks
 
-\bibliographystyle{acl_natbib}
+% \section{Key Information to include}
+% \begin{itemize}
+%     \item Mentor:
+%     \item External Collaborators (if you have any):
+%     \item Sharing project:
+% \end{itemize}
+
+% % {\color{red} This template does not contain the full instruction set for this assignment; please refer back to the milestone instructions PDF.}
+
+% \section{Introduction}
+% The introduction explains the problem, why it's difficult, interesting, or important, how and why current methods succeed/fail at the problem, and explains the key ideas of your approach and results. Though an introduction covers similar material as an abstract, the introduction gives more space for motivation, detail, references to existing work, and to capture the reader's interest.
+
+% \section{Related Work}
+% This section helps the reader understand the research context of your work by providing an overview of existing work in the area.
+
+% \section{Approach}
+% This section details your approach(es) to the problem.
+% For example, this is where you describe the architecture of your neural network(s), and any other key methods or algorithms.
+
+% \section{Experiments}
+% This section contains the following.
+
+% \subsection{Data}
+% Describe the dataset(s) you are using (provide references). If it's not already clear, make sure the associated task is clearly described.
+% Being precise about the exact form of the input and output can be very useful for readers attempting to understand your work, especially if you've defined your own task.
+
+% \subsection{Evaluation method}
+% Describe the evaluation metric(s) you use, plus any other details necessary to understand your evaluation.
+% Some projects will have clear metrics from prior work on given datasets, but we realize that other projects will define their own metrics.
+% If you're defining your own metrics, be clear as to what you're hoping to measure with each evaluation method (whether quantitative or qualitative, automatic or human-defined!), and how it's defined.
+
+% \subsection{Experimental details}
+% Report how you ran your experiments (e.g., model configurations, learning rate, training time, etc.)
+
+% \subsection{Results}
+% Report the quantitative results that you have found. Use a table or plot to compare results and compare against baselines.
+% \begin{itemize}
+%     \item If you're a default project team, you should \textbf{report the accuracy and Pearson correlation scores you obtained on the test leaderboard} in this section. You can also report dev set results if you'd like.
+%     \item Comment on your quantitative results. Are they what you expected? Better than you expected? Worse than you expected? Why do you think that is? What does that tell you about your approach?
+% \end{itemize}
+
+% \section{Analysis}
+% Your report should include \textit{qualitative evaluation}. That is, try to understand your system (e.g., how it works, when it succeeds and when it fails) by inspecting key characteristics or outputs of your model.
+
+% \section{Conclusion}
+% Summarize the main findings of your project and what you have learned. Highlight your achievements, and note the primary limitations of your work. If you'd like, you can describe avenues for future work.
+
+% \section{Ethics Statement}
+% What are the ethical challenges and possible societal risks of your project, and
+% what are mitigation strategies?
+
+% \bibliographystyle{acl_natbib}
+% \bibliography{references}
+
+% \appendix
+
+% \section{Appendix (optional)}
+% If you wish, you can include an appendix, which should be part of the main PDF, and does not count towards the 6-8 page limit.
+% Appendices can be useful to supply extra details, examples, figures, results, visualizations, etc. that you couldn't fit into the main paper. However, your grader \textit{does not} have to read your appendix, and you should assume that you will be graded based on the content of the main part of your paper only.
+
+
+
+\bibliographystyle{unsrtnat}
 \bibliography{references}
-
-\appendix
-
-\section{Appendix (optional)}
-If you wish, you can include an appendix, which should be part of the main PDF, and does not count towards the 6-8 page limit.
-Appendices can be useful to supply extra details, examples, figures, results, visualizations, etc. that you couldn't fit into the main paper. However, your grader \textit{does not} have to read your appendix, and you should assume that you will be graded based on the content of the main part of your paper only.
 
 \end{document}
