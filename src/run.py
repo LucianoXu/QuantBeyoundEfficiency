@@ -36,7 +36,11 @@ def run(args: dict[str, Any] | str | Path) -> Any:
     
     elif args["config_type"] == "model_bench_matrix":
         return run_model_bench_matrix(args)
-    
+
+    elif args["config_type"] == "attack":
+        from .attacks.factory import attack_factory
+        return attack_factory(args)
+
     else:
         raise ValueError("Invalid Config Type.")
 
