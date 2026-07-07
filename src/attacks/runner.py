@@ -134,6 +134,7 @@ def run_attack(args: dict[str, Any]) -> dict[str, Any]:
         torch.cuda.empty_cache()
 
         gen_tok = ev.get("gen_max_new_tokens", 256)
+        eval_bs = ev.get("eval_batch_size", 16)
         model_name = args["model"]["model_name"]
         device_map = args["model"].get("device_map", "auto")
 
@@ -171,7 +172,7 @@ def run_attack(args: dict[str, Any]) -> dict[str, Any]:
 
             for cond, suf in conditions.items():
                 for split, pset in (("train", train), ("test", test)):
-                    records = evaluate_on_model(mdl, tok, pset, suf, gen_tok)
+                    records = evaluate_on_model(mdl, tok, pset, suf, gen_tok, eval_bs)
                     recs[cond][quant_type][split] = records
                     for rec in records:
                         all_samples.append({"model": quant_type, "condition": cond, "split": split, **rec})

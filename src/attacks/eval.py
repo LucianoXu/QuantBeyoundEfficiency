@@ -21,28 +21,37 @@ def is_jailbroken(gen: str) -> bool:
 
 
 @torch.no_grad()
-def generate_with_suffix(model, tokenizer, p: dict[str, Any], suffix_ids: torch.Tensor,
-                         max_new_tokens: int = 256) -> str:
+def evaluate_on_model(model, tokenizer, 
+                      prompts: list[dict[str, Any]], 
+                      suffix_ids: torch.Tensor,
+                      max_new_tokens: int = 256, 
+                      batch_size: int = 16) -> list[dict[str, Any]]:
+    
     dev = model.device
-    ids = torch.cat([p["before_ids"].to(dev), suffix_ids.to(dev), p["after_ids"].to(dev)]).unsqueeze(0)
-    out = model.generate(
-        input_ids=ids, attention_mask=torch.ones_like(ids),
-        max_new_tokens=max_new_tokens, do_sample=False, pad_token_id=tokenizer.pad_token_id,
-    )
+    suffix_ids = suffix_ids.to(dev)
+    pad_id = tokenizer.pad_token_id
+    seqs = [torch.cat([p["before_ids"].to(dev), suffix_ids, p["after_ids"].to(dev)]) for p in prompts]
 
-    return tokenizer.decode(out[0, ids.shape[1]:], skip_special_tokens=True)
-
-
-@torch.no_grad()
-def evaluate_on_model(model, tokenizer, prompts: list[dict[str, Any]], suffix_ids: torch.Tensor,
-                      max_new_tokens: int = 256) -> list[dict[str, Any]]:
     records = []
-    for p in prompts:
-        gen = generate_with_suffix(model, tokenizer, p, suffix_ids, max_new_tokens)
-        records.append({
-            "question_id": p.get("question_id"), "category": p.get("category"),
-            "instruction": p["instruction"], "target": p["target"],
-            "generation": gen, "jailbroken": is_jailbroken(gen),
-        })
+    for i in range(0, len(prompts), batch_size):
+        batch = seqs[i:i + batch_size]
+        maxlen = max(s.shape[0] for s in batch)
+        input_ids = torch.full((len(batch), maxlen), pad_id, device=dev, dtype=torch.long)
+        attn = torch.zeros((len(batch), maxlen), device=dev, dtype=torch.long)
+        for j, s in enumerate(batch):                          # left-pad each sequence
+            input_ids[j, maxlen - s.shape[0]:] = s
+            attn[j, maxlen - s.shape[0]:] = 1
+        out = model.generate(input_ids=input_ids, attention_mask=attn, max_new_tokens=max_new_tokens,
+                             do_sample=False, pad_token_id=pad_id)
+        gens = tokenizer.batch_decode(out[:, maxlen:], skip_special_tokens=True)
 
+        for p, gen in zip(prompts[i:i + batch_size], gens):
+            records.append({
+                "question_id": p.get("question_id"), 
+                "category": p.get("category"),
+                "instruction": p["instruction"], 
+                "target": p["target"],
+                "generation": gen, 
+                "jailbroken": is_jailbroken(gen),
+            })
     return records
