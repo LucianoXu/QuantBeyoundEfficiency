@@ -1,0 +1,67 @@
+config_type: model_bench_matrix
+random_seed: 44
+output_dir: trials/experiment_2_qwen3_4b/int8
+models:
+- id: Qwen3-4B-int8
+  model_name: Qwen/Qwen3-4B
+  quant_type: int8
+  device_map: auto
+  benches:
+  - id: MMLU-Pro
+    bench_name: MMLU-Pro
+    num_fewshot: 5
+    batch_size: 32
+    max_length: 4096
+    limit: 71
+    log_samples: true
+  - id: gpqa
+    bench_name: gpqa
+    num_fewshot: 5
+    batch_size: 32
+    max_length: 4096
+    limit: 1000
+    log_samples: true
+  - id: HumanEval
+    bench_name: HumanEval
+    num_fewshot: 0
+    batch_size: 32
+    max_length: 4096
+    limit: 1000
+    log_samples: true
+  - id: mgsm_direct
+    bench_name: mgsm_direct
+    num_fewshot: 5
+    batch_size: 32
+    max_length: 4096
+    limit: 1000
+    log_samples: true
+  - id: hendrycks_ethics
+    bench_name: hendrycks_ethics
+    num_fewshot: 5
+    batch_size: 32
+    max_length: 4096
+    limit: 1000
+    log_samples: true
+  - id: bbq
+    bench_name: bbq
+    num_fewshot: 5
+    batch_size: 32
+    max_length: 4096
+    limit: 1000
+    log_samples: true
+  - id: TruthfulQA
+    bench_name: TruthfulQA
+    num_fewshot: 5
+    batch_size: 32
+    max_length: 4096
+    limit: 1000
+    log_samples: true
+  - id: SORRY-Bench
+    bench_name: SORRY-Bench
+    prompt_style: base
+    judge_model: sorry-bench/ft-mistral-7b-instruct-v0.2-sorry-bench-202406
+    batch_size: 32
+    max_new_tokens: 512
+    chat_template_kwargs:
+      enable_thinking: false
+    log_samples: true
