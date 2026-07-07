@@ -12,22 +12,9 @@ models:
     benches: &sorry_benches
       - id: SORRY-Bench
         bench_name: SORRY-Bench
-        prompt_style: base    # 450 in total
-        judge_model: sorry-bench/ft-mistral-7b-instruct-v0.2-sorry-bench-202406
-        batch_size: 32
-        max_new_tokens: 512
+        batch_size: 1
+        max_new_tokens: 64
+        limit: 10
         chat_template_kwargs:
           enable_thinking: false
         log_samples: true
-
-  - id: Qwen3-1.7B-int8
-    model_name: Qwen/Qwen3-1.7B
-    quant_type: int8
-    device_map: auto
-    benches: *sorry_benches
-
-  - id: Qwen3-1.7B-nf4
-    model_name: Qwen/Qwen3-1.7B
-    quant_type: nf4
-    device_map: auto
-    benches: *sorry_benches
