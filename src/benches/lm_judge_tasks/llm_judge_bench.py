@@ -8,9 +8,9 @@ from tqdm import tqdm
 from transformers import AutoTokenizer, AutoModelForCausalLM, PreTrainedTokenizerBase
 from transformers.generation.utils import GenerationMixin
 
-from .factory import Bench
-from ..utils import save_json, save_jsonl
-from ..envvar import require_hf_token
+from ..factory import Bench
+from ...utils import save_json, save_jsonl
+from ...envvar import require_hf_token
 import re 
 
 class LLMAsJudgeBench(Bench):
@@ -21,7 +21,6 @@ class LLMAsJudgeBench(Bench):
     DEFAULT_SPLIT: str = "train"
     METRIC_NAME: str = "score"
     JUDGE_PROMPT_TEMPLATE: str = ""
-    
     CATEGORY_COLUMN: str | None = None 
 
     def prepare_dataset(self, dataset_name: str, split: str, style: str, token: str) -> tuple[list[dict[str, Any]], list[str]]:
@@ -175,5 +174,4 @@ class LLMAsJudgeBench(Bench):
                 outputs.append(tokenizer.decode(seq[prompt_len:], skip_special_tokens=True))
 
         tokenizer.padding_side = old_side
-        print("outputs: ", outputs)
         return outputs
