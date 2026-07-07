@@ -2,18 +2,18 @@ config_type: model_bench_matrix
 
 random_seed: 44
 
-output_dir: trials/experiment_2_qwen3_1.7b
+output_dir: trials/bonus_benches_qwen3_4b
 
 models:
-  - id: Qwen3-1.7B-bf16
-    model_name: Qwen/Qwen3-1.7B
+  - id: Qwen3-4B-bf16
+    model_name: Qwen/Qwen3-4B
     quant_type: bf16
     device_map: auto
     benches: &benchmarks
       # Utility Teacher Forcing
       - id: med_concepts_qa
         bench_name: med_concepts_qa
-        num_fewshot: 5 # standard: zero-shot
+        num_fewshot: 4 # standard: zero-shot, only 4 examples in dev
         batch_size: auto
         max_length: 512
         limit: 67 # 15 subbenches * 67 questions ~ 1000 evaluations
@@ -27,20 +27,20 @@ models:
         limit: 1000
         log_samples: true
 
-  - id: Qwen3-1.7B-int8
-    model_name: Qwen/Qwen3-1.7B
+  - id: Qwen3-4B-int8
+    model_name: Qwen/Qwen3-4B
     quant_type: int8
     device_map: auto
     benches: *benchmarks
-
-  - id: Qwen3-1.7B-int4
-    model_name: Qwen/Qwen3-1.7B
+  - id: Qwen3-4B-int4
+    model_name: Qwen/Qwen3-4B
     quant_type: int4
     device_map: auto
     benches: *benchmarks
 
-  - id: Qwen3-1.7B-AWQ-W4A16-ASYM
-    model_name: Qwen/Qwen3-1.7B
+  - id: Qwen3-4B-AWQ-W4A16-ASYM
+    model_name: Qwen/Qwen3-4B
     quant_type: awq-w4a16-asym
+    awq_save_dir: ckpt/Qwen3-4B-bf16-awq-w4a16-asym
     device_map: auto
     benches: *benchmarks
