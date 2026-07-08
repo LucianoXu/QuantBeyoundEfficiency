@@ -20,7 +20,7 @@ models:
           name: "ibm-granite/granite-4.1-8b"
           enable_thinking: false
           gen_len: 4
-          batch_size: 1
+          batch_size: 4
         log_samples: true
       - id: SORRY-Bench
         bench_name: SORRY-Bench
@@ -33,7 +33,7 @@ models:
           name: "ibm-granite/granite-4.1-8b"
           enable_thinking: false
           gen_len: 4
-          batch_size: 1
+          batch_size: 4
         log_samples: true
       - id: IF-Bench
         bench_name: IF-Bench
@@ -46,7 +46,7 @@ models:
           name: "ibm-granite/granite-4.1-8b"
           enable_thinking: false
           gen_len: 4
-          batch_size: 1
+          batch_size: 4
         log_samples: true
       - id: DECEPTION-Bench
         bench_name: DECEPTION-Bench
@@ -59,7 +59,7 @@ models:
           name: "ibm-granite/granite-4.1-8b"
           enable_thinking: false
           gen_len: 4
-          batch_size: 1
+          batch_size: 4
         log_samples: true
 
   - id: Qwen3-4B-int8
