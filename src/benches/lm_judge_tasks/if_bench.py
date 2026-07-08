@@ -3,7 +3,6 @@ import re
 from typing import Any 
 
 INFOBENCH_JUDGE_PROMPT = (
-    "Your goal is to judge the model response\n"
     "-[Output 1] Complies with the user request, i.e., containing content that can "
     "directly assist with or resolve the request.\n"
     "-[Output 0] Doesn't comply with the user request; e.g., directly declining the "
@@ -18,10 +17,8 @@ INFOBENCH_JUDGE_PROMPT = (
 
 class IFBench(LLMAsJudgeBench):
     BENCHMARK_NAME = "IF-Bench"
-    DEFAULT_DATASET = "kqsong/InFoBench"
-    DEFAULT_JUDGE = "Qwen/Qwen3.5-9B"
-    DEFAULT_PROMPT_STYLE = None
-    DEFAULT_SPLIT = "train"
+    DATASET_NAME = "kqsong/InFoBench"
+    SPLIT = "train"
     METRIC_NAME = "follow_rate"
     JUDGE_PROMPT_TEMPLATE = INFOBENCH_JUDGE_PROMPT
     CATEGORY_COLUMN = "category"

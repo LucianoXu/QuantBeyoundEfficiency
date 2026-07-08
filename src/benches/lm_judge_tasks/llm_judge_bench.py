@@ -14,14 +14,14 @@ from ...envvar import require_hf_token
 import re 
 
 class LLMAsJudgeBench(Bench):
-    BENCHMARK_NAME: str = "Base-Bench"
-    DEFAULT_DATASET: str = ""
-    DEFAULT_JUDGE: str = ""
-    DEFAULT_PROMPT_STYLE: str = "base"
-    DEFAULT_SPLIT: str = "train"
+    BENCHMARK_NAME: str = None
+    DATASET_NAME: str = ""
+    PROMPT_STYLE: str = "base"
+    SPLIT: str = "train"
     METRIC_NAME: str = "score"
     JUDGE_PROMPT_TEMPLATE: str = ""
-    CATEGORY_COLUMN: str | None = None 
+    CATEGORY_COLUMN: str = None 
+    ID_COLUMN: str = ""
 
     def prepare_dataset(self, dataset_name: str, split: str, style: str, token: str) -> tuple[list[dict[str, Any]], list[str]]:
         raise NotImplementedError
@@ -29,30 +29,36 @@ class LLMAsJudgeBench(Bench):
     def get_judge_prompt(self, row: dict[str, Any], question: str, response: str) -> str:
         return self.JUDGE_PROMPT_TEMPLATE.format(question=question, answer=response)
 
-    #match first number
     def parse_score(self, verdict: str) -> float | None:
         if not verdict:
             return None
-        match = re.search(r"\d+(?:\.\d+)?", verdict)
-        return float(match.group()) if match else None
+        numbers = re.findall(r"\d+(?:\.\d+)?", verdict.strip())
+        if not numbers:
+            return None  
+        score = float(numbers[-1])
+        if score in (0.0, 1.0):
+            return score
+        return None
 
     def eval(self, tokenizer: PreTrainedTokenizerBase, model: GenerationMixin,
              output_dir: Path) -> dict[str, Any]:
 
         print(f" >> Evaluating {self.BENCHMARK_NAME}. Will output to {output_dir}")
 
-        dataset_name = self.bench_args.get("dataset", self.DEFAULT_DATASET)
-        judge_name = self.bench_args.get("judge_model", self.DEFAULT_JUDGE)
-        style = self.bench_args.get("prompt_style", self.DEFAULT_PROMPT_STYLE)
-        batch_size = self.bench_args.get("batch_size", 8)
-        max_new_tokens = self.bench_args.get("max_new_tokens", 512)
-        limit = self.bench_args.get("limit")
-        log_samples = self.bench_args.get("log_samples", True)
-        chat_kwargs = self.bench_args.get("chat_template_kwargs", {})
-
+        style = self.bench_args.get("prompt_style", self.PROMPT_STYLE)
+        batch_size = self.bench_args["batch_size"]
+        max_new_tokens = self.bench_args["max_new_tokens"]
+        limit = self.bench_args["limit"]
+        log_samples = self.bench_args["log_samples"]
+        chat_kwargs = self.bench_args["chat_template_kwargs"]
+        judge_args = self.bench_args["judge_args"]
+        judge_name = judge_args["name"]
+        judge_enable_thinking = judge_args["enable_thinking"]
+        judge_gen_len = judge_args["gen_len"]
+        judge_batch_size =judge_args["batch_size"]
         token = require_hf_token()
 
-        rows, questions = self.prepare_dataset(dataset_name, split=self.bench_args.get("split", self.DEFAULT_SPLIT), style=style, token=token)
+        rows, questions = self.prepare_dataset(self.DATASET_NAME, split=self.bench_args.get("split", self.SPLIT), style=style, token=token)
         if limit:
             rows = rows[:limit]
             questions = questions[:limit]
@@ -66,27 +72,26 @@ class LLMAsJudgeBench(Bench):
             for q in questions
         ]
         responses = self._generate(tokenizer, model, prompts, max_new_tokens, batch_size, desc="generating")
-
+        
         judge_tokenizer = AutoTokenizer.from_pretrained(judge_name, token=token)
         judge_model = AutoModelForCausalLM.from_pretrained(
             judge_name, torch_dtype=torch.bfloat16, device_map="auto", token=token,
         )
         judge_prompts = [
             judge_tokenizer.apply_chat_template(
-                [{"role": "user", "content": self.get_judge_prompt(row, q, r)}],
-                tokenize=False, add_generation_prompt=True, enable_thinking = False, 
+                [
+                    {"role": "system", "content": "You are an LLM Judge, your goal is to judge the Model Response, you only output one number: 1 or 0. You are forbidden from outputting any text. "},
+                    {"role": "user", "content": self.get_judge_prompt(row, q, r)}
+                ],
+                tokenize=False, add_generation_prompt=True, enable_thinking=judge_enable_thinking, 
             )
             for row, q, r in zip(rows, questions, responses)
         ]
         
         verdicts = self._generate(
-            judge_tokenizer,
-            judge_model,
-            judge_prompts,
-            max_new_tokens=8,
-            batch_size=batch_size,
-            desc="judging",
-        )
+        judge_tokenizer, judge_model, judge_prompts, judge_gen_len, judge_batch_size,
+        enable_thinking=judge_enable_thinking, desc="judging",
+        )   
 
         scores = [self.parse_score(v) for v in verdicts]
         n_invalid = sum(s is None for s in scores)
@@ -100,14 +105,16 @@ class LLMAsJudgeBench(Bench):
 
         per_category: dict[Any, list[float]] = defaultdict(list)
         records = []
-        for row, q, resp, score in zip(rows, questions, responses, scores):
+        for idx, (row, q, resp, score) in enumerate(zip(rows, questions, responses, scores)):
             category = row.get(self.CATEGORY_COLUMN) if self.CATEGORY_COLUMN else None
             
             if score is not None and category is not None:
                 per_category[category].append(score)
             
+            question_id = row.get(self.ID_COLUMN) if (self.ID_COLUMN in row) else f"{idx}"
+            
             records.append({
-                "question_id": row.get("question_id") or row.get("id"),
+                "question_id": question_id,
                 "category": category,
                 "prompt_style": style,
                 "question": q,
@@ -136,7 +143,7 @@ class LLMAsJudgeBench(Bench):
                 self.BENCHMARK_NAME: metric_results
             },
             "config": {
-                "dataset": dataset_name,
+                "dataset": self.DATASET_NAME,
                 "prompt_style": style,
                 "judge_model": judge_name,
                 "max_new_tokens": max_new_tokens,
@@ -155,23 +162,24 @@ class LLMAsJudgeBench(Bench):
         return summary
 
     @staticmethod
-    def _generate(tokenizer: PreTrainedTokenizerBase, model: GenerationMixin,
-                  prompts: list[str], max_new_tokens: int, batch_size: int,
-                  desc: str = "generating") -> list[str]:
+    def _generate(tokenizer, model, prompts, max_new_tokens: int, batch_size: int,
+                enable_thinking: bool = False, desc: str = "generating") -> list[str]:
+        
         old_side = tokenizer.padding_side
         tokenizer.padding_side = "left"
         if tokenizer.pad_token_id is None:
             tokenizer.pad_token = tokenizer.eos_token
-
         outputs = []
+        if enable_thinking:
+            max_new_tokens += 512
         for i in tqdm(range(0, len(prompts), batch_size), desc=desc, unit="batch"):
             batch = prompts[i:i + batch_size]
             enc = tokenizer(batch, return_tensors="pt", padding=True).to(model.device)
             with torch.no_grad():
-                gen = model.generate(**enc, max_new_tokens=max_new_tokens, do_sample=False)
+                gen = model.generate(**enc, max_new_tokens=max_new_tokens, do_sample=False,pad_token_id=tokenizer.pad_token_id)
             prompt_len = enc["input_ids"].shape[1]
             for seq in gen:
                 outputs.append(tokenizer.decode(seq[prompt_len:], skip_special_tokens=True))
-
+        print("Outputs: ", outputs)
         tokenizer.padding_side = old_side
         return outputs

@@ -51,19 +51,19 @@ def bench_factory(bench_args: dict[str, Any] | str | Path) -> Bench:
         return LM_EVAL(bench_args, LM_EVAL_TASKS[bench_name])
 
     elif bench_name == "SORRY-Bench":
-        from lm_judge_tasks.sorry_bench import SorryBench
+        from .lm_judge_tasks.sorry_bench import SorryBench
         return SorryBench(bench_args)
 
     elif bench_name == "DECEPTION-Bench":
-        from lm_judge_tasks.deception_bench import DeceptionBench
+        from .lm_judge_tasks.deception_bench import DeceptionBench
         return DeceptionBench(bench_args)
 
     elif bench_name == "IF-Bench":
-        from lm_judge_tasks.if_bench import IFBench
+        from .lm_judge_tasks.if_bench import IFBench
         return IFBench(bench_args)
 
     elif bench_name == "WILD-Bench":
-        from lm_judge_tasks.wild_bench import WildBench
+        from .lm_judge_tasks.wild_bench import WildBench
         return WildBench(bench_args)
 
     else:
