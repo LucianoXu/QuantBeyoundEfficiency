@@ -1,0 +1,18 @@
+config_type: model_bench
+random_seed: 44
+output_dir: trials/bonus_benches_qwen3_4b/Qwen3-4B-int8-med_concepts_qa
+model:
+  id: Qwen3-4B-int8
+  model_name: Qwen/Qwen3-4B
+  quant_type: int8
+  device_map: auto
+  config_type: model
+bench:
+  bench_name: med_concepts_qa
+  num_fewshot: 4
+  batch_size: auto
+  max_length: 512
+  limit: 67
+  log_samples: true
+  config_type: bench
+  random_seed: 44

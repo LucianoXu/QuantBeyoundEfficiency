@@ -1,0 +1,18 @@
+config_type: model_bench
+random_seed: 44
+output_dir: trials/bonus_benches_qwen3_4b/Qwen3-4B-bf16-crows_pairs_english
+model:
+  id: Qwen3-4B-bf16
+  model_name: Qwen/Qwen3-4B
+  quant_type: bf16
+  device_map: auto
+  config_type: model
+bench:
+  bench_name: crows_pairs_english
+  num_fewshot: 5
+  batch_size: auto
+  max_length: 512
+  limit: 1000
+  log_samples: true
+  config_type: bench
+  random_seed: 44
