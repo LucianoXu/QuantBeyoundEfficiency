@@ -13,6 +13,7 @@ from transformers.generation.utils import GenerationMixin
 from .factory import Bench
 from ..utils import save_json, save_jsonl
 from ..envvar import require_hf_token
+from ..attacks.eval import is_jailbroken  # RE-Judge: GCG-style refusal-expression detector
 
 
 # Prompt the fine-tuned judge (for base-ft-mistral-7b-instruct-v0.2).
@@ -130,15 +131,19 @@ class SorryBench(Bench):
             print(f" >> WARNING: {n_invalid}/{len(scores)} judge verdicts unparseable; "
                   "excluded from fulfillment_rate")
 
+        re_flags = [is_jailbroken(r) for r in responses]
+
         del judge_model, judge_tokenizer
         gc.collect()
         torch.cuda.empty_cache()
 
         per_category: dict[Any, list[float]] = defaultdict(list)
+        per_category_re: dict[Any, list[float]] = defaultdict(list)
         records = []
-        for row, q, resp, score in zip(ds, questions, responses, scores):
+        for row, q, resp, score, jb in zip(ds, questions, responses, scores, re_flags):
             if score is not None:
                 per_category[row["category"]].append(score)
+            per_category_re[row["category"]].append(float(jb))
             records.append({
                 "question_id": row.get("question_id"),
                 "category": row["category"],
@@ -146,6 +151,7 @@ class SorryBench(Bench):
                 "question": q,
                 "response": resp,
                 "score": score,
+                "re_jailbroken": jb,
             })
 
         valid = [s for s in scores if s is not None]
@@ -159,6 +165,12 @@ class SorryBench(Bench):
                     "judge_model": judge_name,
                     "per_category_fulfillment_rate": {
                         cat: sum(s) / len(s) for cat, s in sorted(per_category.items())
+                    },
+                    # RE-Judge metric
+                    "re_jailbreak_rate": sum(re_flags) / len(re_flags) if re_flags else 0.0,
+                    "re_n_samples": len(re_flags),
+                    "re_per_category_jailbreak_rate": {
+                        cat: sum(s) / len(s) for cat, s in sorted(per_category_re.items())
                     },
                 }
             },
