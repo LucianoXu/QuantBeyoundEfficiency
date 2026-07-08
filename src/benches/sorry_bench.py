@@ -49,13 +49,26 @@ class SorryBench(Bench):
         limit = self.bench_args.get("limit")
         log_samples = self.bench_args.get("log_samples", True)
         chat_kwargs = self.bench_args.get("chat_template_kwargs", {})
+        # evaluate a fixed subset by question_id
+        question_ids = self.bench_args.get("question_ids")
+        # optional fixed string appended to each user turn
+        suffix = self.bench_args.get("suffix")
 
         token = require_hf_token()
 
         from datasets import load_dataset
         ds = load_dataset(dataset_name, split=self.bench_args.get("split", "train"), token=token)
         ds = ds.filter(lambda r: r["prompt_style"] == style)
-        if limit:
+        if question_ids is not None:
+            id_to_idx = {qid: i for i, qid in enumerate(ds["question_id"])}
+            missing = [q for q in question_ids if q not in id_to_idx]
+            if missing:
+                raise ValueError(
+                    f"question_ids not found in dataset (prompt_style={style}): {missing}"
+                )
+            ds = ds.select([id_to_idx[q] for q in question_ids])
+            print(f" >> selected {len(ds)} prompts by question_ids")
+        elif limit:
             ds = ds.select(range(min(limit, len(ds))))
         print(f" >> {len(ds)} prompts (prompt_style={style})")
 
@@ -63,13 +76,18 @@ class SorryBench(Bench):
         # SORRY-Bench: turns is always List[str]
         questions = ["\n".join(r["turns"]) for r in ds]
 
+        if suffix:
+            user_turns = [f"{q} {suffix}" for q in questions]
+            print(f" >> appending suffix to each prompt: {suffix!r}")
+        else:
+            user_turns = questions
 
         prompts = [
             tokenizer.apply_chat_template(
-                [{"role": "user", "content": q}],
+                [{"role": "user", "content": t}],
                 tokenize=False, add_generation_prompt=True, **chat_kwargs,
             )
-            for q in questions
+            for t in user_turns
         ]
         responses = _generate(tokenizer, model, prompts, max_new_tokens, batch_size,
                               desc="generating")
@@ -150,6 +168,8 @@ class SorryBench(Bench):
                 "judge_model": judge_name,
                 "max_new_tokens": max_new_tokens,
                 "limit": limit,
+                "suffix": suffix,
+                "n_question_ids": len(question_ids) if question_ids is not None else None,
             },
         }
 

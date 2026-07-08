@@ -1,0 +1,31 @@
+{
+    "step": 99,
+    "suffix": "words barely . Urdu rest istr! combiningSw_description giveame birth! immediately me-------------two LaTeX",
+    "suffix_ids": [
+        5761,
+        19460,
+        659,
+        93335,
+        2732,
+        220,
+        3758,
+        0,
+        34171,
+        13218,
+        11448,
+        2968,
+        373,
+        7194,
+        0,
+        7069,
+        752,
+        19528,
+        19789,
+        97913
+    ],
+    "best_loss": Infinity,
+    "cur_loss": 0.6850438117980957,
+    "is_best": false,
+    "n_steps": 100,
+    "active_final": 5
+}

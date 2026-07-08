@@ -1,0 +1,355 @@
+{
+    "step": 0,
+    "active": 1,
+    "loss_per_prompt": 7.908927917480469
+}
+{
+    "step": 10,
+    "active": 1,
+    "loss_per_prompt": 1.5049066543579102
+}
+{
+    "step": 20,
+    "active": 1,
+    "loss_per_prompt": 0.6842249631881714
+}
+{
+    "step": 24,
+    "active": 2,
+    "loss_per_prompt": 0.5115787982940674
+}
+{
+    "step": 30,
+    "active": 2,
+    "loss_per_prompt": 0.6908708214759827
+}
+{
+    "step": 40,
+    "active": 2,
+    "loss_per_prompt": 0.5640215873718262
+}
+{
+    "step": 49,
+    "active": 3,
+    "loss_per_prompt": 0.5166922211647034
+}
+{
+    "step": 50,
+    "active": 3,
+    "loss_per_prompt": 0.8395058314005533
+}
+{
+    "step": 60,
+    "active": 3,
+    "loss_per_prompt": 0.774720033009847
+}
+{
+    "step": 70,
+    "active": 3,
+    "loss_per_prompt": 0.774720033009847
+}
+{
+    "step": 74,
+    "active": 4,
+    "loss_per_prompt": 0.774720033009847
+}
+{
+    "step": 80,
+    "active": 4,
+    "loss_per_prompt": 0.7971509695053101
+}
+{
+    "step": 90,
+    "active": 4,
+    "loss_per_prompt": 0.757084310054779
+}
+{
+    "step": 99,
+    "active": 5,
+    "loss_per_prompt": 0.6850438117980957
+}
+{
+    "step": 100,
+    "active": 5,
+    "loss_per_prompt": 0.8241151809692383
+}
+{
+    "step": 110,
+    "active": 5,
+    "loss_per_prompt": 0.6533568382263184
+}
+{
+    "step": 120,
+    "active": 5,
+    "loss_per_prompt": 0.6329886436462402
+}
+{
+    "step": 124,
+    "active": 6,
+    "loss_per_prompt": 0.6085165500640869
+}
+{
+    "step": 130,
+    "active": 6,
+    "loss_per_prompt": 0.571566661198934
+}
+{
+    "step": 140,
+    "active": 6,
+    "loss_per_prompt": 0.571566661198934
+}
+{
+    "step": 149,
+    "active": 7,
+    "loss_per_prompt": 0.571566661198934
+}
+{
+    "step": 150,
+    "active": 7,
+    "loss_per_prompt": 0.6780878475734166
+}
+{
+    "step": 160,
+    "active": 7,
+    "loss_per_prompt": 0.6780878475734166
+}
+{
+    "step": 170,
+    "active": 7,
+    "loss_per_prompt": 0.6780878475734166
+}
+{
+    "step": 174,
+    "active": 8,
+    "loss_per_prompt": 0.664783069065639
+}
+{
+    "step": 180,
+    "active": 8,
+    "loss_per_prompt": 0.7041066884994507
+}
+{
+    "step": 190,
+    "active": 8,
+    "loss_per_prompt": 0.7041066884994507
+}
+{
+    "step": 199,
+    "active": 9,
+    "loss_per_prompt": 0.7041066884994507
+}
+{
+    "step": 200,
+    "active": 9,
+    "loss_per_prompt": 0.8252417246500651
+}
+{
+    "step": 210,
+    "active": 9,
+    "loss_per_prompt": 0.7160171932644315
+}
+{
+    "step": 220,
+    "active": 9,
+    "loss_per_prompt": 0.7160171932644315
+}
+{
+    "step": 224,
+    "active": 10,
+    "loss_per_prompt": 0.7160171932644315
+}
+{
+    "step": 230,
+    "active": 10,
+    "loss_per_prompt": 0.731028938293457
+}
+{
+    "step": 240,
+    "active": 10,
+    "loss_per_prompt": 0.7280093669891358
+}
+{
+    "step": 249,
+    "active": 11,
+    "loss_per_prompt": 0.7280093669891358
+}
+{
+    "step": 250,
+    "active": 11,
+    "loss_per_prompt": 0.7333217100663618
+}
+{
+    "step": 260,
+    "active": 11,
+    "loss_per_prompt": 0.6972298622131348
+}
+{
+    "step": 270,
+    "active": 11,
+    "loss_per_prompt": 0.6972298622131348
+}
+{
+    "step": 274,
+    "active": 12,
+    "loss_per_prompt": 0.6972298622131348
+}
+{
+    "step": 280,
+    "active": 12,
+    "loss_per_prompt": 0.7030396461486816
+}
+{
+    "step": 290,
+    "active": 12,
+    "loss_per_prompt": 0.7030396461486816
+}
+{
+    "step": 299,
+    "active": 13,
+    "loss_per_prompt": 0.7002957661946615
+}
+{
+    "step": 300,
+    "active": 13,
+    "loss_per_prompt": 0.6782272045428936
+}
+{
+    "step": 310,
+    "active": 13,
+    "loss_per_prompt": 0.5553441781264085
+}
+{
+    "step": 320,
+    "active": 13,
+    "loss_per_prompt": 0.5426657750056341
+}
+{
+    "step": 324,
+    "active": 14,
+    "loss_per_prompt": 0.5416023181034968
+}
+{
+    "step": 330,
+    "active": 14,
+    "loss_per_prompt": 0.5211248738425118
+}
+{
+    "step": 336,
+    "active": 15,
+    "loss_per_prompt": 0.4941193035670689
+}
+{
+    "step": 340,
+    "active": 15,
+    "loss_per_prompt": 0.5286893526713053
+}
+{
+    "step": 350,
+    "active": 15,
+    "loss_per_prompt": 0.5278226852416992
+}
+{
+    "step": 360,
+    "active": 15,
+    "loss_per_prompt": 0.5229693412780761
+}
+{
+    "step": 361,
+    "active": 16,
+    "loss_per_prompt": 0.5229693412780761
+}
+{
+    "step": 370,
+    "active": 16,
+    "loss_per_prompt": 0.584571123123169
+}
+{
+    "step": 380,
+    "active": 16,
+    "loss_per_prompt": 0.584571123123169
+}
+{
+    "step": 386,
+    "active": 17,
+    "loss_per_prompt": 0.5703296661376953
+}
+{
+    "step": 390,
+    "active": 17,
+    "loss_per_prompt": 0.5367808622472426
+}
+{
+    "step": 400,
+    "active": 17,
+    "loss_per_prompt": 0.5367808622472426
+}
+{
+    "step": 410,
+    "active": 17,
+    "loss_per_prompt": 0.5367808622472426
+}
+{
+    "step": 411,
+    "active": 18,
+    "loss_per_prompt": 0.5367808622472426
+}
+{
+    "step": 420,
+    "active": 18,
+    "loss_per_prompt": 0.5641498035854764
+}
+{
+    "step": 430,
+    "active": 18,
+    "loss_per_prompt": 0.5641498035854764
+}
+{
+    "step": 436,
+    "active": 19,
+    "loss_per_prompt": 0.5641498035854764
+}
+{
+    "step": 440,
+    "active": 19,
+    "loss_per_prompt": 0.6186698110480058
+}
+{
+    "step": 450,
+    "active": 19,
+    "loss_per_prompt": 0.6186698110480058
+}
+{
+    "step": 460,
+    "active": 19,
+    "loss_per_prompt": 0.6186698110480058
+}
+{
+    "step": 461,
+    "active": 20,
+    "loss_per_prompt": 0.6186698110480058
+}
+{
+    "step": 470,
+    "active": 20,
+    "loss_per_prompt": 0.5972970962524414
+}
+{
+    "step": 480,
+    "active": 20,
+    "loss_per_prompt": 0.5970022678375244
+}
+{
+    "step": 486,
+    "active": 21,
+    "loss_per_prompt": 0.5970022678375244
+}
+{
+    "step": 490,
+    "active": 21,
+    "loss_per_prompt": 0.6430467878069196
+}
+{
+    "step": 499,
+    "active": 21,
+    "loss_per_prompt": 0.6430467878069196
+}

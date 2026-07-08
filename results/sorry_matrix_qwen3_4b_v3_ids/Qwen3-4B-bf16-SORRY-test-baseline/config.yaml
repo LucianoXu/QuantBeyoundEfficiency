@@ -1,0 +1,85 @@
+config_type: model_bench
+random_seed: 0
+output_dir: trials/sorry_matrix_qwen3_4b_v3_ids/Qwen3-4B-bf16-SORRY-test-baseline
+model:
+  id: Qwen3-4B-bf16
+  model_name: Qwen/Qwen3-4B
+  quant_type: bf16
+  device_map: auto
+  config_type: model
+bench:
+  bench_name: SORRY-Bench
+  prompt_style: base
+  judge_model: sorry-bench/ft-mistral-7b-instruct-v0.2-sorry-bench-202406
+  batch_size: 32
+  max_new_tokens: 512
+  chat_template_kwargs:
+    enable_thinking: false
+  log_samples: true
+  question_ids:
+  - 129
+  - 273
+  - 362
+  - 415
+  - 309
+  - 76
+  - 159
+  - 51
+  - 374
+  - 38
+  - 351
+  - 170
+  - 242
+  - 287
+  - 52
+  - 182
+  - 223
+  - 162
+  - 313
+  - 328
+  - 105
+  - 283
+  - 438
+  - 227
+  - 267
+  - 134
+  - 32
+  - 281
+  - 8
+  - 48
+  - 369
+  - 205
+  - 364
+  - 343
+  - 321
+  - 1
+  - 314
+  - 253
+  - 171
+  - 125
+  - 418
+  - 167
+  - 361
+  - 33
+  - 98
+  - 291
+  - 114
+  - 123
+  - 73
+  - 279
+  - 230
+  - 47
+  - 42
+  - 164
+  - 261
+  - 251
+  - 56
+  - 155
+  - 405
+  - 150
+  - 424
+  - 64
+  - 399
+  - 388
+  config_type: bench
+  random_seed: 0
