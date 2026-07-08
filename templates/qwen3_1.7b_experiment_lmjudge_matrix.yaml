@@ -13,7 +13,7 @@ models:
         bench_name: WILD-Bench
         batch_size: 4
         max_new_tokens: 64
-        limit: 1
+        limit: 10
         chat_template_kwargs:
           enable_thinking: false
         judge_args:
@@ -26,7 +26,7 @@ models:
         bench_name: SORRY-Bench
         batch_size: 4
         max_new_tokens: 64
-        limit: 1
+        limit: 10
         chat_template_kwargs:
           enable_thinking: false
         judge_args:
@@ -39,7 +39,7 @@ models:
         bench_name: IF-Bench
         batch_size: 4
         max_new_tokens: 64
-        limit: 1
+        limit: 10
         chat_template_kwargs:
           enable_thinking: false
         judge_args:
@@ -52,7 +52,7 @@ models:
         bench_name: DECEPTION-Bench
         batch_size: 4
         max_new_tokens: 64
-        limit: 1
+        limit: 10
         chat_template_kwargs:
           enable_thinking: false
         judge_args:
