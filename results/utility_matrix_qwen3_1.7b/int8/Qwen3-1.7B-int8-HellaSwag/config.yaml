@@ -1,0 +1,18 @@
+config_type: model_bench
+random_seed: 44
+output_dir: trials/utility_matrix_qwen3_1.7b/int8/Qwen3-1.7B-int8-HellaSwag
+model:
+  id: Qwen3-1.7B-int8
+  model_name: Qwen/Qwen3-1.7B
+  quant_type: int8
+  device_map: auto
+  config_type: model
+bench:
+  bench_name: HellaSwag
+  num_fewshot: 10
+  batch_size: auto
+  max_length: 4096
+  limit: 100
+  log_samples: true
+  config_type: bench
+  random_seed: 44
