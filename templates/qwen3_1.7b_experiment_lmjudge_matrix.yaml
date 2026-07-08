@@ -4,20 +4,20 @@ random_seed: 44
 
 output_dir: trials/experiment_lmjudge_alignment_utility_matrix_qwen3_1.7b
 models:
-  - id: Qwen3-1.7B-bf16
-    model_name: Qwen/Qwen3-1.7B
-    quant_type: bf16
+  - id: Qwen3-4B-AWQ-W4A16-ASYM
+    model_name: Qwen/Qwen3-4B
+    quant_type: awq-w4a16-asym
     device_map: auto
     benches: &judge_benches
       - id: WILD-Bench
         bench_name: WILD-Bench
         batch_size: 4
         max_new_tokens: 64
-        limit: 100
+        limit: 1
         chat_template_kwargs:
           enable_thinking: false
         judge_args:
-          name: "Qwen/Qwen3-1.7B"
+          name: "google/gemma-4-12B"
           enable_thinking: false
           gen_len: 4
           batch_size: 2
@@ -26,11 +26,11 @@ models:
         bench_name: SORRY-Bench
         batch_size: 4
         max_new_tokens: 64
-        limit: 100
+        limit: 1
         chat_template_kwargs:
           enable_thinking: false
         judge_args:
-          name: "Qwen/Qwen3-1.7B"
+          name: "google/gemma-4-12B"
           enable_thinking: false
           gen_len: 4
           batch_size: 2
@@ -39,11 +39,11 @@ models:
         bench_name: IF-Bench
         batch_size: 4
         max_new_tokens: 64
-        limit: 100
+        limit: 1
         chat_template_kwargs:
           enable_thinking: false
         judge_args:
-          name: "Qwen/Qwen3-1.7B"
+          name: "google/gemma-4-12B"
           enable_thinking: false
           gen_len: 4
           batch_size: 2
@@ -52,30 +52,30 @@ models:
         bench_name: DECEPTION-Bench
         batch_size: 4
         max_new_tokens: 64
-        limit: 100
+        limit: 1
         chat_template_kwargs:
           enable_thinking: false
         judge_args:
-          name: "Qwen/Qwen3-1.7B"
+          name: "google/gemma-4-12B"
           enable_thinking: false
           gen_len: 4
           batch_size: 2
         log_samples: true
 
-  - id: Qwen3-1.7B-int8
-    model_name: Qwen/Qwen3-1.7B
+  - id: Qwen3-4B-int8
+    model_name: Qwen/Qwen3-4B
     quant_type: int8
     device_map: auto
     benches: *judge_benches
 
-  - id: Qwen3-1.7B-int4
-    model_name: Qwen/Qwen3-1.7B
+  - id: Qwen3-4B-int4
+    model_name: Qwen/Qwen3-4B
     quant_type: int4
     device_map: auto
     benches: *judge_benches
 
-  - id: Qwen3-1.7B-AWQ-W4A16-ASYM
-    model_name: Qwen/Qwen3-1.7B
-    quant_type: awq-w4a16-asym
+  - id: Qwen3-4B-bf16
+    model_name: Qwen/Qwen3-4B
+    quant_type: bf16
     device_map: auto
     benches: *judge_benches
