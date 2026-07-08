@@ -1,3 +1,10 @@
+## July 7
+
+Yingte:
+
+Added quantization-aware adversarial suffix attack code and experiment configuration.
+
+
 ## July 2
 
 Yingte:
