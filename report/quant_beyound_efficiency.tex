@@ -14,6 +14,11 @@
 \usepackage{graphicx}
 \usepackage{xcolor}
 \usepackage{lipsum}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, positioning, fit, backgrounds}
+\usepackage{fontawesome5}
+\usepackage{amsmath}
+\usepackage{cleveref}
 
 \newcommand{\yx}[1]{\textcolor{blue}{{[YX: #1]}}}
 
@@ -76,12 +81,50 @@ People tend to assume that the robustness of full models will transfer to the qu
 This section introduces our novel discovery of quantization-aware adversarial suffix attacks.
 This technique combines two concepts:
 \begin{itemize}
-  \item \textbf{Adversarial suffix attacks} try to find prompt suffix that jailbreaks the model to induce misaligned generations. Zou et al.~\cite{GCG} reported universal adversarial suffixes that jailbreaks the open source Vicuna-7B models, and the same attack suffixes even generalize to work on closed-source models including GPT-3.5. Later works~\cite{Faster-GCG,I-GCG} improve the efficiency of finding the adversarial suffix.
+  \item \textbf{Adversarial suffix attacks} try to find prompt suffix that jailbreaks the model to induce misaligned generations. Zou et al.~\cite{GCG} reported the GCG method, which constructs universal adversarial suffixes that jailbreaks the open source Vicuna-7B models. The discovered attack suffixes even generalize to work on closed-source models including GPT-3.5. Later works~\cite{Faster-GCG,I-GCG} improve the efficiency of finding the adversarial suffix.
   \item \textbf{Quantization-aware attacks} refer to the utilization of difference between full and quantized models. Researchers from ETH Zürich~\cite{QCB} first reported the technique to train a model that is benign in full precision, but misaligned after quantization.
 \end{itemize}
 
 Quantization-aware attacks sharply demonstrate the risk of the gap between full and quantized models.
-The robustness of full-model does not necessary transfer, and worse still, it can even be maliciously utilized to mount a supply-chain attack. On the other hand, the suffix attacks have a more practical adversary model: it works on commonly used open source models, and the suffixes are generic to a certain extent. The question 
+The robustness of full-model does not necessary transfer, and worse still, it can even be maliciously utilized to mount a supply-chain attack. On the other hand, the suffix attacks have a more practical adversary model: it works on commonly used open source models, and the suffixes are generic to a certain extent. 
+One question rises naturally from the intersection of these two vulnerabilities: whether it is possible to construct quantization-aware adversarial suffix attacks, as is illustrated in~\Cref{fig:quant-aware-adv-suffix}.
+% the demonstration figure
+\input{fig-quant-aware-adv-suffix}
+
+\subsection{Attack Method}
+
+The adversarial examples are constructed by optimizing the input with the objective of the attack.
+For adversarial suffixes, the objective is to maximize the probability of \textit{getting an affirmative answer}.
+In this section, we want to check whether there exist suffixes that are quantization-aware. Therefore the objective has two components: refusal on full model and affirmative answer on quantized model. This is formalized as follows.
+
+\paragraph{Formalizing the adversarial objective}
+We use $x$ to denote token sequences, representing the text to process and generate.
+We consider a LLM $p$ as a probabilistic model $p(x_{n+1}\mid x_{1:n})$, which corresponds to the probability of generating the next token $x_{n+1}$ given the existing token sequence $x_{1:n}$. Then the probability to generate a sequence $x_{n+1:n+H}$ will be
+\[
+p(x_{n+1:n+H} | x_{1:n}) = \prod_{i=1}^{H}p(x_{n+i} | x_{1:n+i-1}).
+\]
+We use $\tilde{p}$ to denote the quantized model.
+Since we expect the adversarial suffix to be universal, we consider a conceptual distribution $D$ of sensitive prompts and their answers.
+We use $q$ to represent the prompt questions, $a_{+}$ to represent their affirmative answers, $a_{-}$ to represent their refusals, and $s$ to represent the unique adversarial suffix. 
+Then the desired qunatization-aware adversarial suffix can be expressed as
+\[
+s^* = \operatorname*{arg\,max}_{s} \left [ \mathbb{E}_{q, a_{+}, a_{-} \sim D}\ (\tilde{p}(a_{+} | q \mathbin{++} s) + \lambda \cdot p(a_{-} | q \mathbin{++} s)) \right ].
+\]
+Here the intuition is to maximize the two probabilities of refusal on full model and fulfillment on quantized model, and the ratio is controlled by parameter $\lambda$.
+Compared to the vanilla GCG algorithm~\cite{GCG} for adversarial examples, this objective introduces the refusal term on full model.
+
+\subsection{Experiment Setup and Results}
+
+We need aggresive assumptions and simplifications to make $s^*$ computable. 
+
+The first simplification is log probability. We replace $p(x|y)$ with the their log values. This simplification also allows us to use the model logit output as the log probability.
+Also, we calculate the question-answer expectation by sampling from a benchmark.
+Then we replace $p(a_{-} | q \mathbin{++} s)$ with $-p(a_{+} | q \mathbin{++} s)$. This means we assume that minimizing fulfillment is equivalent to maximizing refusal.
+
+Adversarial examples for images can be approximated by gradient decent, because the model is end-to-end differentiable from input to output. 
+This trick does not work for LLMs because the step from token IDs to embeddings is a discrete operation.
+Following the practice of GCG~\cite{GCG}, we resolve the optimization by a heuristic greedy searching algorithm. The searching starts from the initial suffix (repeated '!'), and flips the token according to the gradient information on the one-hot vectors, one at a time. Intuitively, at every round the algorithm flips one token in the suffix that has largest impact in the objective.
+
 
 \section{Conclusion}
 
