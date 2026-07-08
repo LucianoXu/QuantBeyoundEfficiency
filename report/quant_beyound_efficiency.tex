@@ -8,6 +8,7 @@
 \usepackage{hyperref}
 \usepackage{url}
 \usepackage{booktabs}
+\usepackage{multirow}
 \usepackage{amsfonts}
 \usepackage{nicefrac}
 \usepackage{microtype}
@@ -110,7 +111,7 @@ Then the desired qunatization-aware adversarial suffix can be expressed as
 \[
 s^* = \operatorname*{arg\,max}_{s} \left [ \mathbb{E}_{q, a_{+}, a_{-} \sim D}\ (\tilde{p}(a_{+} | q \mathbin{++} s) + \lambda \cdot p(a_{-} | q \mathbin{++} s)) \right ].
 \]
-Here the intuition is to maximize the two probabilities of refusal on full model and fulfillment on quantized model, and the ratio is controlled by parameter $\lambda$.
+Here the intuition is to maximize the two probabilities of refusal on full model and compliance on quantized model, and the ratio is controlled by parameter $\lambda$.
 Compared to the vanilla GCG algorithm~\cite{GCG} for adversarial examples, this objective introduces the refusal term on full model.
 
 \subsection{Experiment Setup and Results}
@@ -119,11 +120,42 @@ We need aggresive assumptions and simplifications to make $s^*$ computable.
 
 The first simplification is log probability. We replace $p(x|y)$ with the their log values. This simplification also allows us to use the model logit output as the log probability.
 Also, we calculate the question-answer expectation by sampling from a benchmark.
-Then we replace $p(a_{-} | q \mathbin{++} s)$ with $-p(a_{+} | q \mathbin{++} s)$. This means we assume that minimizing fulfillment is equivalent to maximizing refusal.
+Then we replace $p(a_{-} | q \mathbin{++} s)$ with $-p(a_{+} | q \mathbin{++} s)$. This means we assume that minimizing compliance is equivalent to maximizing refusal.
 
-Adversarial examples for images can be approximated by gradient decent, because the model is end-to-end differentiable from input to output. 
-This trick does not work for LLMs because the step from token IDs to embeddings is a discrete operation.
-Following the practice of GCG~\cite{GCG}, we resolve the optimization by a heuristic greedy searching algorithm. The searching starts from the initial suffix (repeated '!'), and flips the token according to the gradient information on the one-hot vectors, one at a time. Intuitively, at every round the algorithm flips one token in the suffix that has largest impact in the objective.
+Adversarial examples for images can be calculated by gradient decent, because visual models are end-to-end differentiable from input to output. 
+This trick does not work for LLMs since the step from token IDs to embeddings is a discrete operation.
+Following the practice of GCG~\cite{GCG}, we resolve the optimization by a heuristic greedy searching algorithm. The searching starts from the initial suffix (repeated `!'), and flips the token according to the gradient information on the one-hot vectors, one at a time. Intuitively, at every round the algorithm flips one token in the suffix that has largest impact in the objective.
+
+We conduct the experiment on the Qwen-3 4B model, and use the base split of SORRY-Bench as the dataset of misaligned requests. 
+The adversarial suffix attack maximizes the gap between refusal of BF16 full model and compliance of the INT4 quantized model.
+We samples 24 prompts for training, and 64 prompts for testing. 
+The adversarial suffix is 20 token in length and starts with repeated `!'.
+We take the parameter $\lambda = 1$, and conducted the searching algorithm for 500 steps.
+The result is shown in~\Cref{tab:adv-suffix}.
+
+\begin{table}[t]
+  \centering
+  
+  \caption{Harmful-compliance rate (\%) of the quantization-aware adversarial suffix on Qwen3-4B over SORRY-Bench prompts (train: 24, test: 64).}
+
+  \label{tab:adv-suffix}
+
+  \begin{tabular}{ll cc cc}
+    \toprule
+    & & \multicolumn{2}{c}{Without Suffix} & \multicolumn{2}{c}{With Suffix} \\
+    \cmidrule(lr){3-4}\cmidrule(lr){5-6}
+    Split & Precision & RE-Judge & LM-Judge & RE-Judge & LM-Judge \\
+    \midrule
+    \multirow{3}{*}{train (24)} & BF16      & 25.0 & 33.3 & 29.2 & 20.8 \\
+                           & INT4      & 25.0 & 29.2 & 54.2 & 45.8 \\
+                           & $\Delta$  & $0.0$ & $-4.2$ & $\mathbf{+25.0}$ & $\mathbf{+25.0}$ \\
+    \midrule
+    \multirow{3}{*}{test (64)}  & BF16      & 42.2 & 29.7 & 32.8 & 23.4 \\
+                           & INT4      & 46.9 & 43.8 & 68.8 & 50.0 \\
+                           & $\Delta$  & $+4.7$ & $+14.1$ & $\mathbf{+35.9}$ & $\mathbf{+26.6}$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}
 
 
 \section{Conclusion}
