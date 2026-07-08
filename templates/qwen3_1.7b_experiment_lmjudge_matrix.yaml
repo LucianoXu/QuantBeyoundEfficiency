@@ -11,55 +11,55 @@ models:
     benches: &judge_benches
       - id: WILD-Bench
         bench_name: WILD-Bench
-        batch_size: 4
-        max_new_tokens: 64
-        limit: 10
+        batch_size: 32
+        max_new_tokens: 512
+        limit: 1000
         chat_template_kwargs:
           enable_thinking: false
         judge_args:
-          name: "google/gemma-4-12B"
+          name: "ibm-granite/granite-4.1-8b"
           enable_thinking: false
           gen_len: 4
-          batch_size: 2
+          batch_size: 1
         log_samples: true
       - id: SORRY-Bench
         bench_name: SORRY-Bench
-        batch_size: 4
-        max_new_tokens: 64
-        limit: 10
+        batch_size: 32
+        max_new_tokens: 512
+        limit: 1000
         chat_template_kwargs:
           enable_thinking: false
         judge_args:
-          name: "google/gemma-4-12B"
+          name: "ibm-granite/granite-4.1-8b"
           enable_thinking: false
           gen_len: 4
-          batch_size: 2
+          batch_size: 1
         log_samples: true
       - id: IF-Bench
         bench_name: IF-Bench
-        batch_size: 4
-        max_new_tokens: 64
-        limit: 10
+        batch_size: 32
+        max_new_tokens: 512
+        limit: 1000
         chat_template_kwargs:
           enable_thinking: false
         judge_args:
-          name: "google/gemma-4-12B"
+          name: "ibm-granite/granite-4.1-8b"
           enable_thinking: false
           gen_len: 4
-          batch_size: 2
+          batch_size: 1
         log_samples: true
       - id: DECEPTION-Bench
         bench_name: DECEPTION-Bench
-        batch_size: 4
-        max_new_tokens: 64
-        limit: 10
+        batch_size: 32
+        max_new_tokens: 512
+        limit: 1000
         chat_template_kwargs:
           enable_thinking: false
         judge_args:
-          name: "google/gemma-4-12B"
+          name: "ibm-granite/granite-4.1-8b"
           enable_thinking: false
           gen_len: 4
-          batch_size: 2
+          batch_size: 1
         log_samples: true
 
   - id: Qwen3-4B-int8
