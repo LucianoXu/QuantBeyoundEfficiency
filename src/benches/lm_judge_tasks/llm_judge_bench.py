@@ -64,6 +64,18 @@ class LLMAsJudgeBench(Bench):
             questions = questions[:limit]
         print(f" >> {len(rows)} prompts (prompt_style={style})")
 
+        # add question token truncation
+        max_q_tokens = self.bench_args.get("max_question_tokens")
+        if max_q_tokens:
+            n_before = sum(len(tokenizer(q, add_special_tokens=False)["input_ids"]) > max_q_tokens for q in questions)
+            questions = [
+                tokenizer.decode(
+                    tokenizer(q, add_special_tokens=False, truncation=True, max_length=max_q_tokens)["input_ids"]
+                )
+                for q in questions
+            ]
+            print(f" >> truncated {n_before}/{len(questions)} questions to {max_q_tokens} tokens")
+
         prompts = [
             tokenizer.apply_chat_template(
                 [{"role": "user", "content": q}],

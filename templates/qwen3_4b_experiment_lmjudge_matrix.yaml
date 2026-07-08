@@ -13,6 +13,7 @@ models:
       - id: WILD-Bench
         bench_name: WILD-Bench
         batch_size: 16
+        max_question_tokens: 4096
         max_new_tokens: 512
         limit: 300
         chat_template_kwargs:
@@ -21,7 +22,7 @@ models:
           name: "ibm-granite/granite-4.1-8b"
           enable_thinking: false
           gen_len: 4
-          batch_size: 16
+          batch_size: 4
         log_samples: true
       - id: SORRY-Bench
         bench_name: SORRY-Bench
