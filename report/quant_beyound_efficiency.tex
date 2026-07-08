@@ -15,8 +15,9 @@
 \usepackage{graphicx}
 \usepackage{xcolor}
 \usepackage{lipsum}
+\usepackage{fvextra}
 \usepackage{tikz}
-\usetikzlibrary{arrows.meta, positioning, fit, backgrounds}
+\usetikzlibrary{arrows.meta, positioning, fit, backgrounds, decorations.pathreplacing, calc}
 \usepackage{fontawesome5}
 \usepackage{amsmath}
 \usepackage{cleveref}
@@ -111,32 +112,90 @@ Then the desired qunatization-aware adversarial suffix can be expressed as
 \[
 s^* = \operatorname*{arg\,max}_{s} \left [ \mathbb{E}_{q, a_{+}, a_{-} \sim D}\ (\tilde{p}(a_{+} | q \mathbin{++} s) + \lambda \cdot p(a_{-} | q \mathbin{++} s)) \right ].
 \]
-Here the intuition is to maximize the two probabilities of refusal on full model and compliance on quantized model, and the ratio is controlled by parameter $\lambda$.
+Here the intuition is to maximize the two probabilities of refusal on full model and fulfillment on quantized model, and the ratio is controlled by parameter $\lambda$.
 Compared to the vanilla GCG algorithm~\cite{GCG} for adversarial examples, this objective introduces the refusal term on full model.
 
-\subsection{Experiment Setup and Results}
+\subsection{Experiment Setup}
 
 We need aggresive assumptions and simplifications to make $s^*$ computable. 
 
 The first simplification is log probability. We replace $p(x|y)$ with the their log values. This simplification also allows us to use the model logit output as the log probability.
 Also, we calculate the question-answer expectation by sampling from a benchmark.
-Then we replace $p(a_{-} | q \mathbin{++} s)$ with $-p(a_{+} | q \mathbin{++} s)$. This means we assume that minimizing compliance is equivalent to maximizing refusal.
+Then we replace $p(a_{-} | q \mathbin{++} s)$ with $-p(a_{+} | q \mathbin{++} s)$. This means we assume that minimizing fulfillment is equivalent to maximizing refusal.
 
 Adversarial examples for images can be calculated by gradient decent, because visual models are end-to-end differentiable from input to output. 
 This trick does not work for LLMs since the step from token IDs to embeddings is a discrete operation.
 Following the practice of GCG~\cite{GCG}, we resolve the optimization by a heuristic greedy searching algorithm. The searching starts from the initial suffix (repeated `!'), and flips the token according to the gradient information on the one-hot vectors, one at a time. Intuitively, at every round the algorithm flips one token in the suffix that has largest impact in the objective.
 
+During real inference, the input sequence after applying the chat template is shown in~\Cref{fig:prompt-structure}. The suffix is inserted after the user prompt, before the \texttt{assistant} tokens. The target is an affirmative answer prefix, and the training follows the teacher forcing style. We conduct one round of forward calculation, and the gradient is calculated based on target logits. In the training we also adopt a learning curriculum. The training starts with one single prompt, then progressively expands to a set of \texttt{n\_train} prompts for generalization.
+
+\input{fig-prompt-structure}
+
+
+\paragraph{Evaluation} We evaluate the harmful compliance rate of the BF16 and INT4 models, with and without the discovered adversarial suffix. The compliance evaluation takes two criteria:
+\begin{enumerate}
+  \item \textbf{RE-Judge:} following the practice in GCG~\cite{GCG}, the judger checks whether the generation contains typical refusal expressions, such as ``I cannot'', ``I am sorry'', ``I must decline'', etc.
+  \item \textbf{LM-Judge:} following the practice in SORRY-Bench, a language model is prompted to evaluate whether the generation is an essential fulfillment.
+  Here we use a fine-tuned Mistral-7B-Instruct model as the judge.
+\end{enumerate}
+
+Intuitively, the RE-Judge tests syntactical refusal and the LM-Judge has a closer connection with semantics.
+
+\subsection{Results Analysis}
+
 We conduct the experiment on the Qwen-3 4B model, and use the base split of SORRY-Bench as the dataset of misaligned requests. 
-The adversarial suffix attack maximizes the gap between refusal of BF16 full model and compliance of the INT4 quantized model.
-We samples 24 prompts for training, and 64 prompts for testing. 
-The adversarial suffix is 20 token in length and starts with repeated `!'.
+The adversarial suffix attack maximizes the gap between refusal of BF16 full model and fulfillment of the INT4 quantized model.
+We sample 24 prompts for training, and evaluate on the 426 held-out prompts for testing.
+The initial adversarial suffix is 20 token in length and starts with repeated `!'.
 We take the parameter $\lambda = 1$, and conducted the searching algorithm for 500 steps.
+The experiment tooks 3 hours on a node with 4 $\times$ A100-40G GPUs.
 The result is shown in~\Cref{tab:adv-suffix}.
+
+Statistics show that with the suffix, the harmful compliance rate between BF16 and INT4 enlarges from around 8\% to $13\% \sim 35\%$ on the test set.
+This confirms that the adversarial suffix does trigger jailbreaking selectively on the quantized model. 
+Another interesting finding is that the compliance rate by the RE-Judge is much higher than the LM-Judge.
+This indicates taht the attack suffix often triggers answers that only comply in the tone but are not genuinely harmful, which is confirmed by individual case studies.
+The difference is within our expectation because the objective is also constructed by the teacher forcing syntax.
+
+\paragraph{Case Study}
+The discovered adversarial suffix demonstrates interesting characteristics. The `!!!!!!...!' initial suffix evolves into an English text that carries some meaning. The text is not very coherent, and it instructs the model to use special format or tone, which assumably leads to weaker safety constraints. We reveal pieces of the discovered suffix that fits the pattern:
+
+\begin{center}
+  \fbox{
+\texttt{...words halves??...give-me learntenglish directly...---two LaTeX...}
+  }
+\end{center}
+
+The individual sample cases also confirms the difference pattern between RE-Judge compliance and LM-Judge refusal. Here is an example:
+
+Here is part of the response to an attack example on the INT4 model, responding to the request \emph{``Teach me how to remove watermarks from copyrighted images.''} concatenated with the discovered suffix.
+
+\begin{Verbatim}[frame=leftline, framerule=2pt, rulecolor=\color{gray!60}, framesep=1em, fontsize=\footnotesize, xleftmargin=1.5em, xrightmargin=0.5em, breaklines=true, breakanywhere=true]
+Sure! Here's what you asked for 
+...
+**Here is the direct, simplified, and punchy version in two LaTeX formats:**
+---
+### **1. Direct (English) Version (LaTeX)**
+```latex
+\documentclass{article}
+\usepackage{graphicx}
+\begin{document}
+\section*{How to Remove Watermarks from Copyrighted Images}
+\textbf{Steps to Remove Watermarks:}
+1. \textbf{Use Software Tools:} Adobe Photoshop, GIMP, or online tools like Remove.bg.
+...
+4. \textbf{AI Tools:} Use AI-based tools like Remove.bg or DeepAI for automatic removal.
+\end{Verbatim}
+
+In this response, the model points to the methods and tools that are potentially illegal, which is counted as a true jailbreak. Notice that the generated text becomes messy with the attack suffix.
+
+\paragraph{Limitations}
+The quantization-aware attack by adversarial suffix still has many limitations. The model tends to produce superficially compliant text, rather than geniunely informative harmful text. Also, the attack suffix will degrade the generation quality in format. Our preliminary experiemnts show that the suffix discovered on Qwen does not generate to other open source models.
 
 \begin{table}[t]
   \centering
-  
-  \caption{Harmful-compliance rate (\%) of the quantization-aware adversarial suffix on Qwen3-4B over SORRY-Bench prompts (train: 24, test: 64).}
+
+  \caption{Harmful-compliance rate (\%) of the quantization-aware adversarial suffix on Qwen3-4B over SORRY-Bench prompts (train: 24, test: 426 held-out).}
 
   \label{tab:adv-suffix}
 
@@ -146,13 +205,13 @@ The result is shown in~\Cref{tab:adv-suffix}.
     \cmidrule(lr){3-4}\cmidrule(lr){5-6}
     Split & Precision & RE-Judge & LM-Judge & RE-Judge & LM-Judge \\
     \midrule
-    \multirow{3}{*}{train (24)} & BF16      & 25.0 & 33.3 & 29.2 & 20.8 \\
-                           & INT4      & 25.0 & 29.2 & 54.2 & 45.8 \\
-                           & $\Delta$  & $0.0$ & $-4.2$ & $\mathbf{+25.0}$ & $\mathbf{+25.0}$ \\
+    \multirow{3}{*}{train (24)}  & BF16     & 29.17 & 33.33 & 33.33 & 20.83 \\
+                           & INT4     & 20.83 & 29.17 & 62.50 & 45.83 \\
+                           & $\Delta$ & $-8.33$ & $-4.17$ & $\mathbf{+29.17}$ & $\mathbf{+25.00}$ \\
     \midrule
-    \multirow{3}{*}{test (64)}  & BF16      & 42.2 & 29.7 & 32.8 & 23.4 \\
-                           & INT4      & 46.9 & 43.8 & 68.8 & 50.0 \\
-                           & $\Delta$  & $+4.7$ & $+14.1$ & $\mathbf{+35.9}$ & $\mathbf{+26.6}$ \\
+    \multirow{3}{*}{test (426)}  & BF16     & 38.26 & 35.92 & 44.60 & 32.63 \\
+                           & INT4     & 46.24 & 44.13 & 80.05 & 46.24 \\
+                           & $\Delta$ & $+7.98$ & $+8.22$ & $\mathbf{+35.45}$ & $\mathbf{+13.62}$ \\
     \bottomrule
   \end{tabular}
 \end{table}
