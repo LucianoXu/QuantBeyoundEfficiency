@@ -1,0 +1,33 @@
+config_type: attack
+
+random_seed: 0
+output_dir: trials/adv_diff_smoke
+objective: differential
+
+model:
+  model_name: Qwen/Qwen3-4B
+  quant_type: bf16
+  device_map: auto
+
+# tiny config, validates the whole pipeline end-to-end
+attack:
+  l_suf: 20
+  n_train: 2
+  n_test: 2
+  sample_seed: 0
+  optimizer: gcg
+  num_steps: 12
+  topk: 64
+  batch_size: 64
+  chunk: 64
+  patience: null
+  check_every: 2
+  curriculum_loss: 0.5
+  curriculum_patience: 4
+  lam_refuse: 1.0
+  a_margin: 0.5
+  b_margin: 2.0
+
+eval:
+  gen_max_new_tokens: 64
+  eval_batch_size: 8

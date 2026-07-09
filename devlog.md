@@ -1,8 +1,14 @@
 ## July 7
+Ramneek
 Analysed previous benchmarks, worked on new run. 
 Implemented benchmarks based on llm judges.
 4 highly comparable benchmarks judged by the same llm judge
 2 alignment, 2 general capability
+
+Yingte:
+
+Added quantization-aware adversarial suffix attack code and experiment configuration.
+
 
 ## July 2
 
