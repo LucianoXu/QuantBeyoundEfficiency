@@ -1,0 +1,18 @@
+{
+    "results": {
+        "WILD-Bench": {
+            "success_rate": 0.8959731543624161,
+            "n_samples": 298,
+            "n_invalid": 2,
+            "prompt_style": "base",
+            "judge_model": "ibm-granite/granite-4.1-8b"
+        }
+    },
+    "config": {
+        "dataset": "allenai/WildChat-nontoxic",
+        "prompt_style": "base",
+        "judge_model": "ibm-granite/granite-4.1-8b",
+        "max_new_tokens": 512,
+        "limit": 300
+    }
+}

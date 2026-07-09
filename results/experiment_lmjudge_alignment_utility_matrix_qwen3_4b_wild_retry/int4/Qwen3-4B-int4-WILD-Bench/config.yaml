@@ -1,0 +1,25 @@
+config_type: model_bench
+random_seed: 44
+output_dir: trials/experiment_lmjudge_alignment_utility_matrix_qwen3_4b_wild_retry/int4/Qwen3-4B-int4-WILD-Bench
+model:
+  id: Qwen3-4B-int4
+  model_name: Qwen/Qwen3-4B
+  quant_type: int4
+  device_map: auto
+  config_type: model
+bench:
+  bench_name: WILD-Bench
+  batch_size: 16
+  max_question_tokens: 4096
+  max_new_tokens: 512
+  limit: 300
+  chat_template_kwargs:
+    enable_thinking: false
+  judge_args:
+    name: ibm-granite/granite-4.1-8b
+    enable_thinking: false
+    gen_len: 4
+    batch_size: 4
+  log_samples: true
+  config_type: bench
+  random_seed: 44

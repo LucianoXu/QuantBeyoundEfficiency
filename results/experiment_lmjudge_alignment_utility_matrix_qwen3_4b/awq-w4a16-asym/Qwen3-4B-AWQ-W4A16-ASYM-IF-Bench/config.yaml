@@ -1,0 +1,25 @@
+config_type: model_bench
+random_seed: 44
+output_dir: trials/experiment_lmjudge_alignment_utility_matrix_qwen3_4b/awq-w4a16-asym/Qwen3-4B-AWQ-W4A16-ASYM-IF-Bench
+model:
+  id: Qwen3-4B-AWQ-W4A16-ASYM
+  model_name: Qwen/Qwen3-4B
+  quant_type: awq-w4a16-asym
+  awq_save_dir: ckpt/Qwen3-4B-bf16-awq-w4a16-asym
+  device_map: auto
+  config_type: model
+bench:
+  bench_name: IF-Bench
+  batch_size: 32
+  max_new_tokens: 512
+  limit: 300
+  chat_template_kwargs:
+    enable_thinking: false
+  judge_args:
+    name: ibm-granite/granite-4.1-8b
+    enable_thinking: false
+    gen_len: 4
+    batch_size: 16
+  log_samples: true
+  config_type: bench
+  random_seed: 44
