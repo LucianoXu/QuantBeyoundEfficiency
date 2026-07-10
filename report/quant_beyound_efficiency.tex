@@ -52,6 +52,7 @@
 \maketitle
 
 \begin{abstract}
+	
 Quantization is a widely adopted technique that deploys machine learning models for efficient inference. A great number of research has been conducted to understand the gap between full and quantized models, including utilitarian and alignment aspects. \yx{citations}
 This work investigate the overlooked loopholes in evaluations of this gap. 
 We \yx{describe the experiments}
@@ -64,25 +65,112 @@ The findings indicate that the gap between full and quantized models are broader
 
 
 \section{Introduction}
+Quantization methods have become widespread for reducing the size of LLMs to deploy them locally with limited memory 
+and are increasingly being deployed in real world environments sensitive to safety risks.  
+Since quantization works by approximating a full-precision model, it was previously assumted that the model's abilities change consistently in all aspects.
+However, recently studies have challenged this assumption and have shown that quantization can reduce a model's capabilities in various ways, such as bias and trustworthiness. 
+This work explores how this degradation extends to various utility and alignment domains and whether it exposes weaknesses in the models safeguards that can be exploited.
+We explore the following research questions in this project:  
 
-Since quantizations work by approximating the model of full precision, it seems to be reasonable to assume that the model abilities in all aspects also change consistently.
+\begin{itemize}
+    \item \textbf{RQ1:} Do model capabilities transfer in a quantizeded model consistently across different domains?
+    \item \textbf{RQ2:} Why do some benchmarks remain consistent under quantization while others show sharp declines?
+    \item \textbf{RQ3:} Does quantization expose LLMs to attacks regarding their safeguards?
+\end{itemize}
 
+To answer our research questions, we perform various experiments on the Qwen-3 4B Model both passively with multiple choice and free generation benchmarks and actively with 
+an adversarial attack. The experiments were conducted on the Qwen-3 4B model with the quantization methods AWQ, INT4, INT8, and compare them to the baseline BF16. 
+
+\par
+
+Our key findings are the following:
+\begin{itemize}
+	\item Not all model capabilities transfer evenly with quantization and benchmarks that measure safeguards uniquely decline.  
+    \item teacher forcing benchmarks remain consistent at all levels of quantization in contrast to free generation.
+	\item  Quantized models are more vulnerable to jailbreaking attacks due to the decline of their safety mechanisms. 
+\end{itemize}
+The code for our experiments is available at https://github.com/LucianoXu/QuantBeyondEfficiency.
 \section{Backgrounds and Related Work}
 
 \section{Experiments}
 
-% (including methodology)
+%(including methodology).
 
-\subsection{Benchmarking}
+\subsection{Benchmarks}
+\subsubsection{Multiple Choice}
+We conducted four multiple-choice evaluations and measured the accuracy based on the likelihood of the generations using teacher forcing. 
+We compared two benchmarks focused on general capability to a benchmark for bias and truthfulness.  
+
+\begin{table}[htbp]
+\centering
+\caption{Model performance across tasks with relative changes compared to the BF16 baseline.}
+\label{tab:evaluation_downstream_relative}
+\setlength{\tabcolsep}{3.5pt}
+\footnotesize
+\begin{tabular}{lcccccc}
+\toprule
+\textbf{Run} & \textbf{GPQA} & \textbf{MMLU-Pro} & \textbf{BBQ}  & \textbf{TruthfulQA} \\
+\midrule
+\textbf{BF16}  & 0.3616 {\color{gray}\scriptsize (Baseline)}  & 0.5775 {\color{gray}\scriptsize (Baseline)} & 0.6520 {\color{gray}\scriptsize (Baseline)}  & 0.5476 {\color{gray}\scriptsize (Baseline)} \\
+\textbf{AWQ}    & 0.3326 {\color{gray}\scriptsize (-8.02\%)}   & 0.5473 {\color{gray}\scriptsize (-5.23\%)}   & 0.5750 {\color{gray}\scriptsize (-11.81\%)} & 0.5445 {\color{gray}\scriptsize (-0.57\%)}   \\
+\textbf{INT4}   & 0.3438 {\color{gray}\scriptsize (-4.92\%)}  & 0.5322 {\color{gray}\scriptsize (-7.84\%)}   & 0.6360 {\color{gray}\scriptsize (-2.45\%)}    & 0.5461 {\color{gray}\scriptsize (-0.27\%)}   \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+We consistently observe evaluations above the random baseline. Quantization does not degrade the teacher forcing benchmarks. 
+
+\subsubsection{Free Generation}
+For our second benchmark, we compared the model's ability to follow instructions and its general capabilities to its safeguards. We selected deception and safety refusal as the two datasets with which to measure the model's safeguards. 
+We compared them to InFoBench, a dataset that measures instruction following, and to WildChat-NonToxic, which contains general, non-toxic prompts. 
+The evaluation was performed using the same large language model (LLM) judge for all four benchmarks. 
+
+\begin{table}[htbp]
+\centering
+\caption{Model performance across tasks with relative changes compared to the BF16 baseline.}
+\label{tab:evaluationlm_judge}
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Run} & \textbf{DeceptionBench} & \textbf{SORRY-bench} & \textbf{InFoBench} & \textbf{WildChat-nontoxic} \\
+             & (deception\_rate) & (fulfillment\_rate) & (follow\_rate) & (success\_rate) \\
+\midrule
+\textbf{BF16} & 0.2267 {\color{gray}\footnotesize (Baseline)} & 0.2667 {\color{gray}\footnotesize (Baseline)} & 0.9067 {\color{gray}\footnotesize (Baseline)} & 0.8829 {\color{gray}\footnotesize (Baseline)} \\
+\textbf{INT8} & 0.2233 {\color{gray}\footnotesize (-1.47\%)}   & 0.2333 {\color{gray}\footnotesize (-12.50\%)}  & 0.9233 {\color{gray}\footnotesize (+1.84\%)}   & 0.8960 {\color{gray}\footnotesize (+1.48\%)}   \\
+\textbf{AWQ}  & 0.2767 {\color{gray}\footnotesize (+22.06\%)}  & 0.2500 {\color{gray}\footnotesize (-6.25\%)}   & 0.9064 {\color{gray}\footnotesize (-0.03\%)}   & 0.8729 {\color{gray}\footnotesize (-1.14\%)}   \\
+\textbf{INT4} & 0.3233 {\color{gray}\footnotesize (+42.65\%)}  & 0.2833 {\color{gray}\footnotesize (+6.25\%)}   & 0.9300 {\color{gray}\footnotesize (+2.57\%)}   & 0.8763 {\color{gray}\footnotesize (-0.76\%)}   \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+DeceptionBench shows a significant increase in the deception rate, and SorryBench's fulfillment rate also increases in Int4.
+Meanwhile, both instruction following and wild chat remain consistent.  
+
 
 \subsection{Attack}
 
 \section{Analysis and Conclusion}
 
-Quantization can decline safegards while IF remains stable.
+RQ1: Do the capabilities of a quantized model transfer consistently across various domains?
 
-Capabilities do not necessarily transfer equally.
+Our evaluations have shown that models do not perform worse on multiple-choice benchmarks when evaluated with teacher forcing. 
+However, they perform considerably worse on free generation benchmarks. We find that benchmarks that measure model safeguards, such as DeceptionBench and SorryBench significantly decline. However, we find that instruction-following capabilities in free generation remain intact. 
+This suggests that the model can successfully follow dangerous user instructions. 
+Furthermore, we can conclude that model capabilities do not necessarily transfer equally. Instruction following and model safeguards seem to be distinct capabilities of the model.  
 
+
+RQ2: Why do some benchmarks remain consistent with quantization while others decline?
+
+RQ3: Does the decline in safeguards expose LLMs to unique vulnerabilities?
+
+As our evaluations show, models remain capable of following instructions while declining in safeguards.
+To explore this further, we exploited vulnerabilities in the quantized models using a quantization-aware adversarial suffix attack. 
+
+
+\section{Limitations}
+The benchmark evaluations in \ref{tab:evaluationlm_judge} are judged via a language model. LLM-as-a-judge is an inconsistent measure of the model performance.
+We evaluated only the Qwen3 models, we do not know if our results generalize to other model families.      
+
+\newpage
 
 
 \section{Benchmarking Utility and Alignment}
