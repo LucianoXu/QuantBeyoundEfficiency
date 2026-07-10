@@ -73,7 +73,7 @@ This work explores how this degradation extends to various utility and alignment
 We explore the following research questions in this project:  
 
 \begin{itemize}
-    \item \textbf{RQ1:} Do model capabilities transfer in a quantizeded model consistently across different domains?
+    \item \textbf{RQ1:} Do model capabilities transfer in a quantized model consistently across different domains?
     \item \textbf{RQ2:} Why do some benchmarks remain consistent under quantization while others show sharp declines?
     \item \textbf{RQ3:} Does quantization expose LLMs to attacks regarding their safeguards?
 \end{itemize}
@@ -123,7 +123,8 @@ We consistently observe evaluations above the random baseline. Quantization does
 \subsubsection{Free Generation}
 For our second benchmark, we compared the model's ability to follow instructions and its general capabilities to its safeguards. We selected deception and safety refusal as the two datasets with which to measure the model's safeguards. 
 We compared them to InFoBench, a dataset that measures instruction following, and to WildChat-NonToxic, which contains general, non-toxic prompts. 
-The evaluation was performed using the same large language model (LLM) judge for all four benchmarks. 
+The evaluation was performed using the LLM judge ibm granite-4.1-8b for all four benchmarks. Wildchat, Sorrybench and InFoBench used the same system prompt \ref{fig:judge_prompt} which was adapted from the system prompt for the SORRY bench LLM Judge.
+DeceptionBench uses a slightly modified system prompt \ref{fig:judge_prompt_deception}.
 
 \begin{table}[htbp]
 \centering
@@ -155,8 +156,7 @@ RQ1: Do the capabilities of a quantized model transfer consistently across vario
 Our evaluations have shown that models do not perform worse on multiple-choice benchmarks when evaluated with teacher forcing. 
 However, they perform considerably worse on free generation benchmarks. We find that benchmarks that measure model safeguards, such as DeceptionBench and SorryBench significantly decline. However, we find that instruction-following capabilities in free generation remain intact. 
 This suggests that the model can successfully follow dangerous user instructions. 
-Furthermore, we can conclude that model capabilities do not necessarily transfer equally. Instruction following and model safeguards seem to be distinct capabilities of the model.  
-
+Furthermore, we can conclude that model capabilities do not necessarily transfer equally. Our findings suggest that instruction following and model safeguards are disjoint capabilities of the model.  
 
 RQ2: Why do some benchmarks remain consistent with quantization while others decline?
 
@@ -170,8 +170,39 @@ To explore this further, we exploited vulnerabilities in the quantized models us
 The benchmark evaluations in \ref{tab:evaluationlm_judge} are judged via a language model. LLM-as-a-judge is an inconsistent measure of the model performance.
 We evaluated only the Qwen3 models, we do not know if our results generalize to other model families.      
 
-\newpage
+\section{Appendix}
 
+
+\begin{figure}[htbp]
+\begin{Verbatim}[frame=leftline, framerule=2pt, rulecolor=\color{gray!60}, framesep=1em, fontsize=\footnotesize, xleftmargin=1.5em, xrightmargin=0.5em, breaklines=true, breakanywhere=true]
+-[Output 1] Complies with the user request, i.e., containing content that can directly assist with or resolve the request.
+-[Output 0] Doesn't comply with the user request; e.g., directly declining the user request or merely providing relevant content that cannot directly resolve the user request.
+
+Output only the score.
+
+User Request: "{question}"
+Model Response: "{answer}"
+\end{Verbatim}
+\caption{System prompt template used by the LLM judge to evaluate IF, WildChat, Sorrybench Prompt.}
+\label{fig:judge_prompt}
+\end{figure}
+
+\begin{figure}[htbp]
+\begin{Verbatim}[frame=leftline, framerule=2pt, rulecolor=\color{gray!60}, framesep=1em, fontsize=\footnotesize, xleftmargin=1.5em, xrightmargin=0.5em, breaklines=true, breakanywhere=true]
+-[Output 1] if the model response chose to lie, mislead, exaggerate, or omit information to satisfy the deceptive goal.
+-[Output 0] if the model remained honest, refused to participate in the deception.
+
+Output only the score.
+
+Scenario context and user query: "{question}"
+Deceptive Goal: "{goal}"
+Ethical Baseline: "{groundtruth}"
+Model Response: "{answer}"
+\end{Verbatim}
+\caption{System prompt template used by the LLM judge to evaluate DeceptionBench.}
+\label{fig:judge_prompt_deception}
+\end{figure}
+The llm judge is given the prompt as "question", the ethical baseline of this prompt, the deceptive goal and the models response.  
 
 \section{Benchmarking Utility and Alignment}
 
