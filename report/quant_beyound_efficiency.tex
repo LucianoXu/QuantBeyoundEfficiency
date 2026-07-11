@@ -123,7 +123,7 @@ We consistently observe evaluations above the random baseline. Quantization does
 \subsubsection{Free Generation}
 For our second benchmark, we compared the model's ability to follow instructions and its general capabilities to its safeguards. We selected deception and safety refusal as the two datasets with which to measure the model's safeguards. 
 We compared them to InFoBench, a dataset that measures instruction following, and to WildChat-NonToxic, which contains general, non-toxic prompts. 
-The evaluation was performed using the LLM judge ibm granite-4.1-8b for all four benchmarks. Wildchat, Sorrybench and InFoBench used the same system prompt \ref{fig:judge_prompt} which was adapted from the system prompt for the SORRY bench LLM Judge.
+The evaluation was performed using the deepseek v4 flash as an llm judge for all four benchmarks. Wildchat, Sorrybench and InFoBench used the same system prompt \ref{fig:judge_prompt} which was adapted from the system prompt for the SORRY bench LLM Judge.
 DeceptionBench uses a slightly modified system prompt \ref{fig:judge_prompt_deception}.
 
 \begin{table}[htbp]
@@ -135,16 +135,16 @@ DeceptionBench uses a slightly modified system prompt \ref{fig:judge_prompt_dece
 \textbf{Run} & \textbf{DeceptionBench} & \textbf{SORRY-bench} & \textbf{InFoBench} & \textbf{WildChat-nontoxic} \\
              & (deception\_rate) & (fulfillment\_rate) & (follow\_rate) & (success\_rate) \\
 \midrule
-\textbf{BF16} & 0.2267 {\color{gray}\footnotesize (Baseline)} & 0.2667 {\color{gray}\footnotesize (Baseline)} & 0.9067 {\color{gray}\footnotesize (Baseline)} & 0.8829 {\color{gray}\footnotesize (Baseline)} \\
-\textbf{INT8} & 0.2233 {\color{gray}\footnotesize (-1.47\%)}   & 0.2333 {\color{gray}\footnotesize (-12.50\%)}  & 0.9233 {\color{gray}\footnotesize (+1.84\%)}   & 0.8960 {\color{gray}\footnotesize (+1.48\%)}   \\
-\textbf{AWQ}  & 0.2767 {\color{gray}\footnotesize (+22.06\%)}  & 0.2500 {\color{gray}\footnotesize (-6.25\%)}   & 0.9064 {\color{gray}\footnotesize (-0.03\%)}   & 0.8729 {\color{gray}\footnotesize (-1.14\%)}   \\
-\textbf{INT4} & 0.3233 {\color{gray}\footnotesize (+42.65\%)}  & 0.2833 {\color{gray}\footnotesize (+6.25\%)}   & 0.9300 {\color{gray}\footnotesize (+2.57\%)}   & 0.8763 {\color{gray}\footnotesize (-0.76\%)}   \\
+\textbf{BF16} & 0.4267 {\color{gray}\footnotesize (Baseline)} & 0.1467 {\color{gray}\footnotesize (Baseline)} & 0.8333 {\color{gray}\footnotesize (Baseline)} & 0.6600 {\color{gray}\footnotesize (Baseline)} \\
+\textbf{INT8} & 0.4700 {\color{gray}\footnotesize (+10.16\%)}  & 0.1333 {\color{gray}\footnotesize (-9.09\%)}   & 0.8033 {\color{gray}\footnotesize (-3.60\%)}   & 0.6267 {\color{gray}\footnotesize (-5.05\%)}   \\
+\textbf{AWQ}  & 0.4533 {\color{gray}\footnotesize (+6.25\%)}   & 0.1100 {\color{gray}\footnotesize (-25.00\%)}  & 0.7767 {\color{gray}\footnotesize (-6.80\%)}   & 0.6233 {\color{gray}\footnotesize (-5.56\%)}   \\
+\textbf{INT4} & 0.5367 {\color{gray}\footnotesize (+25.78\%)}  & 0.1900 {\color{gray}\footnotesize (+29.55\%)}  & 0.8233 {\color{gray}\footnotesize (-1.20\%)}   & 0.5767 {\color{gray}\footnotesize (-12.62\%)}  \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 DeceptionBench shows a significant increase in the deception rate, and SorryBench's fulfillment rate also increases in Int4.
-Meanwhile, both instruction following and wild chat remain consistent.  
+ 
 
 
 \subsection{Attack}
