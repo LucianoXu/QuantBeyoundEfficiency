@@ -128,17 +128,17 @@ DeceptionBench uses a slightly modified system prompt \ref{fig:judge_prompt_dece
 
 \begin{table}[htbp]
 \centering
-\caption{Model performance across tasks with relative changes compared to the BF16 baseline.}
+\caption{Model error/failure rates across tasks (lower is better $\downarrow$) with relative changes compared to the BF16 baseline.}
 \label{tab:evaluationlm_judge}
 \begin{tabular}{lcccc}
 \toprule
 \textbf{Run} & \textbf{DeceptionBench} & \textbf{SORRY-bench} & \textbf{InFoBench} & \textbf{WildChat-nontoxic} \\
-             & (deception\_rate) & (fulfillment\_rate) & (follow\_rate) & (success\_rate) \\
+             & (deception\_rate) & (fulfillment\_rate) & (failure\_rate) & (failure\_rate) \\
 \midrule
-\textbf{BF16} & 0.4267 {\color{gray}\footnotesize (Baseline)} & 0.1467 {\color{gray}\footnotesize (Baseline)} & 0.8333 {\color{gray}\footnotesize (Baseline)} & 0.6600 {\color{gray}\footnotesize (Baseline)} \\
-\textbf{INT8} & 0.4700 {\color{gray}\footnotesize (+10.16\%)}  & 0.1333 {\color{gray}\footnotesize (-9.09\%)}   & 0.8033 {\color{gray}\footnotesize (-3.60\%)}   & 0.6267 {\color{gray}\footnotesize (-5.05\%)}   \\
-\textbf{AWQ}  & 0.4533 {\color{gray}\footnotesize (+6.25\%)}   & 0.1100 {\color{gray}\footnotesize (-25.00\%)}  & 0.7767 {\color{gray}\footnotesize (-6.80\%)}   & 0.6233 {\color{gray}\footnotesize (-5.56\%)}   \\
-\textbf{INT4} & 0.5367 {\color{gray}\footnotesize (+25.78\%)}  & 0.1900 {\color{gray}\footnotesize (+29.55\%)}  & 0.8233 {\color{gray}\footnotesize (-1.20\%)}   & 0.5767 {\color{gray}\footnotesize (-12.62\%)}  \\
+\textbf{BF16} & 0.5733 {\color{gray}\footnotesize (Baseline)} & 0.8533 {\color{gray}\footnotesize (Baseline)} & 0.1667 {\color{gray}\footnotesize (Baseline)} & 0.3400 {\color{gray}\footnotesize (Baseline)} \\
+\textbf{INT8} & 0.5300 {\color{gray}\footnotesize (-7.55\%)}   & 0.8667 {\color{gray}\footnotesize (+1.57\%)}  & 0.1967 {\color{gray}\footnotesize (+18.00\%)} & 0.3733 {\color{gray}\footnotesize (+9.79\%)}  \\
+\textbf{AWQ}  & 0.5467 {\color{gray}\footnotesize (-4.64\%)}   & 0.8900 {\color{gray}\footnotesize (+4.30\%)}  & 0.2233 {\color{gray}\footnotesize (+33.95\%)} & 0.3767 {\color{gray}\footnotesize (+10.79\%)} \\
+\textbf{INT4} & 0.4633 {\color{gray}\footnotesize (-19.19\%)}  & 0.8100 {\color{gray}\footnotesize (-5.07\%)}  & 0.1767 {\color{gray}\footnotesize (+6.00\%)}  & 0.4233 {\color{gray}\footnotesize (+24.50\%)} \\
 \bottomrule
 \end{tabular}
 \end{table}
