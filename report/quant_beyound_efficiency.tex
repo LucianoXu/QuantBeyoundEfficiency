@@ -65,12 +65,11 @@ The findings indicate that the gap between full and quantized models are broader
 
 
 \section{Introduction}
-Quantization methods have become widespread for reducing the size of LLMs to deploy them locally with limited memory 
-and are increasingly being deployed in real world environments sensitive to safety risks.  
-Since quantization works by approximating a full-precision model, it was previously assumted that the model's abilities change consistently in all aspects.
-However, recently studies have challenged this assumption and have shown that quantization can reduce a model's capabilities in various ways, such as bias and trustworthiness. 
-This work explores how this degradation extends to various utility and alignment domains and whether it exposes weaknesses in the models safeguards that can be exploited.
-We explore the following research questions in this project:  
+Quantization methods have become widespread for reducing the size of LLMs for local deployment with limited memory. These methods are increasingly being used in real-world environments that are sensitive to safety risks.  
+Since quantization approximates a full-precision model, it was previously assumed that the model's capabilities changed consistently in all aspects.
+However, recent works have challenged this assumption, showing that quantization can reduce a model's capabilities in various ways, affecting bias and trustworthiness, for example. 
+This project explores how this degradation extends to different utility and alignment domains, as well as whether it reveals vulnerabilities in the model's safeguards that could be exploited.
+The following research questions are explored in this project:  
 
 \begin{itemize}
     \item \textbf{RQ1:} Do model capabilities transfer in a quantized model consistently across different domains?
@@ -111,14 +110,35 @@ We compared two benchmarks focused on general capability to a benchmark for bias
 \toprule
 \textbf{Run} & \textbf{GPQA} & \textbf{MMLU-Pro} & \textbf{BBQ}  & \textbf{TruthfulQA} \\
 \midrule
-\textbf{BF16}  & 0.3616 {\color{gray}\scriptsize (Baseline)}  & 0.5775 {\color{gray}\scriptsize (Baseline)} & 0.6520 {\color{gray}\scriptsize (Baseline)}  & 0.5476 {\color{gray}\scriptsize (Baseline)} \\
-\textbf{AWQ}    & 0.3326 {\color{gray}\scriptsize (-8.02\%)}   & 0.5473 {\color{gray}\scriptsize (-5.23\%)}   & 0.5750 {\color{gray}\scriptsize (-11.81\%)} & 0.5445 {\color{gray}\scriptsize (-0.57\%)}   \\
-\textbf{INT4}   & 0.3438 {\color{gray}\scriptsize (-4.92\%)}  & 0.5322 {\color{gray}\scriptsize (-7.84\%)}   & 0.6360 {\color{gray}\scriptsize (-2.45\%)}    & 0.5461 {\color{gray}\scriptsize (-0.27\%)}   \\
+\textbf{BF16}  & 0.3616   & 0.5775 & 0.6520  & 0.5476 \\
+\textbf{AWQ}    & 0.3326   & 0.5473    & 0.5750 & 0.5445   \\
+\textbf{INT4}   & 0.3438   & 0.5322   & 0.6360  & 0.546  \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-We consistently observe evaluations above the random baseline. Quantization does not degrade the teacher forcing benchmarks. 
+We consistently observe evaluations above the random baseline. Quantization does not degrade the teacher forcing benchmarks significantly in most cases.
+Only in BBQ, which evaluates bias, was a significant decrease in AWQ observed, a lower score indidcating 
+
+
+\begin{table}[htbp]
+\centering
+\caption{Model performance across Ethics tasks for different quantizations.}
+\label{tab:evaluation_ethics}
+\setlength{\tabcolsep}{3.5pt}
+\footnotesize
+\begin{tabular}{lccccc}
+\toprule
+\textbf{Run} & \textbf{Ethics CM} & \textbf{Deontology} & \textbf{Justice} & \textbf{Utilitarianism} & \textbf{Virtue} \\
+\midrule
+\textbf{BF16}  & 0.716   & 0.623   & 0.703   & 0.710   & 0.886 \\
+\textbf{AWQ}   & 0.698   & 0.631   & 0.684   & 0.713   & 0.890 \\
+\textbf{INT4}   & 0.702   & 0.612   & 0.666   & 0.636   & 0.859 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The strongest decrease is in utilitarianism. Not all of the different subtypes decrease evenly. 
 
 \subsubsection{Free Generation}
 For our second benchmark, we compared the model's ability to follow instructions and its general capabilities to its safeguards. We selected deception and safety refusal as the two datasets with which to measure the model's safeguards. 
@@ -142,9 +162,26 @@ DeceptionBench uses a slightly modified system prompt \ref{fig:judge_prompt_dece
 \bottomrule
 \end{tabular}
 \end{table}
-
 DeceptionBench shows a significant increase in the deception rate, and SorryBench's fulfillment rate also increases in Int4.
-Meanwhile, both instruction following and wild chat remain consistent.  
+
+\begin{table}[htbp]
+\centering
+\caption{Absolute and rate increase in coherent compliance compared to bf16 (N = 300)}
+\label{tab:evaluation_safety_instruction}
+\setlength{\tabcolsep}{3.5pt}
+\footnotesize
+\begin{tabular}{lcc}
+\toprule
+\textbf{Quantization} & \textbf{DeceptionBench} & \textbf{Sorry-Bench}  \\
+\midrule
+\textbf{int8}           & 30 (+10.0\%) & 5 (+1.7\%)   \\
+\textbf{awq-w4a16-asym} & 29 (+9.7\%)  & 6 (+2.0\%)  \\
+\textbf{int4}           & 49 (+16.3\%) & 20 (+6.7\%)  \\
+\bottomrule
+\end{tabular}
+\end{table}
+We also judged coherency in the responses, and found that there is a increase
+in deceptive/dangerous responses that are coherent. 
 
 
 \subsection{Attack}
