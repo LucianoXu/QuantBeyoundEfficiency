@@ -123,28 +123,28 @@ We consistently observe evaluations above the random baseline. Quantization does
 \subsubsection{Free Generation}
 For our second benchmark, we compared the model's ability to follow instructions and its general capabilities to its safeguards. We selected deception and safety refusal as the two datasets with which to measure the model's safeguards. 
 We compared them to InFoBench, a dataset that measures instruction following, and to WildChat-NonToxic, which contains general, non-toxic prompts. 
-The evaluation was performed using the deepseek v4 flash as an llm judge for all four benchmarks. Wildchat, Sorrybench and InFoBench used the same system prompt \ref{fig:judge_prompt} which was adapted from the system prompt for the SORRY bench LLM Judge.
+The evaluation was performed using the deepseek v4 flash for all four benchmarks. Wildchat, Sorrybench and InFoBench used the same system prompt \ref{fig:judge_prompt} which was adapted from the system prompt for the SORRY bench LLM Judge.
 DeceptionBench uses a slightly modified system prompt \ref{fig:judge_prompt_deception}.
 
 \begin{table}[htbp]
 \centering
-\caption{Model error/failure rates across tasks (lower is better $\downarrow$) with relative changes compared to the BF16 baseline.}
-\label{tab:evaluationlm_judge}
+\caption{Model performance across tasks.}
+\label{tab:evaluationlm_judge_perf}
 \begin{tabular}{lcccc}
 \toprule
 \textbf{Run} & \textbf{DeceptionBench} & \textbf{SORRY-bench} & \textbf{InFoBench} & \textbf{WildChat-nontoxic} \\
-             & (deception\_rate) & (fulfillment\_rate) & (failure\_rate) & (failure\_rate) \\
+             & (deception\_rate) & (fulfillment\_rate) & (follow\_rate) & (success\_rate) \\
 \midrule
-\textbf{BF16} & 0.5733 {\color{gray}\footnotesize (Baseline)} & 0.8533 {\color{gray}\footnotesize (Baseline)} & 0.1667 {\color{gray}\footnotesize (Baseline)} & 0.3400 {\color{gray}\footnotesize (Baseline)} \\
-\textbf{INT8} & 0.5300 {\color{gray}\footnotesize (-7.55\%)}   & 0.8667 {\color{gray}\footnotesize (+1.57\%)}  & 0.1967 {\color{gray}\footnotesize (+18.00\%)} & 0.3733 {\color{gray}\footnotesize (+9.79\%)}  \\
-\textbf{AWQ}  & 0.5467 {\color{gray}\footnotesize (-4.64\%)}   & 0.8900 {\color{gray}\footnotesize (+4.30\%)}  & 0.2233 {\color{gray}\footnotesize (+33.95\%)} & 0.3767 {\color{gray}\footnotesize (+10.79\%)} \\
-\textbf{INT4} & 0.4633 {\color{gray}\footnotesize (-19.19\%)}  & 0.8100 {\color{gray}\footnotesize (-5.07\%)}  & 0.1767 {\color{gray}\footnotesize (+6.00\%)}  & 0.4233 {\color{gray}\footnotesize (+24.50\%)} \\
+\textbf{BF16} & 0.4267 & 0.1467 & 0.8333 & 0.6600 \\
+\textbf{INT8} & 0.4700 & 0.1333 & 0.8033 & 0.6267 \\
+\textbf{AWQ}  & 0.4533 & 0.1100 & 0.7767 & 0.6233 \\
+\textbf{INT4} & 0.5367 & 0.1900 & 0.8233 & 0.5767 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 DeceptionBench shows a significant increase in the deception rate, and SorryBench's fulfillment rate also increases in Int4.
- 
+Meanwhile, both instruction following and wild chat remain consistent.  
 
 
 \subsection{Attack}
