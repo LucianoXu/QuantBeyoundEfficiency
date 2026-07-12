@@ -91,6 +91,29 @@ Our key findings are the following:
 The code for our experiments is available at https://github.com/LucianoXu/QuantBeyondEfficiency.
 \section{Background and Related Work}
 
+[Introduction Quantization]
+Rapid advancements in Large Language Models (LLMs) have lead to a steady growth in model sizes, with modern models having hundreds of billions of parameters. Deploying these models requires significant amounts of video RAM (VRAM) creating a major bottleneck. One technique to mitigate this issue is quantization. This maps higher precision representations (such as brain floating point 16) of the model parameters to lower formats (such as 8-bit integers). This drasticly reduces the memory footprint, but can also introduce a loss of model accuracy.
+Widely-adopted strategies include Quantization-Aware Training (QAT) and Post-Training Quantization (PTQ). QAT introduces a fine-tuning step on a representative dataset to allow the model to adapt to lower precision formats at the cost of additional computation. In contrast, PTQ is applied directly on a trained model without further fine-tuning steps. 
+Quantization can target the model parameters (Weight Quantization) or additionaly at the inference states (Activation Quantization). In this work, we concentrate on PTQ and Weight Quantization as they are the most widely adopted strategies in practice through their computational low costs. [Int4, Int8, AWQ, FP16 explanation in appendix ?]
+
+
+[Introduction to Benchmarks][Appendix?][Gap that most models are only evaluated at bf16?]
+To evaluate the performance of LLMs and ensure comparability between different models, a broad range of standardized benchmarks has been established. These benchmarks assess their performance across a diverse range of domains, including mathematical reasoning (GSM8K), general knowledge (MMLU), bias (CrowS-Pairs) and robustness against jailbreak attempts (SORRY Bench). [Add data contamination concerns]
+Benchmarks do not only differ in the domain they assess, but also in their evaluation protocol.
+In Multiple Choice and Log-Likelihood Rankings [better word?] the model is presented with predefined answer options. Performance is evaluated either by calculating the log-likelihood of each answer candidate and selecting the highest-probability option, or by parsing the generated response using regular expression.
+In Free-Form Generation [better word] the model generates a response during inference. This is evaluated by either exact-matching (e.g., extracting a numerical answer) or by utilizing a LLM-as-a-Judge model to categorize the response.
+Free Generation lets the model generate a natural response during inference. Another LLM is utilized as a judge to rate the answer as correct or false according to the task.
+When assessing quantized model performance, the evaluation methodology is of crucial interest. Free-form generation tasks can reveal a cumulation of errors, representing the degradation of answer quality at inference time, while log-likelihood ranking can only measure token probability shifts. [CONFUSING LAST SENTENCE]
+
+[Some related works that could pose useful[needs much better phrasing to support the overaching story]
+[https://arxiv.org/pdf/2402.16775] Jin et al. evaluate the performance of Qwen-Chat models of different parameter count and different quantization techniques. They show that performance loss is not uniform across benchmarks. [Better statement?]
+[https://arxiv.org/pdf/2605.15208] also identify PTQ as a source of model safety alignment degradation.
+[https://arxiv.org/pdf/2410.22118] Kirsten et al. investigated the impact of quantization on bias. They found that the effect of techniques is unreliable on bias Furthermore, they highlight the importance of different evaluation protocols for benchmarks to surface different capabilities. [badly phrased]
+[https://arxiv.org/pdf/2502.15799] Kharinaev et. al evaluate the safety and trustworthiness of quantized models finding that multiple choice benchmarks can mask the degradation in safety of models.
+[https://arxiv.org/pdf/2508.18088] find that certain alignment qualities like stereotype and unfairness get amplified, toxicity and sentiment remain stable.
+
+[Add context to attack, but Yingte already referenced them?]
+[https://arxiv.org/pdf/2405.18137] present an attack, where a full precision model shows benign behavior, but follows adversarial behavior when quantized.
 
 \section{Benchmarking Utility and Alignment}
 
