@@ -157,7 +157,7 @@ DeceptionBench uses a slightly modified system prompt \ref{fig:judge_prompt_dece
 
 \begin{table}[htbp]
 \centering
-\caption{Model performance across tasks.}
+\caption{Model performance across llm judge tasks.}
 \label{tab:evaluationlm_judge_perf}
 \begin{tabular}{lcccc}
 \toprule
@@ -192,29 +192,64 @@ DeceptionBench shows a significant increase in the deception rate, and SorryBenc
 We also judged coherency in the responses, and found that there is a increase
 in deceptive/dangerous responses that are coherent. 
 
-\subsubsection{1.7B Experiment}
-
 \begin{table}[htbp]
 \centering
-\caption{Model performance across selected benchmarks grouped by evaluation method.}
-\label{tab:evaluation_grouped_1.7B}
-\setlength{\tabcolsep}{5pt}
-\footnotesize
-\begin{tabular}{lcccccc}
+\caption{Model performance across other tasks.}
+\label{tab:evaluation_tasks_no_gpqa}
+\begin{tabular}{lccc}
 \toprule
- & \multicolumn{3}{c}{\textbf{Free Generation}} & \multicolumn{3}{c}{\textbf{Teacher Forcing}} \\
-\cmidrule(lr){2-4} \cmidrule(lr){5-7}
-\textbf{Run} & \textbf{Human Eval} & \textbf{mgsm\_direct\_en} & \textbf{MMLU-Pro} & \textbf{GPQA} & \textbf{BBQ} & \textbf{TruthfulQA} \\
+\textbf{Run} & \textbf{Human Eval} & \textbf{mgsm\_direct\_en} & \textbf{MMLU-Pro} \\
+             & (pass@1,create\_test) & (exact\_match,flexible-extract) & (exact\_match,custom-extract) \\
 \midrule
-\textbf{BF16} & 0.4146 & 0.1320 & 0.4256 & 0.3103 & 0.5040 & 0.4589 \\
-\textbf{INT8} & 0.4085 & 0.1160 & 0.3994 & 0.2879 & 0.4950 & 0.4680 \\
-\textbf{AWQ}  & 0.3841 & 0.1080 & 0.3883 & 0.2835 & 0.5030 & 0.4706 \\
-\textbf{INT4} & 0.0915 & 0.0560 & 0.2324 & 0.2589 & 0.4780 & 0.4884 \\
+\textbf{BF16} & 0.7195 & 0.4600 & 0.5775 \\
+\textbf{AWQ}  & 0.6280 & 0.4000 & 0.5473 \\
+\textbf{INT4} & 0.6524 & 0.3400 & 0.5322 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\subsubsection{1.7B Experiment}
+
+\begin{table}[h!]
+\centering
+\caption{Model performance on Free Generation benchmarks.}
+\label{tab:evaluation_free_gen}
+\setlength{\tabcolsep}{6pt}
+\footnotesize
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Run} & \textbf{Human Eval} & \textbf{mgsm\_direct\_en} & \textbf{MMLU-Pro} & \textbf{Sorry Bench (higher worse)} \\
+\midrule
+\textbf{BF16} & 0.4146 & 0.1320 & 0.4256 & 0.5667 \\
+\textbf{INT8} & 0.4085 & 0.1160 & 0.3994 & 0.5978 \\
+\textbf{AWQ}  & 0.3841 & 0.1080 & 0.3883 & 0.6022 \\
+\textbf{INT4} & 0.0915 & 0.0560 & 0.2324 & 0.7756 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[h!]
+\centering
+\caption{Model performance on Teacher Forcing benchmarks.}
+\label{tab:evaluation_teacher_forcing}
+\setlength{\tabcolsep}{6pt}
+\footnotesize
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Run} & \textbf{GPQA} & \textbf{BBQ} & \textbf{Hendrycks Ethics} & \textbf{TruthfulQA} \\
+\midrule
+\textbf{BF16} & 0.3103 & 0.5040 & 0.6000 & 0.4589 \\
+\textbf{INT8} & 0.2879 & 0.4950 & 0.6120 & 0.4680 \\
+\textbf{AWQ}  & 0.2835 & 0.5030 & 0.5820 & 0.4706 \\
+\textbf{INT4} & 0.2589 & 0.4780 & 0.5590 & 0.4884 \\
 \bottomrule
 \end{tabular}
 \end{table}
 \subsection{Attack}
 
+
+\newpage
 \section{Analysis and Conclusion}
 
 RQ1: Do the capabilities of a quantized model transfer consistently across various domains?
