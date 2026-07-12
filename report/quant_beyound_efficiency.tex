@@ -85,7 +85,7 @@ an adversarial attack. The experiments were conducted on the Qwen-3 4B model wit
 Our key findings are the following:
 \begin{itemize}
 	\item Not all model capabilities transfer evenly with quantization and benchmarks that measure safeguards uniquely decline.  
-    \item teacher forcing benchmarks remain consistent at all levels of quantization in contrast to free generation.
+    \item Multiple choice benchmarks evaluated with teacher forcing tend to stay more stable in quantization compared to free generation benchmarks 
 	\item  Quantized models are more vulnerable to jailbreaking attacks due to the decline of their safety mechanisms. 
 \end{itemize}
 The code for our experiments is available at https://github.com/LucianoXu/QuantBeyondEfficiency.
@@ -98,7 +98,16 @@ The code for our experiments is available at https://github.com/LucianoXu/QuantB
 \subsection{Benchmarks}
 \subsubsection{Multiple Choice}
 We conducted four multiple-choice evaluations and measured the accuracy based on the likelihood of the generations using teacher forcing. 
-We compared two benchmarks focused on general capability to a benchmark for bias and truthfulness.  
+We compared two benchmarks focused on general capability to a benchmark for bias and truthfulness.
+\% describe benchmarks 
+GPQA: is a benchmark ..
+
+Med-Concepts-QA: ..
+
+BBQ: 
+
+TruthfulQA: 
+
 
 \begin{table}[htbp]
 \centering
@@ -108,17 +117,17 @@ We compared two benchmarks focused on general capability to a benchmark for bias
 \footnotesize
 \begin{tabular}{lcccccc}
 \toprule
-\textbf{Run} & \textbf{GPQA} & \textbf{MMLU-Pro} & \textbf{BBQ}  & \textbf{TruthfulQA} \\
+\textbf{Run} & \textbf{GPQA} & \textbf{Med-Concepts-QA} & \textbf{BBQ}  & \textbf{TruthfulQA} \\
 \midrule
-\textbf{BF16}  & 0.3616   & 0.5775 & 0.6520  & 0.5476 \\
-\textbf{AWQ}    & 0.3326   & 0.5473    & 0.5750 & 0.5445   \\
-\textbf{INT4}   & 0.3438   & 0.5322   & 0.6360  & 0.546  \\
+\textbf{BF16}  & 0.3616   & 0.362 & 0.6520  & 0.5476 \\
+\textbf{AWQ}    & 0.3326   & 0.327   & 0.5750 & 0.5445   \\
+\textbf{INT4}   & 0.3438   & 0.329   & 0.6360  & 0.546  \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 We consistently observe evaluations above the random baseline. Quantization does not degrade the teacher forcing benchmarks significantly in most cases.
-Only in BBQ, which evaluates bias, was a significant decrease in AWQ observed, a lower score indidcating 
+Only in BBQ, which evaluates bias, was a significant decrease in AWQ observed, a lower score indicating a higher bias.  
 
 
 \begin{table}[htbp]
