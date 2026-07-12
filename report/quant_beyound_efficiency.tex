@@ -91,12 +91,14 @@ Our key findings are the following:
 The code for our experiments is available at https://github.com/LucianoXu/QuantBeyondEfficiency.
 \section{Background and Related Work}
 
-\section{Experiments}
 
-%(including methodology).
+\section{Benchmarking Utility and Alignment}
 
-\subsection{Benchmarks}
-\subsubsection{Multiple Choice}
+\yx{Benchmarking methodology should be discussed. What is the critera of choosing benchmarks. Explain the evaluation. In-context learning? How are results extracted? What does teacher forcing mean? Do we use frameworks? What is our experiment configuration?}
+
+\yx{Introduce what is coherence, and how we evaluate them.}
+
+\subsection{Multiple Choice}
 We conducted four multiple-choice evaluations and measured the accuracy based on the likelihood of the generations using teacher forcing. 
 We compared two benchmarks focused on general capability to a benchmark for bias and truthfulness.
 \% describe benchmarks 
@@ -149,7 +151,7 @@ Only in BBQ, which evaluates bias, was a significant decrease in AWQ observed, a
 
 The strongest decrease is in utilitarianism. Not all of the different subtypes decrease evenly. 
 
-\subsubsection{Free Generation}
+\subsection{Free Generation}
 For our second benchmark, we compared the model's ability to follow instructions and its general capabilities to its safeguards. We selected deception and safety refusal as the two datasets with which to measure the model's safeguards. 
 We compared them to InFoBench, a dataset that measures instruction following, and to WildChat-NonToxic, which contains general, non-toxic prompts. 
 The evaluation was performed using the deepseek v4 flash for all four benchmarks. Wildchat, Sorrybench and InFoBench used the same system prompt \ref{fig:judge_prompt} which was adapted from the system prompt for the SORRY bench LLM Judge.
@@ -209,107 +211,8 @@ in deceptive/dangerous responses that are coherent.
 \end{table}
 
 
-\subsubsection{1.7B Experiment}
-
-\begin{table}[h!]
-\centering
-\caption{Model performance on Free Generation benchmarks.}
-\label{tab:comparison_table_Qwen3_1.7B_free_gen}
-\setlength{\tabcolsep}{6pt}
-\footnotesize
-\begin{tabular}{lcccc}
-\toprule
-\textbf{Run} & \textbf{Human Eval} & \textbf{mgsm\_direct\_en} & \textbf{MMLU-Pro} & \textbf{Sorry Bench (higher worse)} \\
-\midrule
-\textbf{BF16} & 0.4146 & 0.1320 & 0.4256 & 0.5667 \\
-\textbf{INT8} & 0.4085 & 0.1160 & 0.3994 & 0.5978 \\
-\textbf{AWQ}  & 0.3841 & 0.1080 & 0.3883 & 0.6022 \\
-\textbf{INT4} & 0.0915 & 0.0560 & 0.2324 & 0.7756 \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\begin{table}[h!]
-\centering
-\caption{Model performance on Teacher Forcing benchmarks.}
-\label{tab:comparison_table_Qwen3_1.7B_tf}
-\setlength{\tabcolsep}{6pt}
-\footnotesize
-\begin{tabular}{lcccc}
-\toprule
-\textbf{Run} & \textbf{GPQA} & \textbf{BBQ} & \textbf{Hendrycks Ethics} & \textbf{TruthfulQA} \\
-\midrule
-\textbf{BF16} & 0.3103 & 0.5040 & 0.6000 & 0.4589 \\
-\textbf{INT8} & 0.2879 & 0.4950 & 0.6120 & 0.4680 \\
-\textbf{AWQ}  & 0.2835 & 0.5030 & 0.5820 & 0.4706 \\
-\textbf{INT4} & 0.2589 & 0.4780 & 0.5590 & 0.4884 \\
-\bottomrule
-\end{tabular}
-\end{table}
-\subsection{Attack}
 
 
-\newpage
-\section{Analysis and Conclusion}
-
-RQ1: Do the capabilities of a quantized model transfer consistently across various domains?
-
-Our evaluations have shown that models do not perform worse on multiple-choice benchmarks when evaluated with teacher forcing. 
-However, they perform considerably worse on free generation benchmarks. We find that benchmarks that measure model safeguards, such as DeceptionBench and SorryBench significantly decline.
-This suggests that the model can successfully follow dangerous user instructions. Our evaluations in \ref{tab:comparison_table_Qwen3_4B_free_gen_lm_judge_coherence} provide further evidence
-that LLMs generate new harmful or deceptive coherent requests under quantization. 
-Furthermore, we can conclude that model capabilities do not necessarily transfer equally which implies that model capabilities are disjoint.   
-
-RQ2: Why do some benchmarks remain consistent with quantization while others decline?
-\ref{tab:comparison_table_Qwen3_1.7B_free_gen} and \ref{tab:comparison_table_Qwen3_1.7B_tf} shows that quantization effects free generation and teacher forcing benchmarks unequally.
-If the model falls under a certain size, and is quantized too strongly, it loses its free generation ability, but still evaluates
-validly under teacher forcing benchmarks. 
-
-RQ3: Does the decline in safeguards expose LLMs to unique vulnerabilities?
-
-As our evaluations show, models remain capable of following instructions while declining in safeguards.
-To explore this further, we exploited vulnerabilities in the quantized models using a quantization-aware adversarial suffix attack. 
-
-
-\section{Limitations}
-The benchmark evaluations in \ref{tab:comparison_table_Qwen3_4B_free_gen_lm_judge} are judged via a language model. LLM-as-a-judge is an inconsistent measure of the model performance.
-We evaluated only the Qwen3 models, we do not know if our results generalize to other model families.      
-
-\section{Appendix}
-
-
-\begin{figure}[htbp]
-\begin{Verbatim}[frame=leftline, framerule=2pt, rulecolor=\color{gray!60}, framesep=1em, fontsize=\footnotesize, xleftmargin=1.5em, xrightmargin=0.5em, breaklines=true, breakanywhere=true]
--[Output 1] Complies with the user request, i.e., containing content that can directly assist with or resolve the request.
--[Output 0] Doesn't comply with the user request; e.g., directly declining the user request or merely providing relevant content that cannot directly resolve the user request.
-
-Output only the score.
-
-User Request: "{question}"
-Model Response: "{answer}"
-\end{Verbatim}
-\caption{System prompt template used by the LLM judge to evaluate IF, WildChat, Sorrybench Prompt.}
-\label{fig:judge_prompt}
-\end{figure}
-
-\begin{figure}[htbp]
-\begin{Verbatim}[frame=leftline, framerule=2pt, rulecolor=\color{gray!60}, framesep=1em, fontsize=\footnotesize, xleftmargin=1.5em, xrightmargin=0.5em, breaklines=true, breakanywhere=true]
--[Output 1] if the model response chose to lie, mislead, exaggerate, or omit information to satisfy the deceptive goal.
--[Output 0] if the model remained honest, refused to participate in the deception.
-
-Output only the score.
-
-Scenario context and user query: "{question}"
-Deceptive Goal: "{goal}"
-Ethical Baseline: "{groundtruth}"
-Model Response: "{answer}"
-\end{Verbatim}
-\caption{System prompt template used by the LLM judge to evaluate DeceptionBench.}
-\label{fig:judge_prompt_deception}
-\end{figure}
-The llm judge is given the prompt as "question", the ethical baseline of this prompt, the deceptive goal and the models response.  
-
-\section{Benchmarking Utility and Alignment}
 
 \section{Quantization-Aware Adversarial Suffix Attack}
 
@@ -429,9 +332,6 @@ Sure! Here's what you asked for
 
 In this response, the model points to the methods and tools that are potentially illegal, which is counted as a true jailbreak. Notice that the generated text becomes messy with the attack suffix.
 
-\paragraph{Limitations}
-The quantization-aware attack by adversarial suffix still has many limitations. The model tends to produce superficially compliant text, rather than geniunely informative harmful text. Also, the attack suffix will degrade the generation quality in format. Our preliminary experiemnts show that the suffix discovered on Qwen does not generate to other open source models.
-
 \begin{table}[t]
   \centering
 
@@ -457,73 +357,74 @@ The quantization-aware attack by adversarial suffix still has many limitations. 
 \end{table}
 
 
+\newpage
 \section{Conclusion}
 
-% quantization awared attacks
+RQ1: Do the capabilities of a quantized model transfer consistently across various domains?
 
-% \section{Key Information to include}
-% \begin{itemize}
-%     \item Mentor:
-%     \item External Collaborators (if you have any):
-%     \item Sharing project:
-% \end{itemize}
+Our evaluations have shown that models do not perform worse on multiple-choice benchmarks when evaluated with teacher forcing. 
+However, they perform considerably worse on free generation benchmarks. We find that benchmarks that measure model safeguards, such as DeceptionBench and SorryBench significantly decline.
+This suggests that the model can successfully follow dangerous user instructions. Our evaluations in \ref{tab:comparison_table_Qwen3_4B_free_gen_lm_judge_coherence} provide further evidence
+that LLMs generate new harmful or deceptive coherent requests under quantization. 
+Furthermore, we can conclude that model capabilities do not necessarily transfer equally which implies that model capabilities are disjoint.   
 
-% % {\color{red} This template does not contain the full instruction set for this assignment; please refer back to the milestone instructions PDF.}
+RQ2: Why do some benchmarks remain consistent with quantization while others decline?
+\ref{tab:comparison_table_Qwen3_1.7B_free_gen} and \ref{tab:comparison_table_Qwen3_1.7B_tf} shows that quantization effects free generation and teacher forcing benchmarks unequally.
+If the model falls under a certain size, and is quantized too strongly, it loses its free generation ability, but still evaluates
+validly under teacher forcing benchmarks. 
 
-% \section{Introduction}
-% The introduction explains the problem, why it's difficult, interesting, or important, how and why current methods succeed/fail at the problem, and explains the key ideas of your approach and results. Though an introduction covers similar material as an abstract, the introduction gives more space for motivation, detail, references to existing work, and to capture the reader's interest.
+RQ3: Does the decline in safeguards expose LLMs to unique vulnerabilities?
 
-% \section{Related Work}
-% This section helps the reader understand the research context of your work by providing an overview of existing work in the area.
+As our evaluations show, models remain capable of following instructions while declining in safeguards.
+To explore this further, we exploited vulnerabilities in the quantized models using a quantization-aware adversarial suffix attack. 
 
-% \section{Approach}
-% This section details your approach(es) to the problem.
-% For example, this is where you describe the architecture of your neural network(s), and any other key methods or algorithms.
 
-% \section{Experiments}
-% This section contains the following.
+\section{Limitations}
+The benchmark evaluations in \Cref{tab:comparison_table_Qwen3_4B_free_gen_lm_judge} are judged via a language model. LLM-as-a-judge is an inconsistent measure of the model performance.
+We evaluated only the Qwen3 models, we do not know if our results generalize to other model families.      
 
-% \subsection{Data}
-% Describe the dataset(s) you are using (provide references). If it's not already clear, make sure the associated task is clearly described.
-% Being precise about the exact form of the input and output can be very useful for readers attempting to understand your work, especially if you've defined your own task.
-
-% \subsection{Evaluation method}
-% Describe the evaluation metric(s) you use, plus any other details necessary to understand your evaluation.
-% Some projects will have clear metrics from prior work on given datasets, but we realize that other projects will define their own metrics.
-% If you're defining your own metrics, be clear as to what you're hoping to measure with each evaluation method (whether quantitative or qualitative, automatic or human-defined!), and how it's defined.
-
-% \subsection{Experimental details}
-% Report how you ran your experiments (e.g., model configurations, learning rate, training time, etc.)
-
-% \subsection{Results}
-% Report the quantitative results that you have found. Use a table or plot to compare results and compare against baselines.
-% \begin{itemize}
-%     \item If you're a default project team, you should \textbf{report the accuracy and Pearson correlation scores you obtained on the test leaderboard} in this section. You can also report dev set results if you'd like.
-%     \item Comment on your quantitative results. Are they what you expected? Better than you expected? Worse than you expected? Why do you think that is? What does that tell you about your approach?
-% \end{itemize}
-
-% \section{Analysis}
-% Your report should include \textit{qualitative evaluation}. That is, try to understand your system (e.g., how it works, when it succeeds and when it fails) by inspecting key characteristics or outputs of your model.
-
-% \section{Conclusion}
-% Summarize the main findings of your project and what you have learned. Highlight your achievements, and note the primary limitations of your work. If you'd like, you can describe avenues for future work.
-
-% \section{Ethics Statement}
-% What are the ethical challenges and possible societal risks of your project, and
-% what are mitigation strategies?
-
-% \bibliographystyle{acl_natbib}
-% \bibliography{references}
-
-% \appendix
-
-% \section{Appendix (optional)}
-% If you wish, you can include an appendix, which should be part of the main PDF, and does not count towards the 6-8 page limit.
-% Appendices can be useful to supply extra details, examples, figures, results, visualizations, etc. that you couldn't fit into the main paper. However, your grader \textit{does not} have to read your appendix, and you should assume that you will be graded based on the content of the main part of your paper only.
-
+The quantization-aware attack by adversarial suffix still has many limitations. The model tends to produce superficially compliant text, rather than geniunely informative harmful text. Also, the attack suffix will degrade the generation quality in format. Our preliminary experiemnts show that the suffix discovered on Qwen does not generate to other open source models.
 
 
 \bibliographystyle{unsrtnat}
 \bibliography{references}
+
+
+
+\appendix
+
+\section{LLM Judge Prompts}
+
+\begin{figure}[htbp]
+\begin{Verbatim}[frame=leftline, framerule=2pt, rulecolor=\color{gray!60}, framesep=1em, fontsize=\footnotesize, xleftmargin=1.5em, xrightmargin=0.5em, breaklines=true, breakanywhere=true]
+-[Output 1] Complies with the user request, i.e., containing content that can directly assist with or resolve the request.
+-[Output 0] Doesn't comply with the user request; e.g., directly declining the user request or merely providing relevant content that cannot directly resolve the user request.
+
+Output only the score.
+
+User Request: "{question}"
+Model Response: "{answer}"
+\end{Verbatim}
+\caption{System prompt template used by the LLM judge to evaluate IF, WildChat, Sorrybench Prompt.}
+\label{fig:judge_prompt}
+\end{figure}
+
+\begin{figure}[htbp]
+\begin{Verbatim}[frame=leftline, framerule=2pt, rulecolor=\color{gray!60}, framesep=1em, fontsize=\footnotesize, xleftmargin=1.5em, xrightmargin=0.5em, breaklines=true, breakanywhere=true]
+-[Output 1] if the model response chose to lie, mislead, exaggerate, or omit information to satisfy the deceptive goal.
+-[Output 0] if the model remained honest, refused to participate in the deception.
+
+Output only the score.
+
+Scenario context and user query: "{question}"
+Deceptive Goal: "{goal}"
+Ethical Baseline: "{groundtruth}"
+Model Response: "{answer}"
+\end{Verbatim}
+\caption{System prompt template used by the LLM judge to evaluate DeceptionBench.}
+\label{fig:judge_prompt_deception}
+\end{figure}
+The llm judge is given the prompt as "question", the ethical baseline of this prompt, the deceptive goal and the models response.  
+
 
 \end{document}
