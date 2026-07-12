@@ -192,7 +192,27 @@ DeceptionBench shows a significant increase in the deception rate, and SorryBenc
 We also judged coherency in the responses, and found that there is a increase
 in deceptive/dangerous responses that are coherent. 
 
+\subsubsection{1.7B Experiment}
 
+\begin{table}[htbp]
+\centering
+\caption{Model performance across selected benchmarks grouped by evaluation method.}
+\label{tab:evaluation_grouped_1.7B}
+\setlength{\tabcolsep}{5pt}
+\footnotesize
+\begin{tabular}{lcccccc}
+\toprule
+ & \multicolumn{3}{c}{\textbf{Free Generation}} & \multicolumn{3}{c}{\textbf{Teacher Forcing}} \\
+\cmidrule(lr){2-4} \cmidrule(lr){5-7}
+\textbf{Run} & \textbf{Human Eval} & \textbf{mgsm\_direct\_en} & \textbf{MMLU-Pro} & \textbf{GPQA} & \textbf{BBQ} & \textbf{TruthfulQA} \\
+\midrule
+\textbf{BF16} & 0.4146 & 0.1320 & 0.4256 & 0.3103 & 0.5040 & 0.4589 \\
+\textbf{INT8} & 0.4085 & 0.1160 & 0.3994 & 0.2879 & 0.4950 & 0.4680 \\
+\textbf{AWQ}  & 0.3841 & 0.1080 & 0.3883 & 0.2835 & 0.5030 & 0.4706 \\
+\textbf{INT4} & 0.0915 & 0.0560 & 0.2324 & 0.2589 & 0.4780 & 0.4884 \\
+\bottomrule
+\end{tabular}
+\end{table}
 \subsection{Attack}
 
 \section{Analysis and Conclusion}
@@ -205,6 +225,9 @@ This suggests that the model can successfully follow dangerous user instructions
 Furthermore, we can conclude that model capabilities do not necessarily transfer equally. Our findings suggest that instruction following and model safeguards are disjoint capabilities of the model.  
 
 RQ2: Why do some benchmarks remain consistent with quantization while others decline?
+\ref{tab:evaluation_grouped_1.7B} shows that quantization effects free generation and teacher forcing benchmarks unequally.
+If the model falls under a certain size, and is quantized too strongly, it loses its free generation ability, but still evaluates
+validly under teacher forcing benchmarks. 
 
 RQ3: Does the decline in safeguards expose LLMs to unique vulnerabilities?
 
