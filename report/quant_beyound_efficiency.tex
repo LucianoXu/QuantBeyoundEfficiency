@@ -89,7 +89,7 @@ Our key findings are the following:
 	\item  Quantized models are more vulnerable to jailbreaking attacks due to the decline of their safety mechanisms. 
 \end{itemize}
 The code for our experiments is available at https://github.com/LucianoXu/QuantBeyondEfficiency.
-\section{Backgrounds and Related Work}
+\section{Background and Related Work}
 
 \section{Experiments}
 
@@ -112,7 +112,7 @@ TruthfulQA:
 \begin{table}[htbp]
 \centering
 \caption{Model performance across tasks with relative changes compared to the BF16 baseline.}
-\label{tab:evaluation_downstream_relative}
+\label{tab:comparison_table_Qwen3_4B_multi_choice_tf}
 \setlength{\tabcolsep}{3.5pt}
 \footnotesize
 \begin{tabular}{lcccccc}
@@ -133,7 +133,7 @@ Only in BBQ, which evaluates bias, was a significant decrease in AWQ observed, a
 \begin{table}[htbp]
 \centering
 \caption{Model performance across Ethics tasks for different quantizations.}
-\label{tab:evaluation_ethics}
+\label{tab:comparison_table_Qwen3_4B_ethics}
 \setlength{\tabcolsep}{3.5pt}
 \footnotesize
 \begin{tabular}{lccccc}
@@ -158,7 +158,7 @@ DeceptionBench uses a slightly modified system prompt \ref{fig:judge_prompt_dece
 \begin{table}[htbp]
 \centering
 \caption{Model performance across llm judge tasks.}
-\label{tab:evaluationlm_judge_perf}
+\label{tab:comparison_table_Qwen3_4B_free_gen_lm_judge}
 \begin{tabular}{lcccc}
 \toprule
 \textbf{Run} & \textbf{DeceptionBench} & \textbf{SORRY-bench} & \textbf{InFoBench} & \textbf{WildChat-nontoxic} \\
@@ -176,7 +176,7 @@ DeceptionBench shows a significant increase in the deception rate, and SorryBenc
 \begin{table}[htbp]
 \centering
 \caption{Absolute and rate increase in coherent compliance compared to bf16 (N = 300)}
-\label{tab:evaluation_safety_instruction}
+\label{tab:comparison_table_Qwen3_4B_free_gen_lm_judge_coherence}
 \setlength{\tabcolsep}{3.5pt}
 \footnotesize
 \begin{tabular}{lcc}
@@ -195,7 +195,7 @@ in deceptive/dangerous responses that are coherent.
 \begin{table}[htbp]
 \centering
 \caption{Model performance across other tasks.}
-\label{tab:evaluation_tasks_no_gpqa}
+\label{tab:comparison_table_Qwen3_4B_free_gen_other}
 \begin{tabular}{lccc}
 \toprule
 \textbf{Run} & \textbf{Human Eval} & \textbf{mgsm\_direct\_en} & \textbf{MMLU-Pro} \\
@@ -214,7 +214,7 @@ in deceptive/dangerous responses that are coherent.
 \begin{table}[h!]
 \centering
 \caption{Model performance on Free Generation benchmarks.}
-\label{tab:evaluation_free_gen}
+\label{tab:comparison_table_Qwen3_1.7B_free_gen}
 \setlength{\tabcolsep}{6pt}
 \footnotesize
 \begin{tabular}{lcccc}
@@ -232,7 +232,7 @@ in deceptive/dangerous responses that are coherent.
 \begin{table}[h!]
 \centering
 \caption{Model performance on Teacher Forcing benchmarks.}
-\label{tab:evaluation_teacher_forcing}
+\label{tab:comparison_table_Qwen3_1.7B_tf}
 \setlength{\tabcolsep}{6pt}
 \footnotesize
 \begin{tabular}{lcccc}
@@ -255,12 +255,13 @@ in deceptive/dangerous responses that are coherent.
 RQ1: Do the capabilities of a quantized model transfer consistently across various domains?
 
 Our evaluations have shown that models do not perform worse on multiple-choice benchmarks when evaluated with teacher forcing. 
-However, they perform considerably worse on free generation benchmarks. We find that benchmarks that measure model safeguards, such as DeceptionBench and SorryBench significantly decline. However, we find that instruction-following capabilities in free generation remain intact. 
-This suggests that the model can successfully follow dangerous user instructions. 
-Furthermore, we can conclude that model capabilities do not necessarily transfer equally. Our findings suggest that instruction following and model safeguards are disjoint capabilities of the model.  
+However, they perform considerably worse on free generation benchmarks. We find that benchmarks that measure model safeguards, such as DeceptionBench and SorryBench significantly decline.
+This suggests that the model can successfully follow dangerous user instructions. Our evaluations in \ref{tab:comparison_table_Qwen3_4B_free_gen_lm_judge_coherence} provide further evidence
+that LLMs generate new harmful or deceptive coherent requests under quantization. 
+Furthermore, we can conclude that model capabilities do not necessarily transfer equally which implies that model capabilities are disjoint.   
 
 RQ2: Why do some benchmarks remain consistent with quantization while others decline?
-\ref{tab:evaluation_grouped_1.7B} shows that quantization effects free generation and teacher forcing benchmarks unequally.
+\ref{tab:comparison_table_Qwen3_1.7B_free_gen} and \ref{tab:comparison_table_Qwen3_1.7B_tf} shows that quantization effects free generation and teacher forcing benchmarks unequally.
 If the model falls under a certain size, and is quantized too strongly, it loses its free generation ability, but still evaluates
 validly under teacher forcing benchmarks. 
 
@@ -271,7 +272,7 @@ To explore this further, we exploited vulnerabilities in the quantized models us
 
 
 \section{Limitations}
-The benchmark evaluations in \ref{tab:evaluationlm_judge} are judged via a language model. LLM-as-a-judge is an inconsistent measure of the model performance.
+The benchmark evaluations in \ref{tab:comparison_table_Qwen3_4B_free_gen_lm_judge} are judged via a language model. LLM-as-a-judge is an inconsistent measure of the model performance.
 We evaluated only the Qwen3 models, we do not know if our results generalize to other model families.      
 
 \section{Appendix}
