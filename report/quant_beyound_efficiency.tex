@@ -450,8 +450,8 @@ In this response, the model points to the methods and tools that are potentially
 
 RQ1: Do the capabilities of a quantized model transfer consistently across various domains?
 
-Our evaluations have shown that models do not perform worse on multiple-choice benchmarks when evaluated with teacher forcing. 
-However, they perform considerably worse on free generation benchmarks. We find that benchmarks that measure model safeguards, such as DeceptionBench and SorryBench significantly decline.
+Our evaluations have shown that models perform inconsistently on multiple-choice benchmarks when evaluated with teacher forcing. 
+We find that benchmarks that measure model safeguards, such as DeceptionBench and SorryBench significantly decline.
 This suggests that the model can successfully follow dangerous user instructions. Our evaluations in \ref{tab:comparison_table_Qwen3_4B_free_gen_lm_judge_coherence} provide further evidence
 that LLMs generate new harmful or deceptive coherent requests under quantization. 
 Furthermore, we can conclude that model capabilities do not necessarily transfer equally which implies that model capabilities are disjoint.   
@@ -517,4 +517,10 @@ Model Response: "{answer}"
 The llm judge is given the prompt as "question", the ethical baseline of this prompt, the deceptive goal and the models response.  
 
 
+\section{Generative AI Disclosure}
+
+Generative AI was used as an assistant in this project. AI generated code is labeled as such in the code base, Novel code,
+code concerning the core functionality is human-generated. AI was used for debugging. 
+The text of the report and the presentation is human-generated and is at most minorly adjusted with AI. AI was used to generate the tables and other structural 
+lateX components. 
 \end{document}
