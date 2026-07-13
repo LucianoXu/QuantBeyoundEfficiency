@@ -49,12 +49,13 @@
 
 \begin{abstract}
 	
-Quantization is a widely adopted technique that deploys machine learning models for efficient inference. A great number of research has been conducted to understand the gap between full and quantized models, including utilitarian and alignment \ra{lets not use alignment too vague} aspects. \yx{citations}
-This work investigate the overlooked loopholes in evaluations of this gap. 
-We \yx{describe the experiments}
-Through matrix experiments and comparison, we discovered that alignment can degrade more severely than utility on quantized small models around 4B. \yx{need to confirm}
-Also, we successfully constructed universal adversarial suffix attacks that are benign for full model but jailbreak quantized models.
-The findings indicate that the gap between full and quantized models are broader, more sophisticated than previously believed. It is risky to assume that the performance and robustness can transfer from utility to alignment \ra{Alignment and utility too vague}, or from full models to quantized models.
+Quantization is a widely adopted technique that deploys machine learning models for efficient inference. A great number of research has been conducted to understand the gap between full and quantized models, including utilitarian and alignment aspects. \yx{citations}
+This work audits the impact of quantization on domains including model safeguards, instruction following, ethics and bias.
+\yx{describe the experiments}..
+Through benchmarks, we discovered that model safeguards, bias and deception can degrade more severely than other capabilities on Qwen3 4B. \yx{need to confirm}
+Furthermore, we quanify the degradation of model safeguards by demonstrating universal adversarial suffix attacks that are benign for full model but jailbreak quantized models. 
+The findings indicate that it is risky to assume that the performance and 
+robustness can transfer evenly through different capability domains from full models to quantized models.
 
 % During quantization, same utility does not transfer to same alignment, and the robustness of full models does not transfer to quantized models.
 \end{abstract}
@@ -68,9 +69,9 @@ This project explores how this degradation extends to different capability domai
 The following research questions are explored in this project:  
 
 \begin{itemize}
-    \item \textbf{RQ1:} Do model capabilities transfer in a quantized model consistently across different domains?
-    \item \textbf{RQ2:} Why do some benchmarks remain consistent under quantization while others show sharp declines?
-    \item \textbf{RQ3:} Does quantization expose LLMs to attacks regarding their safeguards?
+    \item \textbf{RQ1:} Do model capabilities transfer in a quantized model consistently across different domains especially safeguards, bias and deception?
+    \item \textbf{RQ2:} Does quantization expose LLMs to attacks regarding their safeguards?
+    \item \textbf{RQ3:} Why do some evaluations stay robust under quantization while others show sharp declines?
 \end{itemize}
 
 To answer our research questions, we perform various experiments on the Qwen-3 4B Model both passively with multiple choice and free generation benchmarks and actively with 
@@ -436,15 +437,17 @@ This suggests that the model can successfully follow dangerous user instructions
 that LLMs generate new harmful or deceptive coherent requests under quantization. 
 Furthermore, we can conclude that model capabilities do not necessarily transfer equally which implies that model capabilities are disjoint.   
 
-RQ2: Why do some benchmarks remain consistent with quantization while others decline?
+RQ2: Does the decline in safeguards expose LLMs to unique vulnerabilities?
+
+As our evaluations show, models remain capable of following instructions while declining in safeguards.
+To explore this further, we exploited vulnerabilities in the quantized models using a quantization-aware adversarial suffix attack. 
+
+
+RQ3: Why do some benchmarks remain consistent with quantization while others decline?
 \ref{tab:comparison_table_Qwen3_1.7B_free_gen} and \ref{tab:comparison_table_Qwen3_1.7B_tf} shows that quantization effects free generation and teacher forcing benchmarks unequally.
 If the model falls under a certain size, and is quantized too strongly, it loses its free generation ability, but still evaluates
 validly under teacher forcing benchmarks. 
 
-RQ3: Does the decline in safeguards expose LLMs to unique vulnerabilities?
-
-As our evaluations show, models remain capable of following instructions while declining in safeguards.
-To explore this further, we exploited vulnerabilities in the quantized models using a quantization-aware adversarial suffix attack. 
 
 
 \section{Limitations}
