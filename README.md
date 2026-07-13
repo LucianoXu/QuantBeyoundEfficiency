@@ -46,26 +46,7 @@
 - New models, quantization techniques, benchmarks and analysis follow the same interface and extend the factory.
 - Raw experiment data are preserved in `trials/` by default. Move important results into `results/`, which is tracked and synced.
 
-## TODOS
-[ ] Solve Issues: 
-  => Model should be deleted from vram once the full benchmark run is finished, if used with jupyter notebook the model stays on memory
-  
-  => If one model multiple runs 
-  
-  => Model gets unnecessarily reloaded after every run
-  
-[ ] Central board for benchmarks needed
 
-[ ] Each member picks one eval detail
-
-    Research details
-    how do models perform
-    existing research on this method?
-    anything related to quantization
-
-[ ] Write the code for the each eval based on existing pipeline => Same seed, same model, config,
-
-[ ] Perform smoke test on own hardware
 
 [ ] Refine the scope.
 
