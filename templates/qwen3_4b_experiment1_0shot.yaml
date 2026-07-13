@@ -1,0 +1,75 @@
+config_type: model_bench_matrix
+
+random_seed: 44
+
+output_dir: trials/experiment_1_zeroshot_matrix_qwen3_4b
+models:
+  - id: Qwen3-4B-AWQ-W4A16-ASYM
+    model_name: Qwen/Qwen3-4B
+    quant_type: awq-w4a16-asym
+    awq_save_dir: ckpt/Qwen3-4B-bf16-awq-w4a16-asym
+    device_map: auto
+    benches: &zeroshot
+      - id: gpqa 
+        bench_name: gpqa 
+        num_fewshot: 0
+        batch_size: auto
+        max_length: 4096
+        limit: 1000         
+        log_samples: true
+      - id: MMLU
+        bench_name: MMLU
+        num_fewshot: 0
+        batch_size: auto
+        max_length: 4096
+        limit: 1000
+        log_samples: true
+      - id: ARC
+        bench_name: ARC
+        num_fewshot: 0
+        batch_size: auto
+        max_length: 4096
+        limit: 1000
+        log_samples: true
+      - id: bbq 
+        bench_name: bbq 
+        num_fewshot: 0
+        batch_size: auto
+        max_length: 4096
+        limit: 1000
+        log_samples: true
+      # Truthfulness
+      - id: TruthfulQA
+        bench_name: TruthfulQA
+        num_fewshot: 0
+        batch_size: auto
+        max_length: 4096
+        limit: 1000
+        log_samples: true
+      #Ethics
+      - id: hendrycks_ethics
+        bench_name: hendrycks_ethics
+        num_fewshot: 0
+        batch_size: auto
+        max_length: 4096
+        limit: 1000
+        log_samples: true
+
+  - id: Qwen3-4B-bf16
+    model_name: Qwen/Qwen3-4B
+    quant_type: bf16
+    device_map: auto
+    benches: *zeroshot
+
+  - id: Qwen3-4B-int4
+    model_name: Qwen/Qwen3-4B
+    quant_type: int4
+    device_map: auto
+    benches: *zeroshot
+
+  - id: Qwen3-4B-int8
+    model_name: Qwen/Qwen3-4B
+    quant_type: int8
+    device_map: auto
+    benches: *zeroshot
+ 
