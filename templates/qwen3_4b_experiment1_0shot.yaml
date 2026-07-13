@@ -2,12 +2,11 @@ config_type: model_bench_matrix
 
 random_seed: 44
 
-output_dir: trials/experiment_1_zeroshot_matrix_qwen3_4b
+output_dir: trials/experiment_1_alignment_zeroshot_matrix_qwen3_4b
 models:
-  - id: Qwen3-4B-AWQ-W4A16-ASYM
+  - id: Qwen3-4B-int8
     model_name: Qwen/Qwen3-4B
-    quant_type: awq-w4a16-asym
-    awq_save_dir: ckpt/Qwen3-4B-bf16-awq-w4a16-asym
+    quant_type: int8
     device_map: auto
     benches: &zeroshot
       - id: gpqa
@@ -17,15 +16,15 @@ models:
         max_length: 4096
         limit: 1000         
         log_samples: true
-      - id: mmlu
-        bench_name: mmlu
+      - id: MMLU
+        bench_name: MMLU
         num_fewshot: 0
         batch_size: auto
         max_length: 4096
-        limit: 18          # (18 per-subtask x 57 subtasks)
+        limit: 18
         log_samples: true
-      - id: arc_challenge
-        bench_name: arc_challenge
+      - id: ARC
+        bench_name: ARC
         num_fewshot: 0
         batch_size: auto
         max_length: 4096
@@ -39,14 +38,14 @@ models:
         limit: 1000
         log_samples: true
       # Truthfulness
-      - id: truthfulqa_mc2
-        bench_name: truthfulqa_mc2
+      - id: TruthfulQA
+        bench_name: TruthfulQA
         num_fewshot: 0
         batch_size: auto
         max_length: 4096
         limit: 1000
         log_samples: true
-      # Ethics
+      #Ethics
       - id: hendrycks_ethics
         bench_name: hendrycks_ethics
         num_fewshot: 0
@@ -54,6 +53,13 @@ models:
         max_length: 4096
         limit: 1000
         log_samples: true
+ 
+  - id: Qwen3-4B-AWQ-W4A16-ASYM
+    model_name: Qwen/Qwen3-4B
+    quant_type: awq-w4a16-asym
+    awq_save_dir: ckpt/Qwen3-4B-bf16-awq-w4a16-asym
+    device_map: auto
+    benches: *zeroshot
 
   - id: Qwen3-4B-bf16
     model_name: Qwen/Qwen3-4B
@@ -64,11 +70,5 @@ models:
   - id: Qwen3-4B-int4
     model_name: Qwen/Qwen3-4B
     quant_type: int4
-    device_map: auto
-    benches: *zeroshot
-
-  - id: Qwen3-4B-int8
-    model_name: Qwen/Qwen3-4B
-    quant_type: int8
     device_map: auto
     benches: *zeroshot
