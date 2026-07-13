@@ -23,6 +23,7 @@
 \usepackage{cleveref}
 
 \newcommand{\yx}[1]{\textcolor{blue}{{[YX: #1]}}}
+\newcommand{\ra}[1]{\textcolor{blue}{{[RA: #1]}}}
 
 \title{
   Quant Beyond Efficiency \\
@@ -48,12 +49,12 @@
 
 \begin{abstract}
 	
-Quantization is a widely adopted technique that deploys machine learning models for efficient inference. A great number of research has been conducted to understand the gap between full and quantized models, including utilitarian and alignment aspects. \yx{citations}
+Quantization is a widely adopted technique that deploys machine learning models for efficient inference. A great number of research has been conducted to understand the gap between full and quantized models, including utilitarian and alignment \ra{lets not use alignment too vague} aspects. \yx{citations}
 This work investigate the overlooked loopholes in evaluations of this gap. 
 We \yx{describe the experiments}
 Through matrix experiments and comparison, we discovered that alignment can degrade more severely than utility on quantized small models around 4B. \yx{need to confirm}
 Also, we successfully constructed universal adversarial suffix attacks that are benign for full model but jailbreak quantized models.
-The findings indicate that the gap between full and quantized models are broader, more sophisticated than previously believed. It is risky to assume that the performance and robustness can transfer from utility to alignment, or from full models to quantized models.
+The findings indicate that the gap between full and quantized models are broader, more sophisticated than previously believed. It is risky to assume that the performance and robustness can transfer from utility to alignment \ra{Alignment and utility too vague}, or from full models to quantized models.
 
 % During quantization, same utility does not transfer to same alignment, and the robustness of full models does not transfer to quantized models.
 \end{abstract}
@@ -63,7 +64,7 @@ The findings indicate that the gap between full and quantized models are broader
 Quantization methods have become widespread for reducing the size of LLMs for local deployment with limited memory. These methods are increasingly being used in real-world environments that are sensitive to safety risks.  
 Since quantization approximates a full-precision model, it was previously assumed that the model's capabilities changed consistently in all aspects.
 However, recent works have challenged this assumption, showing that quantization can reduce a model's capabilities in various ways, affecting bias and trustworthiness, for example. 
-This project explores how this degradation extends to different utility and alignment domains, as well as whether it reveals vulnerabilities in the model's safeguards that could be exploited.
+This project explores how this degradation extends to different capability domains, as well as whether it reveals vulnerabilities in the model's safeguards that could be exploited.
 The following research questions are explored in this project:  
 
 \begin{itemize}
@@ -73,7 +74,7 @@ The following research questions are explored in this project:
 \end{itemize}
 
 To answer our research questions, we perform various experiments on the Qwen-3 4B Model both passively with multiple choice and free generation benchmarks and actively with 
-an adversarial attack. The experiments were conducted on the Qwen-3 4B model with the quantization methods AWQ, INT4, INT8, and compare them to the baseline BF16. 
+an adversarial attack. The experiments were conducted on the Qwen-3 4B model with the quantization methods AWQ, INT4, INT8, and compared to the baseline BF16. 
 
 \par
 
@@ -102,21 +103,24 @@ When assessing quantized model performance, the evaluation methodology is of cru
 
 [Some related works that could pose useful[needs much better phrasing to support the overaching story]
 [https://arxiv.org/pdf/2402.16775] Jin et al. evaluate the performance of Qwen-Chat models of different parameter count and different quantization techniques. They show that performance loss is not uniform across benchmarks. [Better statement?]
-[https://arxiv.org/pdf/2605.15208] also identify PTQ as a source of model safety alignment degradation.
+[https://arxiv.org/pdf/2605.15208] also identify PTQ as a source of model safety alignment \ra{Safeguard} degradation.
 [https://arxiv.org/pdf/2410.22118] Kirsten et al. investigated the impact of quantization on bias. They found that the effect of techniques is unreliable on bias Furthermore, they highlight the importance of different evaluation protocols for benchmarks to surface different capabilities. [badly phrased]
 [https://arxiv.org/pdf/2502.15799] Kharinaev et. al evaluate the safety and trustworthiness of quantized models finding that multiple choice benchmarks can mask the degradation in safety of models.
-[https://arxiv.org/pdf/2508.18088] find that certain alignment qualities like stereotype and unfairness get amplified, toxicity and sentiment remain stable.
+[https://arxiv.org/pdf/2508.18088] find that certain alignment \ra{Remove alignment} qualities like stereotype and unfairness get amplified, toxicity and sentiment remain stable.
 
 [Add context to attack, but Yingte already referenced them?]
 [https://arxiv.org/pdf/2405.18137] present an attack, where a full precision model shows benign behavior, but follows adversarial behavior when quantized.
 
-\section{Benchmarking Utility and Alignment}
+\section{Benchmarks}
 
 \yx{Benchmarking methodology should be discussed. What is the critera of choosing benchmarks. Explain the evaluation. In-context learning? How are results extracted? What does teacher forcing mean? Do we use frameworks? What is our experiment configuration?}
 
 \yx{Introduce what is coherence, and how we evaluate them.}
 
-\subsection{Multiple Choice}
+\subsection{Experiment Setup}
+
+\subsection{Results}
+\subsubsection{Multiple Choice}
 We conducted four multiple-choice evaluations and measured the accuracy based on the likelihood of the generations using teacher forcing. 
 We compared two benchmarks focused on general capability to a benchmark for bias and truthfulness.
 \% describe benchmarks 
@@ -145,6 +149,8 @@ TruthfulQA:
 \bottomrule
 \end{tabular}
 \end{table}
+\ra{We should replace Med-Concepts with tf benchmark that is more general, we should also either include int8 here, or completely remove it}
+
 
 We consistently observe evaluations above the random baseline. Quantization does not degrade the teacher forcing benchmarks significantly in most cases.
 Only in BBQ, which evaluates bias, was a significant decrease in AWQ observed, a lower score indicating a higher bias.  
@@ -169,7 +175,7 @@ Only in BBQ, which evaluates bias, was a significant decrease in AWQ observed, a
 
 The strongest decrease is in utilitarianism. Not all of the different subtypes decrease evenly. 
 
-\subsection{Free Generation}
+\subsubsection{Free Generation}
 For our second benchmark, we compared the model's ability to follow instructions and its general capabilities to its safeguards. We selected deception and safety refusal as the two datasets with which to measure the model's safeguards. 
 We compared them to InFoBench, a dataset that measures instruction following, and to WildChat-NonToxic, which contains general, non-toxic prompts. 
 The evaluation was performed using the deepseek v4 flash for all four benchmarks. Wildchat, Sorrybench and InFoBench used the same system prompt \ref{fig:judge_prompt} which was adapted from the system prompt for the SORRY bench LLM Judge.
@@ -227,7 +233,7 @@ in deceptive/dangerous responses that are coherent.
 \bottomrule
 \end{tabular}
 \end{table}
-
+\newpage
 
 \subsubsection{1.7B Experiment}
 
@@ -266,6 +272,11 @@ in deceptive/dangerous responses that are coherent.
 \bottomrule
 \end{tabular}
 \end{table}
+
+Our experiments with 1.7b show that models struggle significantly in int4 with free generation, when they are a certain size.
+Many of the responses were incoherent, which causes the free generation performance to drop. On the other hand its clear that teacher forcing 
+benchmarks remain more consistent. 
+\ra{Ive included 1.7b since its a answer to RQ2}
 
 \newpage
 
