@@ -9,7 +9,7 @@ models:
     quant_type: awq-w4a16-asym
     awq_save_dir: ckpt/Qwen3-4B-bf16-awq-w4a16-asym
     device_map: auto
-    benches: &additonal_benches
+    benches: &additional_benches
       - id: MMLU
         bench_name: MMLU
         num_fewshot: 5
@@ -23,18 +23,19 @@ models:
         batch_size: auto
         max_length: 4096
         limit: 1000
+        log_samples: true
 
   - id: Qwen3-4B-bf16
     model_name: Qwen/Qwen3-4B
     quant_type: bf16
     device_map: auto
-    benches: *additonal_benches
+    benches: *additional_benches
 
   - id: Qwen3-4B-int4
     model_name: Qwen/Qwen3-4B
     quant_type: int4
     device_map: auto
-    benches: *additonal_benches
+    benches: *additional_benches
 
   - id: Qwen3-4B-int8
     model_name: Qwen/Qwen3-4B
@@ -54,9 +55,10 @@ models:
         batch_size: auto
         max_length: 4096
         limit: 1000
+        log_samples: true
         #redo since they timed out last time
-      - id: bbq 
-        bench_name: bbq 
+      - id: bbq
+        bench_name: bbq
         num_fewshot: 5
         batch_size: auto
         max_length: 4096
@@ -68,7 +70,7 @@ models:
         num_fewshot: 5
         batch_size: auto
         max_length: 4096
-        limit: 1
+        limit: 1000
         log_samples: true
       #Ethics
       - id: hendrycks_ethics
