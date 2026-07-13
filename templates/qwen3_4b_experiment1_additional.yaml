@@ -9,7 +9,7 @@ models:
     quant_type: awq-w4a16-asym
     awq_save_dir: ckpt/Qwen3-4B-bf16-awq-w4a16-asym
     device_map: auto
-    benches: &mmlu_only_benches
+    benches: &additonal_benches
       - id: MMLU
         bench_name: MMLU
         num_fewshot: 5
@@ -17,18 +17,24 @@ models:
         max_length: 4096
         limit: 18          # per-subtask x 57 subtasks
         log_samples: true
+      - id: ARC
+        bench_name: ARC
+        num_fewshot: 5
+        batch_size: auto
+        max_length: 4096
+        limit: 1000
 
   - id: Qwen3-4B-bf16
     model_name: Qwen/Qwen3-4B
     quant_type: bf16
     device_map: auto
-    benches: *mmlu_only_benches
+    benches: *additonal_benches
 
   - id: Qwen3-4B-int4
     model_name: Qwen/Qwen3-4B
     quant_type: int4
     device_map: auto
-    benches: *mmlu_only_benches
+    benches: *additonal_benches
 
   - id: Qwen3-4B-int8
     model_name: Qwen/Qwen3-4B
@@ -42,7 +48,13 @@ models:
         max_length: 4096
         limit: 18
         log_samples: true
-      # Bias
+      - id: ARC
+        bench_name: ARC
+        num_fewshot: 5
+        batch_size: auto
+        max_length: 4096
+        limit: 1000
+        #redo since they timed out last time
       - id: bbq 
         bench_name: bbq 
         num_fewshot: 5
