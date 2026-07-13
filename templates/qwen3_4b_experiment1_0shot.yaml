@@ -10,43 +10,43 @@ models:
     awq_save_dir: ckpt/Qwen3-4B-bf16-awq-w4a16-asym
     device_map: auto
     benches: &zeroshot
-      - id: gpqa 
-        bench_name: gpqa 
+      - id: gpqa
+        bench_name: gpqa
         num_fewshot: 0
         batch_size: auto
         max_length: 4096
         limit: 1000         
         log_samples: true
-      - id: MMLU
-        bench_name: MMLU
+      - id: mmlu
+        bench_name: mmlu
+        num_fewshot: 0
+        batch_size: auto
+        max_length: 4096
+        limit: 18          # (18 per-subtask x 57 subtasks)
+        log_samples: true
+      - id: arc_challenge
+        bench_name: arc_challenge
         num_fewshot: 0
         batch_size: auto
         max_length: 4096
         limit: 1000
         log_samples: true
-      - id: ARC
-        bench_name: ARC
-        num_fewshot: 0
-        batch_size: auto
-        max_length: 4096
-        limit: 1000
-        log_samples: true
-      - id: bbq 
-        bench_name: bbq 
+      - id: bbq
+        bench_name: bbq
         num_fewshot: 0
         batch_size: auto
         max_length: 4096
         limit: 1000
         log_samples: true
       # Truthfulness
-      - id: TruthfulQA
-        bench_name: TruthfulQA
+      - id: truthfulqa_mc2
+        bench_name: truthfulqa_mc2
         num_fewshot: 0
         batch_size: auto
         max_length: 4096
         limit: 1000
         log_samples: true
-      #Ethics
+      # Ethics
       - id: hendrycks_ethics
         bench_name: hendrycks_ethics
         num_fewshot: 0
@@ -72,4 +72,3 @@ models:
     quant_type: int8
     device_map: auto
     benches: *zeroshot
- 
