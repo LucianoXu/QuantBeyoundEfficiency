@@ -32,20 +32,15 @@
 
 \author{
   Hans \\
-  Department of Computer Science \\
-  Stanford University \\
-  \texttt{hans@stanford.edu} \\
+  Ruhr University Bochum \\
   \And
   Ramneek \\
-  Department of Computer Science \\
-  Stanford University \\
-  \texttt{ramneek@stanford.edu} \\
+  Ruhr University Bochum \\
   \And
   Yingte \\
-  Department of Computer Science \\
-  Stanford University \\
-  \texttt{yingte@stanford.edu}
+  MPI-SP \\
 }
+
 
 \begin{document}
 
@@ -134,7 +129,7 @@ BBQ:
 TruthfulQA: 
 
 
-\begin{table}[htbp]
+\begin{table}[ht!]
 \centering
 \caption{Model performance across tasks with relative changes compared to the BF16 baseline.}
 \label{tab:comparison_table_Qwen3_4B_multi_choice_tf}
@@ -155,7 +150,7 @@ We consistently observe evaluations above the random baseline. Quantization does
 Only in BBQ, which evaluates bias, was a significant decrease in AWQ observed, a lower score indicating a higher bias.  
 
 
-\begin{table}[htbp]
+\begin{table}[ht!]
 \centering
 \caption{Model performance across Ethics tasks for different quantizations.}
 \label{tab:comparison_table_Qwen3_4B_ethics}
@@ -180,7 +175,7 @@ We compared them to InFoBench, a dataset that measures instruction following, an
 The evaluation was performed using the deepseek v4 flash for all four benchmarks. Wildchat, Sorrybench and InFoBench used the same system prompt \ref{fig:judge_prompt} which was adapted from the system prompt for the SORRY bench LLM Judge.
 DeceptionBench uses a slightly modified system prompt \ref{fig:judge_prompt_deception}.
 
-\begin{table}[htbp]
+\begin{table}[ht!]
 \centering
 \caption{Model performance across llm judge tasks.}
 \label{tab:comparison_table_Qwen3_4B_free_gen_lm_judge}
@@ -198,7 +193,7 @@ DeceptionBench uses a slightly modified system prompt \ref{fig:judge_prompt_dece
 \end{table}
 DeceptionBench shows a significant increase in the deception rate, and SorryBench's fulfillment rate also increases in Int4.
 
-\begin{table}[htbp]
+\begin{table}[ht!]
 \centering
 \caption{Absolute and rate increase in coherent compliance compared to bf16 (N = 300)}
 \label{tab:comparison_table_Qwen3_4B_free_gen_lm_judge_coherence}
@@ -217,7 +212,7 @@ DeceptionBench shows a significant increase in the deception rate, and SorryBenc
 We also judged coherency in the responses, and found that there is a increase
 in deceptive/dangerous responses that are coherent. 
 
-\begin{table}[htbp]
+\begin{table}[ht!]
 \centering
 \caption{Model performance across other tasks.}
 \label{tab:comparison_table_Qwen3_4B_free_gen_other}
@@ -234,6 +229,45 @@ in deceptive/dangerous responses that are coherent.
 \end{table}
 
 
+\subsubsection{1.7B Experiment}
+
+\begin{table}[h!]
+\centering
+\caption{Model performance on Free Generation benchmarks.}
+\label{tab:comparison_table_Qwen3_1.7B_free_gen}
+\setlength{\tabcolsep}{6pt}
+\footnotesize
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Run} & \textbf{Human Eval} & \textbf{mgsm\_direct\_en} & \textbf{MMLU-Pro} & \textbf{Sorry Bench (higher worse)} \\
+\midrule
+\textbf{BF16} & 0.4146 & 0.1320 & 0.4256 & 0.5667 \\
+\textbf{INT8} & 0.4085 & 0.1160 & 0.3994 & 0.5978 \\
+\textbf{AWQ}  & 0.3841 & 0.1080 & 0.3883 & 0.6022 \\
+\textbf{INT4} & 0.0915 & 0.0560 & 0.2324 & 0.7756 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[h!]
+\centering
+\caption{Model performance on Teacher Forcing benchmarks.}
+\label{tab:comparison_table_Qwen3_1.7B_tf}
+\setlength{\tabcolsep}{6pt}
+\footnotesize
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Run} & \textbf{GPQA} & \textbf{BBQ} & \textbf{Hendrycks Ethics} & \textbf{TruthfulQA} \\
+\midrule
+\textbf{BF16} & 0.3103 & 0.5040 & 0.6000 & 0.4589 \\
+\textbf{INT8} & 0.2879 & 0.4950 & 0.6120 & 0.4680 \\
+\textbf{AWQ}  & 0.2835 & 0.5030 & 0.5820 & 0.4706 \\
+\textbf{INT4} & 0.2589 & 0.4780 & 0.5590 & 0.4884 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\newpage
 
 
 
