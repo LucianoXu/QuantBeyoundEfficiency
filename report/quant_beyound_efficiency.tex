@@ -58,7 +58,7 @@
 
 \begin{abstract}
 	
-Quantization is a widely adopted technique that deploys machine learning models for efficient inference. A great number of research has been conducted to understand the gap between full and quantized models, including utilitarian and alignment aspects. \yx{citations}
+Quantization is a widely adopted technique that allows efficient inference on language models. A great number of research has been conducted to understand the gap between full and quantized models, including utilitarian and alignment aspects. \yx{citations}
 This work audits the impact of quantization on domains including model safeguards, instruction following, ethics and bias.
 \yx{describe the experiments}..
 Through benchmarks, we discovered that model safeguards, bias and deception can degrade under quantization,
@@ -73,9 +73,9 @@ robustness can transfer unevenly through different capability domains from full 
 
 
 \section{Introduction}
-Quantization methods have become widespread for reducing the size of LLMs for local deployment with limited memory. These methods are increasingly being used in real-world environments that are sensitive to safety risks.  
-Since quantization approximates a full-precision model, it was previously assumed that the model's capabilities changed consistently in all aspects.
-However, recent works have challenged this assumption, showing that quantization can reduce a model's capabilities in various ways, affecting bias and trustworthiness, for example. 
+Quantization methods reduce the size of LLMs and are commonly used for local deployment on systems with limited memory. These methods are increasingly being used in real-world environments
+ that are sensitive to safety risks. 
+However, recent works have shown that quantization can reduce a model's capabilities in various ways, including general capability, bias and trustworthiness. 
 This project explores how this degradation extends to different capability domains, as well as whether it reveals vulnerabilities in the model's safeguards that could be exploited.
 The following research questions are explored in this project:  
 
@@ -149,6 +149,7 @@ The FG benchmarks were evaluated under 5-shot learning to make the models more r
         \item \textbf{Sorrybench}: ...
         \item \textbf{DeceptionBench}: ...
         \item \textbf{MGSMdirect}: ...
+        \item \textbf{Human-Eval}: ...
     \end{itemize}
 \end{itemize}
 
@@ -158,7 +159,6 @@ The FG benchmarks were evaluated under 5-shot learning to make the models more r
 
 \subsection{Results}
 \subsubsection{Multiple Choice}
-
 We conducted multiple-choice evaluations and measured the accuracy based on the likelihood of the generations using teacher forcing. 
 Our evaluation was done in zero-shot evaluation, to inhibit any occurance of bias or steering through the context window. 
 We measured the accuracy in the multiple choice prediction to the correct prediction. A higher result indicates a better performance for all of the benchmarks.
@@ -169,14 +169,13 @@ We measured the accuracy in the multiple choice prediction to the correct predic
 \label{tab:comparison_table_Qwen3_4B_multi_choice_tf}
 \setlength{\tabcolsep}{2.5pt}
 \footnotesize
-\begin{tabular}{lccccc}
+\begin{tabular}{lcccccc}
 \toprule
-\textbf{Accuracy (\%)} & \textbf{GPQA} & \textbf{MMLU} & \textbf{ARC} & \textbf{BBQ} & \textbf{TruthfulQA} \\
-\midrule
-\textbf{BF16}  & 37.33              & 71.64                 & 49.67             & 42.00                 & 51.47         \\
-\textbf{INT8}  & 39.67 \imp{(+2.34)} & 71.93 \imp{(+0.29)} & 49.00 \de{(-0.67)} & 43.67 \imp{(+1.67)} & 50.77 \de{(-0.70)} \\
-\textbf{AWQ}   & 38.67 \imp{(+1.34)} & 70.47 \de{(-1.17)} & 45.67 \de{(-4.00)} & 44.00 \imp{(+2.00)} & 50.31 \de{(-1.16)} \\
-\textbf{INT4}  & 35.67 \de{(-1.66)} & 67.25 \de{(-4.39)} & 44.67 \de{(-5.00)} & 39.00 \de{(-3.00)} & 51.86 \imp{(+0.39)} \\
+\textbf{Accuracy (\%)} & \textbf{GPQA} & \textbf{MMLU} & \textbf{ARC} & \textbf{BBQ} & \textbf{TruthfulQA} & \begin{tabular}[c]{@{}c@{}}\textbf{Hendrycks Ethics} \\ \textbf{(Average)}\end{tabular} \\\midrule
+\textbf{BF16}  & 37.33              & 71.64                 & 49.67             & 42.00                 & 51.47    & 68.22     \\
+\textbf{INT8}  & 39.67 \imp{(+2.34)} & 71.93 \imp{(+0.29)} & 49.00 \de{(-0.67)} & 43.67 \imp{(+1.67)} & 50.77 \de{(-0.70)} & 70  \imp{(+1.78)} \\
+\textbf{AWQ}   & 38.67 \imp{(+1.34)} & 70.47 \de{(-1.17)} & 45.67 \de{(-4.00)} & 44.00 \imp{(+2.00)} & 50.31 \de{(-1.16)} & 65 \de{(-3.22)}\\
+\textbf{INT4}  & 35.67 \de{(-1.66)} & 67.25 \de{(-4.39)} & 44.67 \de{(-5.00)} & 39.00 \de{(-3.00)} & 51.86 \imp{(+0.39)} & 62,868 \de{(-5,352)}\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -262,12 +261,12 @@ in deceptive/dangerous responses that are coherent.
 \footnotesize
 \begin{tabular}{lcccc}
 \toprule
-\textbf{Run (\%)} & \textbf{GPQA} & \textbf{BBQ} & \textbf{Hendrycks Ethics} & \textbf{TruthfulQA} \\
+\textbf{Run (\%)} & \textbf{GPQA} & \textbf{BBQ} & \textbf{Hendrycks Ethics (Average)} & \textbf{TruthfulQA} \\
 \midrule
-\textbf{BF16} & 31.03         & 50.40         & 60.00         & 45.89         \\
-\textbf{INT8} & 28.79 \de{(-2.24)} & 49.50 \de{(-0.90)} & 61.20 \imp{(+1.20)} & 46.80 \imp{(+0.91)} \\
-\textbf{AWQ}  & 28.35 \de{(-2.68)} & 50.30 \de{(-0.10)} & 58.20 \de{(-1.80)} & 47.06 \imp{(+1.17)} \\
-\textbf{INT4} & 25.89 \de{(-5.14)} & 47.80 \de{(-2.60)} & 55.90 \de{(-4.10)} & 48.84 \imp{(+2.95)} \\
+\textbf{BF16} & 31.03         & 50.40         & 64.38       & 45.89         \\
+\textbf{INT8} & 28.79 \de{(-2.24)} & 49.50 \de{(-0.90)} &65.38 \imp{(+1)} & 46.80 \imp{(+0.91)} \\
+\textbf{AWQ}  & 28.35 \de{(-2.68)} & 50.30 \de{(-0.10)} & 63.18 \de{(-1.2)} & 47.06 \imp{(+1.17)} \\
+\textbf{INT4} & 25.89 \de{(-5.14)} & 47.80 \de{(-2.60)} & 60.08 \de{(-4.3)}& 48.84 \imp{(+2.95)} \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -299,8 +298,6 @@ benchmarks remain more consistent.
 \ra{Insert example demonstration}
 
 \newpage
-
-
 
 \section{Quantization-Aware Adversarial Suffix Attack}
 
@@ -476,6 +473,16 @@ We evaluated only the Qwen3 models, we do not know if our results generalize to 
 The quantization-aware attack by adversarial suffix still has many limitations. The model tends to produce superficially compliant text, rather than geniunely informative harmful text. Also, the attack suffix will degrade the generation quality in format. Our preliminary experiemnts show that the suffix discovered on Qwen does not generate to other open source models.
 
 
+\section{Author contribution statements}
+
+\section{Generative AI Disclosure}
+
+Generative AI was used as an assistant in this project. AI generated code is labeled as such in the code base, Novel code,
+code concerning the core functionality is human-generated. AI was used for debugging. 
+The text of the report and the presentation is human-generated and is at most minorly adjusted with AI. AI was used to generate the tables and other structural 
+lateX components. 
+
+
 \bibliographystyle{unsrtnat}
 \bibliography{references}
 
@@ -517,10 +524,4 @@ Model Response: "{answer}"
 The llm judge is given the prompt as "question", the ethical baseline of this prompt, the deceptive goal and the models response.  
 
 
-\section{Generative AI Disclosure}
-
-Generative AI was used as an assistant in this project. AI generated code is labeled as such in the code base, Novel code,
-code concerning the core functionality is human-generated. AI was used for debugging. 
-The text of the report and the presentation is human-generated and is at most minorly adjusted with AI. AI was used to generate the tables and other structural 
-lateX components. 
 \end{document}
