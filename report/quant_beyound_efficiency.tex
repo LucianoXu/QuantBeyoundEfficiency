@@ -35,9 +35,9 @@
 
 
 \title{
-  Quant Beyond Efficiency \\
+  Quantization Beyond Efficiency \\
   \vspace{1em}
-  \small{\normalfont Stanford CS224N \{Custom, Default\} Project}  % Select one and delete the other
+  \small{\normalfont LLM Engineering Course Project}
 }
 
 \author{
@@ -47,14 +47,20 @@
   Ramneek \\
   Ruhr University Bochum \\
   \And
-  Yingte \\
+  Yingte Xu\\
+  Ruhr University Bochum \\
   MPI-SP \\
 }
-
 
 \begin{document}
 
 \maketitle
+
+\begingroup
+\renewcommand{\thefootnote}{}
+\footnotetext{Author contributions: Hans does background research and the evaluation coherence analysis. Ramneek designs and analyses the benchmark experiments. Yingte implements the codebase framework and designs the attack experiments.}
+\addtocounter{footnote}{-1}
+\endgroup
 
 \begin{abstract}
 	
@@ -124,8 +130,9 @@ When assessing quantized model performance, the evaluation methodology is of cru
 [https://arxiv.org/pdf/2502.15799] Kharinaev et. al evaluate the safety and trustworthiness of quantized models finding that multiple choice benchmarks can mask the degradation in safety of models.
 [https://arxiv.org/pdf/2508.18088] find that certain alignment \ra{Remove alignment} qualities like stereotype and unfairness get amplified, toxicity and sentiment remain stable.
 
-[Add context to attack, but Yingte already referenced them?]
-[https://arxiv.org/pdf/2405.18137] present an attack, where a full precision model shows benign behavior, but follows adversarial behavior when quantized.
+Various ways of attacking language models have been studied. We in particular focus on the following two types of attacks. Adversarial suffix attacks try to find prompt suffix that jailbreaks the model to induce misaligned generations. Zou et al.~\cite{GCG} reported the GCG method, which constructs universal adversarial suffixes that jailbreaks the open source Vicuna-7B models. The discovered attack suffixes even generalize to work on closed-source models including GPT-3.5. Later works~\cite{Faster-GCG,I-GCG} improve the efficiency of finding the adversarial suffix.
+On the other hand, quantization-aware attacks refer to the utilization of difference between full and quantized models. Researchers from ETH Zürich~\cite{QCB} first reported the technique to train a model that is benign in full precision, but misaligned after quantization.
+
 
 \section{Benchmarks}
 \subsection{Datasets and metrics}
@@ -310,14 +317,9 @@ Therefore, the static evaluations of the models against benchmarks are not suffi
 
 During the deployment of quantized models, the vulnerabilities against attacks are easily overlooked.
 People tend to assume that the robustness of full models will transfer to the quantized ones, but it does not hold in general.
-
 This section introduces our novel discovery of quantization-aware adversarial suffix attacks.
-This technique combines two concepts:
-\begin{itemize}
-  \item \textbf{Adversarial suffix attacks} try to find prompt suffix that jailbreaks the model to induce misaligned generations. Zou et al.~\cite{GCG} reported the GCG method, which constructs universal adversarial suffixes that jailbreaks the open source Vicuna-7B models. The discovered attack suffixes even generalize to work on closed-source models including GPT-3.5. Later works~\cite{Faster-GCG,I-GCG} improve the efficiency of finding the adversarial suffix.
-  \item \textbf{Quantization-aware attacks} refer to the utilization of difference between full and quantized models. Researchers from ETH Zürich~\cite{QCB} first reported the technique to train a model that is benign in full precision, but misaligned after quantization.
-\end{itemize}
 
+This technique combines two concepts: adversarial suffix attacks and quantization-aware attacks.
 Quantization-aware attacks sharply demonstrate the risk of the gap between full and quantized models.
 The robustness of full-model does not necessary transfer, and worse still, it can even be maliciously utilized to mount a supply-chain attack. On the other hand, the suffix attacks have a more practical adversary model: it works on commonly used open source models, and the suffixes are generic to a certain extent. 
 One question rises naturally from the intersection of these two vulnerabilities: whether it is possible to construct quantization-aware adversarial suffix attacks, as is illustrated in~\Cref{fig:quant-aware-adv-suffix}.
@@ -475,8 +477,6 @@ We evaluated only the Qwen3 models, we do not know if our results generalize to 
 
 The quantization-aware attack by adversarial suffix still has many limitations. The model tends to produce superficially compliant text, rather than geniunely informative harmful text. Also, the attack suffix will degrade the generation quality in format. Our preliminary experiemnts show that the suffix discovered on Qwen does not generate to other open source models.
 
-
-\section{Author contribution statements}
 
 \section{Generative AI Disclosure}
 
