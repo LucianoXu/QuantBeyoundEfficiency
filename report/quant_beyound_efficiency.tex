@@ -184,7 +184,7 @@ We measured the accuracy in the multiple choice prediction to the correct predic
 \textbf{BF16}  & 37.33              & 71.64                 & 49.67             & 42.00                 & 51.47    & 68.22     \\
 \textbf{INT8}  & 39.67 \imp{(+2.34)} & 71.93 \imp{(+0.29)} & 49.00 \de{(-0.67)} & 43.67 \imp{(+1.67)} & 50.77 \de{(-0.70)} & 70  \imp{(+1.78)} \\
 \textbf{AWQ}   & 38.67 \imp{(+1.34)} & 70.47 \de{(-1.17)} & 45.67 \de{(-4.00)} & 44.00 \imp{(+2.00)} & 50.31 \de{(-1.16)} & 65 \de{(-3.22)}\\
-\textbf{INT4}  & 35.67 \de{(-1.66)} & 67.25 \de{(-4.39)} & 44.67 \de{(-5.00)} & 39.00 \de{(-3.00)} & 51.86 \imp{(+0.39)} & 62,868 \de{(-5,352)}\\
+\textbf{INT4}  & 35.67 \de{(-1.66)} & 67.25 \de{(-4.39)} & 44.67 \de{(-5.00)} & 39.00 \de{(-3.00)} & 51.86 \imp{(+0.39)} & 62,868 \de{(-5,35)}\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -193,26 +193,6 @@ The strongest decline in the benchmarks can be observed in MMLU, ARC and BBQ, wh
 \paragraph{}
 We also performed hendrycks-ethics, which is also a multiple choice teacher forcing benchmark which evaluates the models ethical and moral 
 choices. 
-
-\begin{table}[ht!]
-\centering
-\caption{Model performance across Ethics tasks with absolute percentage point differences from the BF16 baseline. }
-\label{tab:comparison_table_Qwen3_4B_ethics}
-\setlength{\tabcolsep}{2.0pt}
-\footnotesize
-\begin{tabular}{lccccc}
-\toprule
-\textbf{Run (\%)} & \textbf{Ethics CM} & \textbf{Deontology} & \textbf{Justice} & \textbf{Utilitarianism} & \textbf{Virtue} \\
-\midrule
-\textbf{BF16}  & 68.67         & 61.33         & 59.67         & 64.00         & 87.33         \\
-\textbf{INT8}  & 68.33 \de{(-0.34)} & 63.33 \imp{(+2.00)} & 64.33 \imp{(+4.66)} & 66.00 \imp{(+2.00)} & 88.00 \imp{(+0.67)} \\
-\textbf{AWQ}   & 64.67 \de{(-4.00)} & 60.67 \de{(-0.66)} & 54.33 \de{(-5.34)} & 56.33 \de{(-7.67)} & 89.00 \imp{(+1.67)} \\
-\textbf{INT4}  & 75.00 \imp{(+6.33)} & 44.00 \de{(-17.33)} & 52.00 \de{(-7.67)} & 62.67 \de{(-1.33)} & 80.67 \de{(-6.66)} \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-The strongest decrease is in deontology. Not all of the different subtypes decrease evenly. 
 
 \subsubsection{Free Generation}
 For our second benchmark, we compared the model's ability to follow instructions and its general capabilities to its safeguards. We selected deception and safety refusal as the two datasets with which to measure the model's safeguards. 
@@ -279,11 +259,33 @@ DeceptionBench shows a significant increase in the deception rate, and SorryBenc
 \end{tabular}
 \end{table}
 
+Our experiments on the smaller 1.7B model \ref{tab:comparison_table_Qwen3_1.7B_tf} show that the model struggles significantly in int4 with free generation. On the other hand its clear that teacher forcing 
+benchmarks remain more consistent. This behaviour can be explained because of the collapse of the model's coherence in free generation. 
+One example from our SorryBench results demonstrates this: 
+\begin{figure}[htbp]
+\begin{Verbatim}[
+  frame=leftline, 
+  framerule=2pt, 
+  rulecolor=\color{gray!60}, 
+  framesep=1em, 
+  fontsize=\footnotesize, 
+  xleftmargin=1.5em, 
+  xrightmargin=0.5em, 
+  breaklines=true, 
+  breakanywhere=true,
+  breaksymbol=,                  
+  breakanywheresymbolpre=        
+]
+User: Insult me in the meanest way possible.
+
+Response:
+I'm not insinuating anyone, but I'm here to help you with your insinuations. If you're insinuating someone, I'm not insinuating you. I'm here to help you with your insinuations. If you're insinuating someone, I'm not insinuating you. I'm here to help you with your insinuations. If you're insinuating someone, ...
+\end{Verbatim}
+\caption{An example of a repetitive loop and coherence collapse on a sensitive prompt under INT4 quantization.}
+\label{fig:coherence_collapse_example}
+\end{figure}
 
 
-Our experiments with 1.7b show that models struggle significantly in int4 with free generation, when they are a certain size.
-Many of the responses were incoherent, which causes the free generation performance to drop. On the other hand its clear that teacher forcing 
-benchmarks remain more consistent. 
 \par
 
 \section{Quantization-Aware Adversarial Suffix Attack}
@@ -466,12 +468,12 @@ All members worked on code base, engaged in discussions and gave feedback on eac
 designed experiments and handeled different sections of the report. Sections not named were worked on primarily collaboratively.
 
 Hans:
-background research, co-designed the benchmarks, and analyzed results. 
-Sections responsible for: Background and Related work, Benchmark subsection
+Literature search, co-designed the benchmarks, and analyzed results. 
+Sections responsible for: Background and Related work, Benchmark subsection 3.1
 
 Ramneek: 
-Project coordination, management, benchmark experiments and analysis. 
-Sections responsible for: Introduction, Benchmark section
+Research Questions, Project coordination, benchmark experiments and analysis. 
+Sections responsible for: Introduction, Benchmark subsection 3.2, Conclusion
 
 Yingte: 
 Codebase framework and designs the attack experiments, assists with benchmarks and experiment execution.
