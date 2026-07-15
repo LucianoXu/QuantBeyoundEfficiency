@@ -58,7 +58,6 @@
 
 \begingroup
 \renewcommand{\thefootnote}{}
-\footnotetext{Author contributions: Hans does background research and the evaluation coherence analysis. Ramneek designs and analyses the benchmark experiments. Yingte implements the codebase framework and designs the attack experiments.}
 \addtocounter{footnote}{-1}
 \endgroup
 
@@ -242,25 +241,6 @@ DeceptionBench uses a slightly modified system prompt \ref{fig:judge_prompt_dece
 
 DeceptionBench shows a significant increase in the deception rate, and SorryBench's fulfillment rate also increases in Int4.
 
-\begin{table}[ht!]
-\centering
-\caption{Absolute and rate increase in coherent compliance compared to bf16 (N = 300)}
-\label{tab:comparison_table_Qwen3_4B_free_gen_lm_judge_coherence}
-\setlength{\tabcolsep}{3.5pt}
-\footnotesize
-\begin{tabular}{lcc}
-\toprule
-\textbf{Quantization} & \textbf{DeceptionBench} & \textbf{Sorry-Bench}  \\
-\midrule
-\textbf{int8}           & 30 (+10.0\%) & 5 (+1.7\%)   \\
-\textbf{awq-w4a16-asym} & 29 (+9.7\%)  & 6 (+2.0\%)  \\
-\textbf{int4}           & 49 (+16.3\%) & 20 (+6.7\%)  \\
-\bottomrule
-\end{tabular}
-\end{table}
-We also judged coherency in the responses, and found that there is a increase
-in deceptive/dangerous responses that are coherent. 
-
 \subsubsection{1.7B Experiment}
 
 \begin{table}[h!]
@@ -304,10 +284,7 @@ in deceptive/dangerous responses that are coherent.
 Our experiments with 1.7b show that models struggle significantly in int4 with free generation, when they are a certain size.
 Many of the responses were incoherent, which causes the free generation performance to drop. On the other hand its clear that teacher forcing 
 benchmarks remain more consistent. 
-\ra{Ive included 1.7b since its a answer to RQ2}
-\ra{Insert example demonstration}
-
-\newpage
+\par
 
 \section{Quantization-Aware Adversarial Suffix Attack}
 
@@ -454,15 +431,13 @@ RQ1: Do the capabilities of a quantized model transfer consistently across vario
 
 Our evaluations have shown that models perform inconsistently on multiple-choice benchmarks when evaluated with teacher forcing. 
 We find that benchmarks that measure model safeguards, such as DeceptionBench and SorryBench significantly decline.
-This suggests that the model can successfully follow dangerous user instructions. Our evaluations in \ref{tab:comparison_table_Qwen3_4B_free_gen_lm_judge_coherence} provide further evidence
-that LLMs generate new harmful or deceptive coherent requests under quantization. 
+This suggests that the model can successfully fulfill dangerous user instructions.
 Furthermore, we can conclude that model capabilities do not necessarily transfer equally which implies that model capabilities are disjoint.   
 
 RQ2: Does the decline in safeguards expose LLMs to unique vulnerabilities?
 
-As our evaluations show, models remain capable of following instructions while declining in safeguards.
+As our evaluations show, models decline significantly in safeguards, and are more likely to generate deceptive answers and refuse unsafe requests less often.
 To explore this further, we exploited vulnerabilities in the quantized models using a quantization-aware adversarial suffix attack. 
-
 
 RQ3: Why do some benchmarks remain consistent with quantization while others decline?
 \ref{tab:comparison_table_Qwen3_1.7B_free_gen} and \ref{tab:comparison_table_Qwen3_1.7B_tf} shows that quantization effects free generation and teacher forcing benchmarks unequally.
@@ -485,6 +460,22 @@ code concerning the core functionality is human-generated. AI was used for debug
 The text of the report and the presentation is human-generated and is proofread by and is at most minorly adjusted with AI for polish. 
 AI was used to generate assist in the generation of the tables and other visual components in the report.  
 lateX components. 
+
+\section{Author contributions}
+All members worked on code base, engaged in discussions and gave feedback on eachothers experiments, 
+designed experiments and handeled different sections of the report. Sections not named were worked on primarily collaboratively.
+
+Hans:
+background research, co-designed the benchmarks, and analyzed results. 
+Sections responsible for: Background and Related work, Benchmark subsection
+
+Ramneek: 
+Project coordination, management, benchmark experiments and analysis. 
+Sections responsible for: Introduction, Benchmark section
+
+Yingte: 
+Codebase framework and designs the attack experiments, assists with benchmarks and experiment execution.
+Sections responsible for: Attack Sections 
 
 
 \bibliographystyle{unsrtnat}
