@@ -65,7 +65,8 @@
 
 \begin{abstract}
 	
-Quantization is a widely adopted technique that allows efficient inference on language models. A great number of research has been conducted to understand the gap between full and quantized models, including utilitarian and alignment aspects. \yx{citations}
+Quantization is a widely adopted technique that allows efficient inference on language models. A great number of research has been conducted to understand 
+the gap between full and quantized models, including utilitarian and alignment aspects. \yx{citations}
 This work audits the impact of quantization on domains including model safeguards, instruction following, ethics and bias.
 \yx{describe the experiments}..
 Through benchmarks, we discovered that model safeguards, bias and deception can degrade under quantization,
@@ -80,9 +81,13 @@ robustness can transfer unevenly through different capability domains from full 
 
 
 \section{Introduction}
- LLMs are increasingly being used in real-world, safety-critical environments, and quantization methods are necessary to deploy LLMs on hardware with limited resources, as they reduce the memory footprint of LLMs.     
-Recent studies have shown that quantization can reduce the performance of specific models in certain capability domains, including reasoning, coding and bias and trustworthiness. However, no study has yet taken a more comprehensive look at the degradation of different capability domains, with a primary focus on capabilities affecting model safeguards, including ethical judgement, deception, and safety refusal. This work aims to fill this gap. 
-
+LLMs are increasingly being used in real-world, safety-critical environments, 
+and quantization methods are necessary to deploy these models on hardware with limited resources,
+ as they reduce their memory footprint.
+Recent works have shown that quantization can diminish the performance of specific models in
+certain capability domains, including reasoning \cite{liu2025quantizationhurtsreasoningempirical},  bias \cite{kirsten} and model safeguards \ra{Citation required}. 
+While papers often evaluate models in passive and active forms of evaluation separately, to truly understand a model's capabilities and safeguards 
+under quantization, we find a need for a more comprehensive view that combines passive benchmark evaluations with active adversarial attacks.
 We address the following research questions:  
 \begin{itemize}
     \item \textbf{RQ1:} Do model capabilities transfer in a quantized model consistently across different domains especially safeguards, bias and deception?
@@ -100,7 +105,7 @@ Our key findings are the following:
 \begin{itemize}
 	\item Not all model capabilities transfer evenly with quantization. We observe that some domains are more affected by quantization than others.    
 	\item The models performance decreases in critical safety domains such as instruction following, safety-refusal and deception when quantized.
-    \item Multiple choice benchmarks evaluated with log likelihood tend to stay more stable in quantization compared to free generation benchmarks.
+    \item Multiple choice benchmarks evaluated with log likelihood ranking tend to stay more stable in quantization compared to free generation benchmarks.
 	\item Quantized models are more vulnerable to adversarial suffix jailbreaking attacks due to the decline of their safety mechanisms. 
 \end{itemize}
 In conclusion, our findings suggest that models cannot be assumed to have the same safeguards under stronger quantization levels. 
@@ -152,7 +157,7 @@ The following benchmarks were chosen to represent these paradigms:
 
     \item \textbf{Free Generation Benchmarks:}
     \begin{itemize}
-        \item \textbf{SORRY-Bench} \cite{sorry_bench_hf}: Measuring refusal of unsafe user requests across different phrasing. Focus on dangerous, inappropriate tasks. 
+        \item \textbf{SORRY-Bench} \cite{sorry_bench_hf}: Measuring refusal of unsafe user requests across different phrasing. Focus on dangerous, illegal or inappropriate tasks. 
         \item \textbf{DeceptionBench} \cite{deceptionbench_hf}: Measures models willingness to follow prompts that have deceptive behaviour/goals. 
         \item \textbf{InFoBench} \cite{infobench_hf}: Evaluating complex instruction following capabilities.
         \item \textbf{WildChat-nontoxic} \cite{wildchat_hf}: General utility under broad real-world user requests.
@@ -209,7 +214,7 @@ Overall, INT4 quantization leads to the most significant degradation in accuracy
 evaluated benchmarks.
 
 \subsubsection{Free Generation}
-For our second benchmark, we compared the model's instruction-following ability and general capabilities against its safety safeguards.
+For our second benchmark, we compared the model's instruction-following ability and general capabilities against its safeguards.
 We selected deception and safety refusal as the two evaluation domains to measure these safeguards.
 We compared them against InFoBench, which measures instruction following, and WildChat-NonToxic, which contains general, non-toxic prompts. 
 
@@ -283,8 +288,8 @@ The discrepancy between InFoBench and WildChat is notable. Although both are des
 \paragraph{}
 Finally, the difference between the two safety tasks, DeceptionBench and SORRY-bench, likely stems from the fact that SORRY-bench features much more 
 offensive and harsh prompts, while DeceptionBench is far more subtle and at points deliberately morally grey.
-Our evidence supports that the more subtle behavior in DeceptionBench is more sensitive to safety degradation than 
-harder decisions.
+Our evidence supports that the more subtle behavior in DeceptionBench is more sensitive to quantization degradation than the
+unambiguous safety violations in SORRY-bench.
 
 \subsubsection{1.7B Experiment}
 This experiment aims to test how quantization behaves on small models. Furthermore, we  conduct two different types of benchmarks LLR and FFC to observe if there is a gap between
