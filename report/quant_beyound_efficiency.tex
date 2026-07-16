@@ -41,7 +41,7 @@
 }
 
 \author{
-  Hans \\
+  Hans Vath\\
   Ruhr University Bochum \\
   \And
   Ramneek \\
@@ -104,72 +104,69 @@ Our key findings are the following:
 In conclusion, our findings suggest that models cannot be assumed to have the same safeguards under stronger quantization levels. 
 Which means that model safeguards must be actively audited post-quantization before deployment, especially in safety-critical domains.
 
-
-
 \section{Background and Related Work}
 
-[Introduction Quantization]
-Rapid advancements in Large Language Models (LLMs) have lead to a steady growth in model sizes, with modern models having hundreds of billions of parameters. Deploying these models requires significant amounts of video RAM (VRAM) creating a major bottleneck. One technique to mitigate this issue is quantization. This maps higher precision representations (such as brain floating point 16) of the model parameters to lower formats (such as 8-bit integers). This drasticly reduces the memory footprint, but can also introduce a loss of model accuracy.
-Widely-adopted strategies include Quantization-Aware Training (QAT) and Post-Training Quantization (PTQ). QAT introduces a fine-tuning step on a representative dataset to allow the model to adapt to lower precision formats at the cost of additional computation. In contrast, PTQ is applied directly on a trained model without further fine-tuning steps. 
-Quantization can target the model parameters (Weight Quantization) or additionaly at the inference states (Activation Quantization). In this work, we concentrate on PTQ and Weight Quantization as they are the most widely adopted strategies in practice through their computational low costs. [Int4, Int8, AWQ, FP16 explanation in appendix ?]
+\subsection{Quantization}
+Rapid advancements in Large Language Models (LLMs) have led to a steady growth in model sizes, with modern models having hundreds of billions of parameters. Deploying these models requires significant amounts of video RAM (VRAM) creating a major bottleneck. One technique to mitigate this issue is quantization. This maps higher precision representations (such as brain floating point 16) of the model parameters to lower formats (such as 8-bit integers). This sharply reduces the memory footprint, but can also introduce a loss of model accuracy.
+Widely-adopted strategies include Quantization-Aware Training (QAT) and Post-Training Quantization (PTQ). QAT introduces a fine-tuning step on a representative dataset to allow the model to adapt to lower precision formats at the cost of additional computation. In contrast, PTQ is applied directly on a trained model without further fine-tuning steps.
+Quantization can target the model parameters (Weight Quantization) or additionally at the inference state (Activation Quantization). In this work, we concentrate on PTQ and Weight Quantization as they are the most widely adopted strategies in practice through their computational low costs. [Int4, Int8, AWQ, FP16 explanation in appendix ?]
 
-
-[Introduction to Benchmarks][Appendix?][Gap that most models are only evaluated at bf16?]
-To evaluate the performance of LLMs and ensure comparability between different models, a broad range of standardized benchmarks has been established. These benchmarks assess their performance across a diverse range of domains, including mathematical reasoning (GSM8K), general knowledge (MMLU), bias (CrowS-Pairs) and robustness against jailbreak attempts (SORRY Bench). [Add data contamination concerns]
+\subsection{Benchmarking}
+To evaluate the performance of LLMs and ensure comparability between different models, a broad range of standardized benchmarks has been established. These benchmarks assess their performance across a diverse range of domains, including mathematical reasoning (GSM8K), general knowledge (MMLU), bias (CrowS-Pairs) and robustness against jailbreak attempts (SORRY Bench). This is a non-trivial evaluation task, as it is not clear if the benchmark answers where contained in the training data.
 Benchmarks do not only differ in the domain they assess, but also in their evaluation protocol.
-In Multiple Choice and Log-Likelihood Rankings [better word?] the model is presented with predefined answer options. Performance is evaluated either by calculating the log-likelihood of each answer candidate and selecting the highest-probability option, or by parsing the generated response using regular expression.
-In Free-Form Generation [better word] the model generates a response during inference. This is evaluated by either exact-matching (e.g., extracting a numerical answer) or by utilizing a LLM-as-a-Judge model to categorize the response.
-Free Generation lets the model generate a natural response during inference. Another LLM is utilized as a judge to rate the answer as correct or false according to the task.
-When assessing quantized model performance, the evaluation methodology is of crucial interest. Free-form generation tasks can reveal a cumulation of errors, representing the degradation of answer quality at inference time, while log-likelihood ranking can only measure token probability shifts. [CONFUSING LAST SENTENCE]
+In multiple choice and log-likelihood ranking the model is presented with predefined answer options. Performance is evaluated either by calculating the log-likelihood of each answer candidate and selecting the highest-probability option, or by parsing the generated response using regular expression.
+In free-form generation the model generates a response during inference. This is evaluated by either exact-matching (e.g., extracting a numerical answer) or by utilizing a LLM-as-a-judge model to categorize the response.
+Free generation allows the model to generate a natural response during inference. Another LLM is utilized as a judge to rate the answer as correct or false according to the task.
+In assessing quantized model performance, the evaluation methodology is of crucial interest. While log-likelihood ranking only detects shifts in token probabilities, free-form generation reveals how these shifts accumulate over time, leading to a sharper degradation in real-world answer quality than in the log-likelihood setting.
 
-[Some related works that could pose useful[needs much better phrasing to support the overaching story]
-[https://arxiv.org/pdf/2402.16775] Jin et al. evaluate the performance of Qwen-Chat models of different parameter count and different quantization techniques. They show that performance loss is not uniform across benchmarks. [Better statement?]
-[https://arxiv.org/pdf/2605.15208] also identify PTQ as a source of model safety alignment \ra{Safeguard} degradation.
-[https://arxiv.org/pdf/2410.22118] Kirsten et al. investigated the impact of quantization on bias. They found that the effect of techniques is unreliable on bias Furthermore, they highlight the importance of different evaluation protocols for benchmarks to surface different capabilities. [badly phrased]
-[https://arxiv.org/pdf/2502.15799] Kharinaev et. al evaluate the safety and trustworthiness of quantized models finding that multiple choice benchmarks can mask the degradation in safety of models.
-[https://arxiv.org/pdf/2508.18088] find that certain alignment qualities like stereotype and unfairness get amplified, toxicity and sentiment remain stable.
+
+\subsection{Related Works}
+
+While widely adopted MC benchmarks often remain stable under quantization, free-form generation reveals severe safety alignment degradation, demonstrating the risk of masking real-world deployment safety.\cite{kharinaev} Marcuzzi et al.~\cite{marcuzzi}  further explored the reduction in safety alignment on quantization. They found a limited influence on metrics like toxicity and sentiment, while stereotypes and unfairness were amplified. Quantization appears to reverse the instruction tuning step instilled to align model responses with human preferences, forcing the model to fall back to underlying stereotypical associations captured in the pretraining phase.\cite{rath} Even though quantized models can maintain high performance on knowledge based tasks, bias assessment remains mixed. While Jin et al.\cite{jin} found a decrease in bias after quantization, Kirsten et al.\cite{kirsten} connected this effect to the model architecture family, finding bias spikes in certain families and small effects in others.
+
+\hv{short jailbreak reference?}
 
 Various ways of attacking language models have been studied. We in particular focus on the following two types of attacks. Adversarial suffix attacks try to find prompt suffix that jailbreaks the model to induce misaligned generations. Zou et al.~\cite{GCG} reported the GCG method, which constructs universal adversarial suffixes that jailbreaks the open source Vicuna-7B models. The discovered attack suffixes even generalize to work on closed-source models including GPT-3.5. Later works~\cite{Faster-GCG,I-GCG} improve the efficiency of finding the adversarial suffix.
 On the other hand, quantization-aware attacks refer to the utilization of difference between full and quantized models. Researchers from ETH Zürich~\cite{QCB} first reported the technique to train a model that is benign in full precision, but misaligned after quantization.
 
-
 \section{Benchmarks}
 \subsection{Datasets and metrics}
-We chose a diverse set of datasets to evaluate the different quantization types. Our focus was to differentiate between teacher forcing (TF) and 
-Free generation (FG) benchmarks. Since general model degradation does not effect the TF benchmark once since the answers for those are already given and only the 
-log likelihood is compared, while free generation has the risk of collapsing if the model loses enough capability. 
-For our TF benchmarks we used 0-shot inference to prevent any sort of bias from the training dataset from influencing the model. 
-The FG benchmarks were evaluated under 5-shot learning to make the models more robust to complete collapse.  
 
-\ra{Explaining benchmarks in this section}
+We chose a variety of benchmarks to evaluate model performance across different quantization levels across different domains. Our curation focused on balancing log-likelihood ranking (LLR) and free form generation (FFG), where fixed answers in the LLR setting limit potential model degradation, which is revealed under the FFG setting. This approach ensure we are able to capture both fundamental capability retention (LLR) and degradation (FFG).
+
+The following benchmarks were chosen to represent these paradigms:
+
 \begin{itemize}
-    \item \textbf{Multiple-Choice (Teacher Forcing) Benchmarks:}
+    \item \textbf{Multiple-Choice (LLR) Benchmarks:}
     \begin{itemize}
-        \item \textbf{General}
-        \item {GPQA}: ...
-        \item {MMLU}: ...
-        \item {ARC}: ...
-        \item {MMLU-Pro}: ...
-        \item \textbf{Alignment}
-        \item {BBQ}: ...
-        \item {TruthfulQA}: ...
-        \item {Hendrycks-Ethics}: ...
-...
-      \end{itemize}
+        \item \textbf{GPQA}: Expert-level reasoning in biology, physics and chemistry.
+        \item \textbf{MMLU}: Multitask performance across 57 different domains e.g. US history, law and more.
+        \item \textbf{MMLU-Pro}: Extended variant of MMLU with more answer choices.
+        \item \textbf{ARC}: 3rd to 9th grade science exams questions.
+        \item \textbf{BBQ}: Measuring social bias and stereotypes across 9 categories.
+        \item \textbf{TruthfulQA}: Assessment of reproducing of common human misconceptions and rumors.
+        \item \textbf{ETHICS}: Alignment to broad moral and ethical principles.
+    \end{itemize}
 
     \item \textbf{Free Generation Benchmarks:}
     \begin{itemize}
-        \item \textbf{General}
-        \item {MGSMdirect}: ...
-        \item {Human-Eval}: ...
-        \item {InfoBench}: ...
-        \item {WildChat-nontoxic}: ...
-        \item \textbf{Alignment}
-        \item {Sorrybench}: ...
-        \item {DeceptionBench}: ...
-
+        \item \textbf{SORRY-Bench}: Measuring refusal of unsafe user requests across different phrasing.
+        \item \textbf{DeceptionBench}: Testing deceptive behavior under various prompts.
+        \item \textbf{InFoBench}: Evaluating complex instruction following capabilities.
+        \item \textbf{WildChat-nontoxic}: General utility under broad real-world user requests.
+        \item \textbf{MGSMdirect}: Multilingual grade school math word problems in 11 different languages.
+        \item \textbf{HumanEval}: Python code generation capabilities and functional correctness.
     \end{itemize}
 \end{itemize}
+
+[Experimental Setup]
+LLR evaluations were executed utilizing the lm-evaluation-harness framework\hv{citation}. For the benchmarks SORRY-Bench, DeceptionBench, InFoBench and Wildchat-nontoxic we implemented custom evaluation pipelines with a deepseek-4-flash model acting as a judge.
+All experiments were conducted on a NVIDIA A100 GPU with a a maximum token generation limit of 512. \hv{correct?}
+
+LLR benchmarks followed a zero-shot learning approach to prevent any bias influence from the traininig set.
+In contrast, FFG benchmarks were evaluated under 5-shot context learning to ground the models outputs.
+
+Model quantization can lead to structural degradation behavior leading to nonsensical answers or repetitive responses. In FFG evaluations this behavior can be either misclassified as unsafe responses or successful jailbreak behavior.\hv{judging nonsensical?} This can skew the evaluation tremendously. To mitigate these false evaluations we judged the response under a coherence prompt \hv{prompt reference}, which evaluates if the model is still following natural human-like language. We again installed a deepseek-4-flash model as a judge.
 
 \yx{Benchmarking methodology should be discussed. What is the critera of choosing benchmarks. Explain the evaluation. In-context learning? How are results extracted? What does teacher forcing mean? Do we use frameworks? What is our experiment configuration?}
 
