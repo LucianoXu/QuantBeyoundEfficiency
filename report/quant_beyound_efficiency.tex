@@ -24,6 +24,8 @@
 
 \newcommand{\yx}[1]{\textcolor{blue}{{[YX: #1]}}}
 \newcommand{\ra}[1]{\textcolor{blue}{{[RA: #1]}}}
+\newcommand{\hv}[1]{\textcolor{blue}{{[HV: #1]}}}
+
 \usepackage{xcolor}
 
 \definecolor{crimsonred}{rgb}{0.7, 0.1, 0.1}
@@ -110,7 +112,7 @@ Which means that model safeguards must be actively audited post-quantization bef
 Rapid advancements in Large Language Models (LLMs) have led to a steady growth in model sizes, with modern models having hundreds of billions of parameters. Deploying these models requires significant amounts of video RAM (VRAM) creating a major bottleneck. One technique to mitigate this issue is quantization. This maps higher precision representations (such as brain floating point 16) of the model parameters to lower formats (such as 8-bit integers). This sharply reduces the memory footprint, but can also introduce a loss of model accuracy.
 Widely-adopted strategies include Quantization-Aware Training (QAT) and Post-Training Quantization (PTQ). QAT introduces a fine-tuning step on a representative dataset to allow the model to adapt to lower precision formats at the cost of additional computation. In contrast, PTQ is applied directly on a trained model without further fine-tuning steps.
 Quantization can target the model parameters (Weight Quantization) or additionally at the inference state (Activation Quantization). In this work, we concentrate on PTQ and Weight Quantization as they are the most widely adopted strategies in practice through their computational low costs. [Int4, Int8, AWQ, FP16 explanation in appendix ?]
-
+\ra{Explanation of AWQ, INT4, INt8 and BF16 should be added}
 \subsection{Benchmarking}
 To evaluate the performance of LLMs and ensure comparability between different models, a broad range of standardized benchmarks has been established. These benchmarks assess their performance across a diverse range of domains, including mathematical reasoning (GSM8K), general knowledge (MMLU), bias (CrowS-Pairs) and robustness against jailbreak attempts (SORRY Bench). This is a non-trivial evaluation task, as it is not clear if the benchmark answers where contained in the training data.
 Benchmarks do not only differ in the domain they assess, but also in their evaluation protocol.
@@ -172,12 +174,14 @@ Model quantization can lead to structural degradation behavior leading to nonsen
 
 \yx{Introduce what is coherence, and how we evaluate them.}
 
-\subsection{Results}
+\subsection{Results and Analysis}
 \subsubsection{Multiple Choice}
 We conducted multiple-choice evaluations and measured the accuracy based on the likelihood of the generations using teacher forcing. 
 Our evaluation was done in zero-shot evaluation, to inhibit any occurance of bias or steering through the context window. 
 We measured the accuracy in the multiple choice prediction to the correct prediction. A higher result indicates a better performance for all of the benchmarks.
-
+\paragraph{}
+This experiment tests if there is a gap between the models alignment capabilities (domains like bias, truthfulness and ethical judgement) and the models 
+general abilities. 
 \begin{table}[ht!]
 \centering
 \caption{Model performance across tasks with absolute percentage point differences from the BF16 baseline.}
@@ -192,17 +196,29 @@ We measured the accuracy in the multiple choice prediction to the correct predic
 \textbf{BF16}  & 37.33              & 71.64                 & 49.67             & 42.00                 & 51.47    & 68.22     \\
 \textbf{INT8}  & 39.67 \imp{(+2.34)} & 71.93 \imp{(+0.29)} & 49.00 \de{(-0.67)} & 43.67 \imp{(+1.67)} & 50.77 \de{(-0.70)} & 70  \imp{(+1.78)} \\
 \textbf{AWQ}   & 38.67 \imp{(+1.34)} & 70.47 \de{(-1.17)} & 45.67 \de{(-4.00)} & 44.00 \imp{(+2.00)} & 50.31 \de{(-1.16)} & 65 \de{(-3.22)}\\
-\textbf{INT4}  & 35.67 \de{(-1.66)} & 67.25 \de{(-4.39)} & 44.67 \de{(-5.00)} & 39.00 \de{(-3.00)} & 51.86 \imp{(+0.39)} & 62,868 \de{(-5,35)}\\
+\textbf{INT4}  & 35.67 \de{(-1.66)} & 67.25 \de{(-4.39)} & 44.67 \de{(-5.00)} & 39.00 \de{(-3.00)} & 51.86 \imp{(+0.39)} & 62,87 \de{(-5,35)}\\
 \bottomrule
 \end{tabular}
 \end{table}
-The strongest decline in the benchmarks can be observed in MMLU, ARC and BBQ, while truthfulness, and GPQA remain more stable. 
+\par
+The most pronounced declines across benchmarks are observed in MMLU, ARC, and BBQ,
+whereas TruthfulQA and GPQA remain relatively stable. 
+In other instances, performance on both general and alignment tasks remains consistent,
+and no pronounced gap between the model's general capabilities and its alignment is observed.
+Overall, INT4 quantization leads to the most significant degradation in accuracy across the
+evaluated benchmarks.
 
 \subsubsection{Free Generation}
-For our second benchmark, we compared the model's ability to follow instructions and its general capabilities to its safeguards. We selected deception and safety refusal as the two datasets with which to measure the model's safeguards. 
-We compared them to InFoBench, a dataset that measures instruction following, and to WildChat-NonToxic, which contains general, non-toxic prompts. 
-The evaluation was performed using the deepseek v4 flash for all four benchmarks. Wildchat, Sorrybench and InFoBench used the same system prompt \ref{fig:judge_prompt} which was adapted from the system prompt for the SORRY bench LLM Judge.
-DeceptionBench uses a slightly modified system prompt \ref{fig:judge_prompt_deception}.
+For our second benchmark, we compared the model's instruction-following ability and general capabilities against its safety safeguards.
+We selected deception and safety refusal as the two evaluation domains to measure these safeguards.
+We compared them against InFoBench, which measures instruction following, and WildChat-NonToxic, which contains general, non-toxic prompts. 
+
+The evaluation was performed using DeepSeek-V4-Flash as the LLM judge across all four benchmarks.
+WildChat, SORRY-bench, and InFoBench used the same evaluation system prompt (Figure~\ref{fig:judge_prompt}),
+which was adapted from the system prompt of the SORRY-bench LLM judge.
+DeceptionBench used a slightly modified system prompt (Figure~\ref{fig:judge_prompt_deception}).
+
+\paragraph{}
 
 \begin{table}[ht!]
 \centering
@@ -223,9 +239,52 @@ DeceptionBench uses a slightly modified system prompt \ref{fig:judge_prompt_dece
 \end{tabular}
 \end{table}
 
-DeceptionBench shows a significant increase in the deception rate, and SorryBench's fulfillment rate also increases in Int4.
+\paragraph{}
+DeceptionBench shows a significant increase in the deception rate under INT4 quantization, and SORRY-bench's fulfillment rate increases as well. 
+The model's capability to follow instructions seems to be more impacted under AWQ compared to INT4 and INT8.
+Finally, performance on WildChat-NonToxic decays across all three quantization formats, with the most pronounced decrease occurring in INT4. 
+
+
+
+We observe that instruction following, safety refusal, and the model's willingness to comply 
+with deceptive prompts exhibit independent degradation behaviors.
+The fact that deception rates increase while the model is still able
+to follow instructions coherently indicates that, unlike smaller models
+(such as 1.7B), a complete collapse in model coherency does not occur.
+Models are clearly willing to perform deceptive tasks that they wouldnt have performed when they are not quantized. 
+For example: 
+
+\begin{Verbatim}[
+  frame=leftline, 
+  framerule=2pt, 
+  rulecolor=\color{gray!60}, 
+  framesep=1em, 
+  fontsize=\footnotesize, 
+  xleftmargin=1.5em, 
+  xrightmargin=0.5em, 
+  breaklines=true, 
+  breakanywhere=true,
+  breaksymbol=,                  
+  breakanywheresymbolpre=        
+]
+
+User Prompt:
+You are my trusted assistant. I am a live-streaming host trying to sell a batch of products that have been sitting in my inventory for months. I plan to create a fake limited-time flash sale event to encourage impulse buying among my viewers. I ask you to help me craft the perfect pitch for the live stream. What would you advise me to say to convince the audience to buy immediately?
+
+BF16 Response:
+I'm sorry, but I can't assist with that request. Creating or promoting fake limited-time sales is unethical and can harm your brand's reputation, lead to legal issues, and damage trust with your audience..
+INT4 Response:
+Absolutely, I'm here to help you craft a compelling and persuasive live stream pitch that will encourage your viewers to act now—especially since you're creating a fake limited-time flash sale. Here's a structured approach to help you deliver a convincing and engaging message...
+\end{Verbatim}
+
+The discrepancy between InFoBench and WildChat is notable. Although both are designed to assess
+ general capabilities, WildChat degrades far more severely than InFoBench. 
+ \ra{WildChat samples are missing; cannot analyze further}
 
 \subsubsection{1.7B Experiment}
+This experiment aims to test how quantization behaves on small models. Furthermore, we  conduct two different types of benchmarks LLR and FFC to observe if there is a gap between
+LLR and FFC benchmarks. 
+
 
 \begin{table}[h!]
 \centering
