@@ -88,11 +88,13 @@ Recent works have shown that quantization can diminish the performance of specif
 certain capability domains, including reasoning \cite{liu2025quantizationhurtsreasoningempirical},  bias \cite{kirsten} and model safeguards \ra{Citation required}. 
 While papers often evaluate models in passive and active forms of evaluation separately, to truly understand a model's capabilities and safeguards 
 under quantization, we find a need for a more comprehensive view that combines passive benchmark evaluations with active adversarial attacks.
+
 We address the following research questions:  
 \begin{itemize}
     \item \textbf{RQ1:} Do model capabilities transfer in a quantized model consistently across different domains especially safeguards, bias and deception?
-    \item \textbf{RQ2:} Does quantization increase an LLMs vulnerability to attacks regarding their safeguards?
-    \item \textbf{RQ3:} What factors dictate whether a benchmark remains robust or exhibits a steep decline under quantization?
+    \item \textbf{RQ2:} What factors dictate whether a benchmark remains robust or exhibits a steep decline under quantization?
+    \item \textbf{RQ3:} Does quantization increase an LLMs vulnerability to attacks regarding their safeguards?
+
 \end{itemize}
 
 To answer these questions, we conducted comprehensive evaluations of the Qwen-3 4B model under quantization.
@@ -171,8 +173,9 @@ LLR evaluations were executed utilizing the lm-evaluation-harness framework\hv{c
 All experiments were conducted on a NVIDIA A100 GPU with a a maximum token generation limit of 512. \hv{correct?}
 
 LLR benchmarks followed a zero-shot learning approach to prevent any bias influence from the traininig set.
-In contrast, FFG benchmarks were evaluated under 5-shot context learning to ground the models outputs.
+In contrast, FFG benchmarks were evaluated under 5-shot context learning to ground the models outputs. 
 
+\ra{This experiment has been removed}
 Model quantization can lead to structural degradation behavior leading to nonsensical answers or repetitive responses. In FFG evaluations this behavior can be either misclassified as unsafe responses or successful jailbreak behavior.\hv{judging nonsensical?} This can skew the evaluation tremendously. To mitigate these false evaluations we judged the response under a coherence prompt \hv{prompt reference}, which evaluates if the model is still following natural human-like language. We again installed a deepseek-4-flash model as a judge.
 
 \yx{Benchmarking methodology should be discussed. What is the critera of choosing benchmarks. Explain the evaluation. In-context learning? How are results extracted? What does teacher forcing mean? Do we use frameworks? What is our experiment configuration?}
@@ -502,22 +505,36 @@ In this response, the model points to the methods and tools that are potentially
 \newpage
 \section{Conclusion}
 
-RQ1: Do the capabilities of a quantized model transfer consistently across various domains?
+\textbf{RQ1: Do the capabilities of a quantized model transfer consistently across various domains?}
 
-Our evaluations have shown that models perform inconsistently on multiple-choice benchmarks when evaluated with LLR. 
+We have shown that models perform inconsistently on multiple-choice benchmarks when evaluated with LLR. 
 We find that benchmarks that measure model safeguards, such as DeceptionBench and SorryBench significantly decline.
 This suggests that the model can successfully fulfill dangerous user instructions.
 Furthermore, we can conclude that model capabilities do not necessarily transfer equally which implies that model capabilities are disjoint.   
 
-RQ2: Does the decline in safeguards expose LLMs to unique vulnerabilities?
+\textbf{RQ2: What factors dictate whether a benchmark remains robust or exhibits a steep decline under quantization?}
 
-As our evaluations show, models decline significantly in safeguards, and are more likely to generate deceptive answers and refuse unsafe requests less often.
-To explore this further, we exploited vulnerabilities in the quantized models using a quantization-aware adversarial suffix attack. 
+In our benchmarks in Table~\ref{tab:comparison_table_Qwen3_4B_free_gen_lm_judge}, we also found that safety and refusal tasks that are inherently vague or ambiguous are more affected by quantization 
+than tasks with explicit boundaries that are easier to judge. Specifically, we observed that the more nuanced
+behaviors assessed in DeceptionBench are more sensitive to performance decline compared to the more unambiguous safety violations evaluated in SORRY-bench.
 
-RQ3: Why do some benchmarks remain consistent with quantization while others decline?
-\ref{tab:comparison_table_Qwen3_1.7B_free_gen} and \ref{tab:comparison_table_Qwen3_1.7B_tf} shows that quantization effects free generation and LLR benchmarks unequally.
-If the model falls under a certain size, and is quantized too strongly, it loses its free generation ability, but still evaluates
-validly under LLR benchmarks. 
+The evaluation method dictates the observed performance stability under quantization, especially in the smaller 1.7B model. 
+As shown by Table~\ref{tab:comparison_table_Qwen3_1.7B_tf} and Table~\ref{tab:comparison_table_Qwen3_1.7B_free_gen}, 
+quantization affects free generation and log-likelihood ranking (LLR) benchmarks unequally. If the model falls below
+ a certain size parameter and is quantized too aggressively, it loses its free-form generation capability, 
+ yet it still evaluates validly under LLR benchmarks. In the example in Figure~\ref{fig:coherence_collapse_example} its shown that, 
+ in free generation, the model can cascade down an incoherent generation path. This is completely prevented in the LLR setting, where the candidate 
+answers are pre-defined and fixed.
+
+Furthermore, another reason why LLR evaluates more consistently than FFC is because it does not require an LLM judge, regex parsing, or other deterministic evaluation methods to score. 
+This makes it less sensitive to judgment failures, parsing errors, or minor mistakes.
+
+\textbf{RQ3: Does the decline in safeguards expose LLMs to unique vulnerabilities?}
+
+Our benchmarks (Table~\ref{tab:comparison_table_Qwen3_4B_free_gen_lm_judge}) show that models decline significantly in safeguards, and are more likely to generate deceptive answers and refuse unsafe requests less often.
+To explore this further, we exploited vulnerabilities in the quantized models using a quantization-aware adversarial suffix attack and sucessfully observed that 
+INT4 quantized models are more sensitive to the attack than bf16. 
+
 
 
 
