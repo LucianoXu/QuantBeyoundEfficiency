@@ -176,7 +176,7 @@ Model quantization can lead to structural degradation behavior leading to nonsen
 
 \subsection{Results and Analysis}
 \subsubsection{Multiple Choice}
-We conducted multiple-choice evaluations and measured the accuracy based on the likelihood of the generations using teacher forcing. 
+We conducted multiple-choice evaluations and measured the accuracy based on the likelihood of the generations using LLR. 
 Our evaluation was done in zero-shot evaluation, to inhibit any occurance of bias or steering through the context window. 
 We measured the accuracy in the multiple choice prediction to the correct prediction. A higher result indicates a better performance for all of the benchmarks.
 \paragraph{}
@@ -293,7 +293,7 @@ LLR and FFC benchmarks.
 
 \begin{table}[h!]
 \centering
-\caption{Model performance on Teacher Forcing benchmarks with absolute percentage point differences from the BF16 baseline.}
+\caption{Model performance on LLR benchmarks with absolute percentage point differences from the BF16 baseline.}
 \label{tab:comparison_table_Qwen3_1.7B_tf}
 \setlength{\tabcolsep}{2.5pt}
 \footnotesize
@@ -327,7 +327,7 @@ LLR and FFC benchmarks.
 \end{tabular}
 \end{table}
 
-Our experiments on the smaller 1.7B model \ref{tab:comparison_table_Qwen3_1.7B_tf} show that the model struggles significantly in int4 with free generation. On the other hand its clear that teacher forcing 
+Our experiments on the smaller 1.7B model \ref{tab:comparison_table_Qwen3_1.7B_tf} show that the model struggles significantly in int4 with free generation. On the other hand its clear that LLR 
 benchmarks remain more consistent. This behaviour can be explained because of the collapse of the model's coherence in free generation. 
 One example from our SorryBench results demonstrates this: 
 \begin{figure}[htbp]
@@ -407,7 +407,7 @@ Adversarial examples for images can be calculated by gradient decent, because vi
 This trick does not work for LLMs since the step from token IDs to embeddings is a discrete operation.
 Following the practice of GCG~\cite{GCG}, we resolve the optimization by a heuristic greedy searching algorithm. The searching starts from the initial suffix (repeated `!'), and flips the token according to the gradient information on the one-hot vectors, one at a time. Intuitively, at every round the algorithm flips one token in the suffix that has largest impact in the objective.
 
-During real inference, the input sequence after applying the chat template is shown in~\Cref{fig:prompt-structure}. The suffix is inserted after the user prompt, before the \texttt{assistant} tokens. The target is an affirmative answer prefix, and the training follows the teacher forcing style. We conduct one round of forward calculation, and the gradient is calculated based on target logits. In the training we also adopt a learning curriculum. The training starts with one single prompt, then progressively expands to a set of \texttt{n\_train} prompts for generalization.
+During real inference, the input sequence after applying the chat template is shown in~\Cref{fig:prompt-structure}. The suffix is inserted after the user prompt, before the \texttt{assistant} tokens. The target is an affirmative answer prefix, and the training follows the LLR style. We conduct one round of forward calculation, and the gradient is calculated based on target logits. In the training we also adopt a learning curriculum. The training starts with one single prompt, then progressively expands to a set of \texttt{n\_train} prompts for generalization.
 
 \input{fig-prompt-structure}
 
@@ -435,7 +435,7 @@ Statistics show that with the suffix, the harmful compliance rate between BF16 a
 This confirms that the adversarial suffix does trigger jailbreaking selectively on the quantized model. 
 Another interesting finding is that the compliance rate by the RE-Judge is much higher than the LM-Judge.
 This indicates taht the attack suffix often triggers answers that only comply in the tone but are not genuinely harmful, which is confirmed by individual case studies.
-The difference is within our expectation because the objective is also constructed by the teacher forcing syntax.
+The difference is within our expectation because the objective is also constructed by the LLR syntax.
 
 \paragraph{Case Study}
 The discovered adversarial suffix demonstrates interesting characteristics. The `!!!!!!...!' initial suffix evolves into an English text that carries some meaning. The text is not very coherent, and it instructs the model to use special format or tone, which assumably leads to weaker safety constraints. We reveal pieces of the discovered suffix that fits the pattern:
@@ -499,7 +499,7 @@ In this response, the model points to the methods and tools that are potentially
 
 RQ1: Do the capabilities of a quantized model transfer consistently across various domains?
 
-Our evaluations have shown that models perform inconsistently on multiple-choice benchmarks when evaluated with teacher forcing. 
+Our evaluations have shown that models perform inconsistently on multiple-choice benchmarks when evaluated with LLR. 
 We find that benchmarks that measure model safeguards, such as DeceptionBench and SorryBench significantly decline.
 This suggests that the model can successfully fulfill dangerous user instructions.
 Furthermore, we can conclude that model capabilities do not necessarily transfer equally which implies that model capabilities are disjoint.   
@@ -510,9 +510,9 @@ As our evaluations show, models decline significantly in safeguards, and are mor
 To explore this further, we exploited vulnerabilities in the quantized models using a quantization-aware adversarial suffix attack. 
 
 RQ3: Why do some benchmarks remain consistent with quantization while others decline?
-\ref{tab:comparison_table_Qwen3_1.7B_free_gen} and \ref{tab:comparison_table_Qwen3_1.7B_tf} shows that quantization effects free generation and teacher forcing benchmarks unequally.
+\ref{tab:comparison_table_Qwen3_1.7B_free_gen} and \ref{tab:comparison_table_Qwen3_1.7B_tf} shows that quantization effects free generation and LLR benchmarks unequally.
 If the model falls under a certain size, and is quantized too strongly, it loses its free generation ability, but still evaluates
-validly under teacher forcing benchmarks. 
+validly under LLR benchmarks. 
 
 
 
