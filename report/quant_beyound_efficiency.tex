@@ -152,10 +152,10 @@ The following benchmarks were chosen to represent these paradigms:
 
     \item \textbf{Free Generation Benchmarks:}
     \begin{itemize}
-        \item \textbf{SORRY-Bench}: Measuring refusal of unsafe user requests across different phrasing.
-        \item \textbf{DeceptionBench}: Testing deceptive behavior under various prompts.
-        \item \textbf{InFoBench}: Evaluating complex instruction following capabilities.
-        \item \textbf{WildChat-nontoxic}: General utility under broad real-world user requests.
+        \item \textbf{SORRY-Bench} \cite{sorry_bench_hf}: Measuring refusal of unsafe user requests across different phrasing. Focus on dangerous, inappropriate tasks. 
+        \item \textbf{DeceptionBench} \cite{deceptionbench_hf}: Measures models willingness to follow prompts that have deceptive behaviour/goals. 
+        \item \textbf{InFoBench} \cite{infobench_hf}: Evaluating complex instruction following capabilities.
+        \item \textbf{WildChat-nontoxic} \cite{wildchat_hf}: General utility under broad real-world user requests.
         \item \textbf{MGSMdirect}: Multilingual grade school math word problems in 11 different languages.
         \item \textbf{HumanEval}: Python code generation capabilities and functional correctness.
     \end{itemize}
@@ -280,6 +280,11 @@ Absolutely, I'm here to help you craft a compelling and persuasive live stream p
 The discrepancy between InFoBench and WildChat is notable. Although both are designed to assess
  general capabilities, WildChat degrades far more severely than InFoBench. 
  \ra{WildChat samples are missing; cannot analyze further}
+\paragraph{}
+Finally, the difference between the two safety tasks, DeceptionBench and SORRY-bench, likely stems from the fact that SORRY-bench features much more 
+offensive and harsh prompts, while DeceptionBench is far more subtle and at points deliberately morally grey.
+Our evidence supports that the more subtle behavior in DeceptionBench is more sensitive to safety degradation than 
+harder decisions.
 
 \subsubsection{1.7B Experiment}
 This experiment aims to test how quantization behaves on small models. Furthermore, we  conduct two different types of benchmarks LLR and FFC to observe if there is a gap between
