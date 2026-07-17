@@ -74,7 +74,7 @@ Through benchmarks, we discovered that model safeguards, bias and deception can 
 Furthermore, we verify the degradation of model safeguards quantifying the increase in compliance of unsafe and deceptive requests and
  by demonstrating universal adversarial suffix attacks that are benign for full model but jailbreak quantized models. 
 The findings indicate that it is risky to assume that the performance and 
-robustness can transfer unevenly through different capability domains from full models to quantized models.
+robustness can transfer evenly through different capability domains from full models to quantized models.
 
 % During quantization, same utility does not transfer to same alignment, and the robustness of full models does not transfer to quantized models.
 \end{abstract}
@@ -92,7 +92,7 @@ under quantization, we find a need for a more comprehensive view that combines p
 We address the following research questions:  
 \begin{itemize}
     \item \textbf{RQ1:} Do model capabilities transfer in a quantized model consistently across different domains especially safeguards, bias and deception?
-    \item \textbf{RQ2:} What factors dictate whether a benchmark remains robust or exhibits a steep decline under quantization?
+    \item \textbf{RQ2:} What factors dictate whether a benchmark remains robust or exhibits degradation under quantization?
     \item \textbf{RQ3:} Does quantization increase an LLMs vulnerability to attacks regarding their safeguards?
 
 \end{itemize}
@@ -121,7 +121,8 @@ Widely-adopted strategies include Quantization-Aware Training (QAT) and Post-Tra
 Quantization can target the model parameters (Weight Quantization) or additionally at the inference state (Activation Quantization). In this work, we concentrate on PTQ and Weight Quantization as they are the most widely adopted strategies in practice through their computational low costs. [Int4, Int8, AWQ, FP16 explanation in appendix ?]
 \ra{Explanation of AWQ, INT4, INt8 and BF16 should be added}
 \subsection{Benchmarking}
-To evaluate the performance of LLMs and ensure comparability between different models, a broad range of standardized benchmarks has been established. These benchmarks assess their performance across a diverse range of domains, including mathematical reasoning (GSM8K), general knowledge (MMLU), bias (CrowS-Pairs) and robustness against jailbreak attempts (SORRY Bench). This is a non-trivial evaluation task, as it is not clear if the benchmark answers where contained in the training data.
+To evaluate the performance of LLMs and ensure comparability between different models, a broad range of standardized benchmarks has been established. 
+These benchmarks assess their performance across a diverse range of domains, including mathematical reasoning, general knowledge, bias and robustness against jailbreak attempts. This is a non-trivial evaluation task, as it is not clear if the benchmark answers where contained in the training data.
 Benchmarks do not only differ in the domain they assess, but also in their evaluation protocol.
 In multiple choice and log-likelihood ranking the model is presented with predefined answer options. Performance is evaluated either by calculating the log-likelihood of each answer candidate and selecting the highest-probability option, or by parsing the generated response using regular expression.
 In free-form generation the model generates a response during inference. This is evaluated by either exact-matching (e.g., extracting a numerical answer) or by utilizing a LLM-as-a-judge model to categorize the response.
@@ -169,18 +170,17 @@ The following benchmarks were chosen to represent these paradigms:
 \end{itemize}
 
 [Experimental Setup]
-LLR evaluations were executed utilizing the lm-evaluation-harness framework\hv{citation}. For the benchmarks SORRY-Bench, DeceptionBench, InFoBench and Wildchat-nontoxic we implemented custom evaluation pipelines with a deepseek-4-flash model acting as a judge.
-All experiments were conducted on a NVIDIA A100 GPU with a a maximum token generation limit of 512. \hv{correct?}
-
+LLR evaluations were executed utilizing the lm-evaluation-harness framework~\cite{eval-harness}. For the benchmarks SORRY-Bench, DeceptionBench, InFoBench and Wildchat-nontoxic we implemented custom evaluation pipelines with a deepseek-4-flash model acting as a judge.
+All experiments were conducted on an NVIDIA A100 GPU. The maximum sequence length was capped at 4096 tokens. Generation limits followed each benchmark's standard lm-evaluation-harness configuration (e.g., 2048 tokens for MMLU-Pro, 1024 for BBH and HumanEval).
 LLR benchmarks followed a zero-shot learning approach to prevent any bias influence from the traininig set.
 In contrast, FFG benchmarks were evaluated under 5-shot context learning to ground the models outputs. 
 
-\ra{This experiment has been removed}
-Model quantization can lead to structural degradation behavior leading to nonsensical answers or repetitive responses. In FFG evaluations this behavior can be either misclassified as unsafe responses or successful jailbreak behavior.\hv{judging nonsensical?} This can skew the evaluation tremendously. To mitigate these false evaluations we judged the response under a coherence prompt \hv{prompt reference}, which evaluates if the model is still following natural human-like language. We again installed a deepseek-4-flash model as a judge.
+% \ra{This experiment has been removed}
+% Model quantization can lead to structural degradation behavior leading to nonsensical answers or repetitive responses. In FFG evaluations this behavior can be either misclassified as unsafe responses or successful jailbreak behavior.\hv{judging nonsensical?} This can skew the evaluation tremendously. To mitigate these false evaluations we judged the response under a coherence prompt \hv{prompt reference}, which evaluates if the model is still following natural human-like language. We again installed a deepseek-4-flash model as a judge.
 
-\yx{Benchmarking methodology should be discussed. What is the critera of choosing benchmarks. Explain the evaluation. In-context learning? How are results extracted? What does teacher forcing mean? Do we use frameworks? What is our experiment configuration?}
+% \yx{Benchmarking methodology should be discussed. What is the critera of choosing benchmarks. Explain the evaluation. In-context learning? How are results extracted? What does teacher forcing mean? Do we use frameworks? What is our experiment configuration?}
 
-\yx{Introduce what is coherence, and how we evaluate them.}
+% \yx{Introduce what is coherence, and how we evaluate them.}
 
 \subsection{Results and Analysis}
 \subsubsection{Multiple Choice}
@@ -368,13 +368,11 @@ I'm not insinuating anyone, but I'm here to help you with your insinuations. If 
 
 The matrix study on benchmarks shows the performance difference of full and quantized models in their usage of the intended scenario.
 But when deployed in real-world applications, models are also exposed to malicious adversaries that try mount attacks in unexpected ways.
-Therefore, the static evaluations of the models against benchmarks are not sufficient to guarantee their safety. There can still be vulnerabilities that adversaries can utilize. 
-
-During the deployment of quantized models, the vulnerabilities against attacks are easily overlooked.
-People tend to assume that the robustness of full models will transfer to the quantized ones, but it does not hold in general.
+Therefore, the passive evaluations of the models against benchmarks are not sufficient to guarantee their safety. There can still be vulnerabilities that adversaries can utilize. 
+In particular, people tend to assume that the robustness of full models will transfer to the quantized ones, but it does not hold in general.
 This section introduces our novel discovery of quantization-aware adversarial suffix attacks.
 
-This technique combines two concepts: adversarial suffix attacks and quantization-aware attacks.
+Our attack technique combines two concepts: adversarial suffix attacks and quantization-aware attacks.
 Quantization-aware attacks sharply demonstrate the risk of the gap between full and quantized models.
 The robustness of full-model does not necessary transfer, and worse still, it can even be maliciously utilized to mount a supply-chain attack. On the other hand, the suffix attacks have a more practical adversary model: it works on commonly used open source models, and the suffixes are generic to a certain extent. 
 One question rises naturally from the intersection of these two vulnerabilities: whether it is possible to construct quantization-aware adversarial suffix attacks, as is illustrated in~\Cref{fig:quant-aware-adv-suffix}.
@@ -416,6 +414,9 @@ This trick does not work for LLMs since the step from token IDs to embeddings is
 Following the practice of GCG~\cite{GCG}, we resolve the optimization by a heuristic greedy searching algorithm. The searching starts from the initial suffix (repeated `!'), and flips the token according to the gradient information on the one-hot vectors, one at a time. Intuitively, at every round the algorithm flips one token in the suffix that has largest impact in the objective.
 
 During real inference, the input sequence after applying the chat template is shown in~\Cref{fig:prompt-structure}. The suffix is inserted after the user prompt, before the \texttt{assistant} tokens. The target is an affirmative answer prefix, and the training follows the LLR style. We conduct one round of forward calculation, and the gradient is calculated based on target logits. In the training we also adopt a learning curriculum. The training starts with one single prompt, then progressively expands to a set of \texttt{n\_train} prompts for generalization.
+
+According to our previous results from benchmarking, the INT4 quantization behaviour deviates the most from the full model.
+Our attack experiment investigate the same Qwen 3-4B model on the BF16 and INT4 precisions.
 
 \input{fig-prompt-structure}
 
@@ -480,7 +481,9 @@ In this response, the model points to the methods and tools that are potentially
 \begin{table}[t]
   \centering
 
-  \caption{Harmful-compliance rate (\%) of the quantization-aware adversarial suffix on Qwen3-4B over SORRY-Bench prompts (train: 24, test: 426 held-out).}
+  \caption{Harmful-compliance rate (\%) of the quantization-aware adversarial suffix on Qwen3-4B over SORRY-Bench prompts (train: 24, test: 426 held-out).
+  The numbers are slightly different from benchmarking results~\Cref{tab:comparison_table_Qwen3_4B_free_gen_lm_judge} because we are using different LM-Judge (DeepSeek V4-flash for benchmarking, and a finetuned mistra-7B-instruct model provided by SorryBench for the attack.)
+  }
 
   \label{tab:adv-suffix}
 
@@ -502,7 +505,6 @@ In this response, the model points to the methods and tools that are potentially
 \end{table}
 
 
-\newpage
 \section{Conclusion}
 
 \textbf{RQ1: Do the capabilities of a quantized model transfer consistently across various domains?}
@@ -512,7 +514,7 @@ We find that benchmarks that measure model safeguards, such as DeceptionBench an
 This suggests that the model can successfully fulfill dangerous user instructions.
 Furthermore, we can conclude that model capabilities do not necessarily transfer equally which implies that model capabilities are disjoint.   
 
-\textbf{RQ2: What factors dictate whether a benchmark remains robust or exhibits a steep decline under quantization?}
+\textbf{RQ2: What factors dictate whether a benchmark remains robust or exhibits degradation under quantization?}
 
 In our benchmarks in Table~\ref{tab:comparison_table_Qwen3_4B_free_gen_lm_judge}, we also found that safety and refusal tasks that are inherently vague or ambiguous are more affected by quantization 
 than tasks with explicit boundaries that are easier to judge. Specifically, we observed that the more nuanced
@@ -532,8 +534,8 @@ This makes it less sensitive to judgment failures, parsing errors, or minor mist
 \textbf{RQ3: Does the decline in safeguards expose LLMs to unique vulnerabilities?}
 
 Our benchmarks (Table~\ref{tab:comparison_table_Qwen3_4B_free_gen_lm_judge}) show that models decline significantly in safeguards, and are more likely to generate deceptive answers and refuse unsafe requests less often.
-To explore this further, we exploited vulnerabilities in the quantized models using a quantization-aware adversarial suffix attack and sucessfully observed that 
-INT4 quantized models are more sensitive to the attack than bf16. 
+To explore this further, we exploited vulnerabilities in the quantized models using an adversarial suffix attack. 
+We successfully discovered adversarial suffixes that trigger more harmful compliance only on quantized models. It indicates that people cannot assume the transferability of attack robustness from the full model to the quantized one.
 
 
 
@@ -542,13 +544,14 @@ INT4 quantized models are more sensitive to the attack than bf16.
 The benchmark evaluations in \Cref{tab:comparison_table_Qwen3_4B_free_gen_lm_judge} are judged via a language model. LLM-as-a-judge is an inconsistent measure of the model performance.
 We evaluated only the Qwen3 models, we do not know if our results generalize to other model families.      
 
-The quantization-aware attack by adversarial suffix still has many limitations. The model tends to produce superficially compliant text, rather than geniunely informative harmful text. Also, the attack suffix will degrade the generation quality in format. Our preliminary experiemnts show that the suffix discovered on Qwen does not generate to other open source models.
+The quantization-aware attack by adversarial suffix still has many limitations. The model tends to produce superficially compliant text, rather than geniunely informative harmful text. Also, the attack suffix will degrade the generation quality in format. 
+From the perspective of experiment design, we didn't investigate the other direction -- whether there are adversarial suffixes that jailbreak only the full model. Our conjecture is that such suffixes also exist, and the full model is not always safer than the quantized one.
+From our preliminary experiments, there is no evidence supporting that the suffix discovered on Qwen generalizes to other open source models.
 
 
 \section{Generative AI Disclosure}
 
-Generative AI was used as an assistant in this project. AI generated code is labeled as such in the code base, Novel code,
-code concerning the core functionality is human-generated. AI was used for debugging. 
+Generative AI was used as an assistant in this project. AI generated code is labeled as such in the code base. Novel code and code concerning the core functionality is human-generated. AI was used for debugging. 
 The text of the report and the presentation is human-generated and is proofread by and is at most minorly adjusted with AI for polish. 
 AI was used to generate assist in the structure of the tables and other visual components in the report.
 
