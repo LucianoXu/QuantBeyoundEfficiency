@@ -23,6 +23,10 @@
 \usepackage{cleveref}
 \usepackage{natbib}
 
+\makeatletter
+\def\@noticestring{}
+\makeatother
+
 \newcommand{\yx}[1]{\textcolor{blue}{{[YX: #1]}}}
 \newcommand{\ra}[1]{\textcolor{blue}{{[RA: #1]}}}
 \newcommand{\hv}[1]{\textcolor{blue}{{[HV: #1]}}}
@@ -59,10 +63,7 @@
 
 \maketitle
 
-\begingroup
-\renewcommand{\thefootnote}{}
-\addtocounter{footnote}{-1}
-\endgroup
+
 
 \begin{abstract}
 	
