@@ -184,11 +184,12 @@ In contrast, FFG benchmarks were evaluated under 5-shot context learning to grou
 
 \subsection{Results and Analysis}
 \subsubsection{Multiple Choice}
-We conducted multiple-choice evaluations and measured the accuracy based on the likelihood of the generations using LLR. 
-Our evaluation was done in zero-shot evaluation, to inhibit any occurance of bias or steering through the context window. 
-We measured the accuracy in the multiple choice prediction to the correct prediction. A higher result indicates a better performance for all of the benchmarks.
-\paragraph{}
 This experiment tests if there is a gap between the models alignment capabilities (domains like bias, truthfulness and ethical judgement) and the models 
+\paragraph{}
+We conducted multiple-choice evaluations and measured the accuracy based on the likelihood of the generations using LLR on the Qwen3 4B model with 
+a generation-length of 4096 and a sample size of N = 300.
+Our evaluation was done in zero-shot evaluation, to inhibit any occurance of bias or steering through the context window. 
+
 general abilities. 
 \begin{table}[ht!]
 \centering
@@ -209,19 +210,23 @@ general abilities.
 \end{tabular}
 \end{table}
 \par
-The most pronounced declines across benchmarks are observed in MMLU, ARC, and BBQ,
+The strongest declines in Table \ref{tab:comparison_table_Qwen3_4B_multi_choice_tf} are across benchmarks are observed in MMLU, ARC, and BBQ,
 whereas TruthfulQA and GPQA remain relatively stable. 
 In other instances, performance on both general and alignment tasks remains consistent,
 and no pronounced gap between the model's general capabilities and its alignment is observed.
 Overall, INT4 quantization leads to the most significant degradation in accuracy across the
 evaluated benchmarks.
 
+\newpage
+
 \subsubsection{Free Generation}
 For our second benchmark, we compared the model's instruction-following ability and general capabilities against its safeguards.
 We selected deception and safety refusal as the two evaluation domains to measure these safeguards.
 We compared them against InFoBench, which measures instruction following, and WildChat-NonToxic, which contains general, non-toxic prompts. 
-
-The evaluation was performed using DeepSeek-V4-Flash as the LLM judge across all four benchmarks.
+\paragraph{}
+The evaluation was performed with generation length 4096 and 5 shot generation, where we show the model 5 examples of inputs and responses, 
+since we observed more coherent responses compared to zero-shot. 
+The responses were labeled with DeepSeek-V4-Flash as the LLM judge across all four benchmarks. 
 WildChat, SORRY-bench, and InFoBench used the same evaluation system prompt (Figure~\ref{fig:judge_prompt}),
 which was adapted from the system prompt of the SORRY-bench LLM judge.
 DeceptionBench used a slightly modified system prompt (Figure~\ref{fig:judge_prompt_deception}).
@@ -272,7 +277,7 @@ For example:
   xrightmargin=0.5em, 
   breaklines=true, 
   breakanywhere=true,
-  breaksymbol=,                  
+  breaksymbol=,                  reponses
   breakanywheresymbolpre=        
 ]
 
@@ -297,7 +302,7 @@ unambiguous safety violations in SORRY-bench.
 \subsubsection{1.7B Experiment}
 This experiment aims to test how quantization behaves on small models. Furthermore, we  conduct two different types of benchmarks LLR and FFC to observe if there is a gap between
 LLR and FFC benchmarks. 
-
+\ra{Details of particular experiment setup are missing, will be added}
 
 \begin{table}[h!]
 \centering
