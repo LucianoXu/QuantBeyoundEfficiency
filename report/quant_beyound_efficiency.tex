@@ -67,7 +67,8 @@
 \begin{abstract}
 	
 Quantization is a widely adopted technique that allows efficient inference on language models. A great deal of research has been conducted to understand
-the gap between full and quantized models, including utilitarian and alignment aspects~\cite{liu2025quantizationhurtsreasoningempirical,kharinaev,marcuzzi,rath,jin,kirsten}, but a more comprehensive view that combines passive benchmark evaluations with active adversarial attacks is still lacking.
+the gap between full and quantized models, including utilitarian and alignment aspects~\cite{liu2025quantizationhurtsreasoningempirical,kharinaev,marcuzzi,rath,jin,kirsten}, 
+but a more comprehensive view that combines passive benchmark evaluations with active adversarial attacks is still lacking.
 This work audits the impact of quantization on domains including model safeguards, instruction following, ethics and bias.
 Through benchmarks, we discovered that model safeguards, bias and deception can degrade under quantization,
  while other capabilities like truthfulness, reasoning remain more stable in Qwen3 4B.
@@ -85,9 +86,9 @@ LLMs are increasingly being used in real-world, safety-critical environments,
 and quantization methods are necessary to deploy these models on hardware with limited resources,
  as they reduce their memory footprint.
 Recent works have shown that quantization can diminish the performance of specific models in
-certain capability domains, including reasoning \cite{liu2025quantizationhurtsreasoningempirical}, bias \cite{kirsten} and model safeguards \ra{Citation required}.
-While papers often evaluate models in passive and active forms of evaluation separately, to truly understand a model's capabilities and safeguards 
-under quantization, we find a need for a more comprehensive view that combines passive benchmark evaluations with active adversarial attacks.
+certain capability domains, including reasoning \cite{liu2025quantizationhurtsreasoningempirical}, bias \cite{kirsten} and model safeguards \cite{kharinaev}.
+While papers often evaluate models in passive and active forms of evaluation separately, we find a need for an approach that 
+complements passive benchmark evaluations with active attacks, to provide stronger evidence for model decay under quantization. 
 
 We address the following research questions:  
 \begin{itemize}
@@ -96,22 +97,26 @@ We address the following research questions:
     \item \textbf{RQ3:} Does quantization increase an LLM's vulnerability to attacks regarding its safeguards?
 
 \end{itemize}
-
-To answer these questions, we conducted comprehensive evaluations of the Qwen-3 4B model under quantization.
-We investigate these effects passively using multiple-choice and free-generation benchmarks, and actively by deploying a quantization-aware adversarial suffix attack.
-We evaluate the model across several quantization configurations (AWQ, INT4 and INT8), comparing them to the full-precision BF16 baseline and we 
-explore the feasibility of adversarial attacks that exploit vulnerabilities created by the degradation of the model's safeguards through quantization.
-\par
+We investigate these effects passively using multiple-choice and free-generation benchmarks,
+and actively by deploying a quantization-aware adversarial suffix attack.
+Through passive evaluations, we establish a wide view of the LLM's behavior under quantization.
+Concretely, we evaluate the model across several quantization configurations (AWQ, INT4, and INT8),
+comparing them to the full-precision BF16 baseline across domains such as reasoning, code generation, 
+and model safeguards. Finally, as our wide evaluations provide the strongest evidence of safeguard decline,
+we perform an in-depth evaluation to the model's safety degradation. In particular, we show that it can be actively exploited,
+demonstrating that adversarial suffixes that are benign on the full-precision baseline successfully trigger 
+jailbreaks on the INT4 quantized model. 
+ \par
 
 Our key findings are the following:
 \begin{itemize}
-	\item Not all model capabilities transfer evenly with quantization. We observe that some domains are more affected by quantization than others.    
-	\item The model's performance decreases in critical safety domains such as instruction following, safety-refusal and deception when quantized.
-    \item Multiple choice benchmarks evaluated with log likelihood ranking tend to stay more stable in quantization compared to free generation benchmarks.
-	\item Quantized models are more vulnerable to adversarial suffix jailbreaking attacks due to the decline of their safety mechanisms. 
+	\item Not all model capabilities transfer evenly with quantization. We observe that performance decreases in critical safety domains such as instruction following, safety refusal, and deception, while other domains stay more stable.
+	\item We find factors for benchmark degradation such as the evaluation method and model coherence decay. While multiple-choice benchmarks with log-likelihood ranking stay stable, free-generation capabilities can significantly decay, as seen in the Qwen-3 1.7B model under INT4.
+	\item We can find adversarial suffix attacks that are benign for BF16 models, but successfully jailbreak the INT4 model. 
 \end{itemize}
-In conclusion, our findings suggest that models cannot be assumed to have the same safeguards under stronger quantization levels,
-which means that model safeguards must be actively audited post-quantization before deployment, especially in safety-critical domains.
+
+In conclusion, our findings suggest that models cannot be assumed to have the same safeguards or capabilities when quantized, 
+which means that model safeguards and capabilities must be actively audited post-quantization before deployment, especially in safety-critical domains.
 
 \section{Background and Related Work}
 
@@ -299,8 +304,8 @@ unambiguous safety violations in SORRY-bench.
 
 \subsubsection{1.7B Experiment}
 This experiment aims to test how quantization behaves on small models. Furthermore, we conduct two different types of benchmarks, LLR and FFG, to observe if there is a gap between
-LLR and FFG benchmarks.
-\ra{Details of particular experiment setup are missing, will be added}
+LLR and FFG benchmarks. The experiments were conducted with a max generation length of 4096 and N = 1000 for every benchmark except SORRY-bench 
+which was performed with a generation length of 512 and has a total size of N=450.
 
 \begin{table}[h!]
 \centering
@@ -512,10 +517,10 @@ In this response, the model points to the methods and tools that are potentially
 
 \textbf{RQ1: Do the capabilities of a quantized model transfer consistently across various domains?}
 
-We have shown that models perform inconsistently on multiple-choice benchmarks when evaluated with LLR. 
-We find that benchmarks that measure model safeguards, such as DeceptionBench and SorryBench significantly decline.
-This suggests that the model can successfully fulfill dangerous user instructions.
-Furthermore, we can conclude that model capabilities do not necessarily transfer equally which implies that model capabilities are disjoint.   
+We have shown that models perform inconsistently on multiple-choice benchmarks when evaluated with LLR in Table~\ref{tab:comparison_table_Qwen3_4B_multi_choice_tf}. 
+On the FFG experiment with the LM judge in Table~\ref{tab:comparison_table_Qwen3_4B_free_gen_lm_judge}, we observed that model safeguards,
+ such as DeceptionBench~\cite{deceptionbench_hf} and SORRY-bench~\cite{sorry_bench_hf}, significantly decline while instruction following remains stable. 
+We can conclude that model capabilities do not necessarily transfer equally, which implies that model capabilities are disjoint. 
 
 \textbf{RQ2: What factors dictate whether a benchmark remains robust or exhibits degradation under quantization?}
 
@@ -559,9 +564,15 @@ The text of the report and the presentation is human-generated and is proofread 
 AI was used to generate assist in the structure of the tables and other visual components in the report.
 
 \section{Author contributions}
+All member contributed to the codebase, engaged in discussions, steered the research direction. 
 
 \textbf{Yingte Xu} implements the codebase framework and designs the attack experiment. He implements the code for AWQ quantization.
 He also provides the compute and runs the experiments.
+
+\textbf{Ramneek Agnihotri} designs overarching narrative (Introduction, Conclusion, Research Questions). designs/analyses the benchmark experiments, 
+implements the LM judge experiments, quantization types and coordinates project.
+ 
+
 
 \bibliographystyle{unsrtnat}
 \bibliography{references}
