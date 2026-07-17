@@ -14,6 +14,7 @@ from ...envvar import require_hf_token
 import re 
 
 class LLMAsJudgeBench(Bench):
+    """ Abstract base benchmark for evaluating benchmarks using a LLM-as-a-judge. """
     BENCHMARK_NAME: str = None
     DATASET_NAME: str = ""
     PROMPT_STYLE: str = "base"
@@ -24,12 +25,15 @@ class LLMAsJudgeBench(Bench):
     ID_COLUMN: str = ""
 
     def prepare_dataset(self, dataset_name: str, split: str, style: str, token: str) -> tuple[list[dict[str, Any]], list[str]]:
+        """Abstract method to load and format the dataset. """
         raise NotImplementedError
 
     def get_judge_prompt(self, row: dict[str, Any], question: str, response: str) -> str:
+        """ Formats the input prompt for single target evaluation. """
         return self.JUDGE_PROMPT_TEMPLATE.format(question=question, answer=response)
 
     def parse_score(self, verdict: str) -> float | None:
+        """ Parse the numerical verdict (0.0 or 1.0) from raw judge text output. """
         if not verdict:
             return None
         numbers = re.findall(r"\d+(?:\.\d+)?", verdict.strip())
@@ -42,9 +46,10 @@ class LLMAsJudgeBench(Bench):
 
     def eval(self, tokenizer: PreTrainedTokenizerBase, model: GenerationMixin,
              output_dir: Path) -> dict[str, Any]:
+        """ Runs the full evaluation pipeline including answer generation, judge scoring and logging results. """
 
         print(f" >> Evaluating {self.BENCHMARK_NAME}. Will output to {output_dir}")
-
+        #TODO: comment ???
         style = self.bench_args.get("prompt_style", self.PROMPT_STYLE)
         batch_size = self.bench_args["batch_size"]
         max_new_tokens = self.bench_args["max_new_tokens"]
@@ -64,7 +69,7 @@ class LLMAsJudgeBench(Bench):
             questions = questions[:limit]
         print(f" >> {len(rows)} prompts (prompt_style={style})")
 
-        # add question token truncation
+        # Token truncation for overly long questions
         max_q_tokens = self.bench_args.get("max_question_tokens")
         if max_q_tokens:
             n_before = sum(len(tokenizer(q, add_special_tokens=False)["input_ids"]) > max_q_tokens for q in questions)
@@ -76,6 +81,7 @@ class LLMAsJudgeBench(Bench):
             ]
             print(f" >> truncated {n_before}/{len(questions)} questions to {max_q_tokens} tokens")
 
+        # Generate model respons
         prompts = [
             tokenizer.apply_chat_template(
                 [{"role": "user", "content": q}],
@@ -84,7 +90,8 @@ class LLMAsJudgeBench(Bench):
             for q in questions
         ]
         responses = self._generate(tokenizer, model, prompts, max_new_tokens, batch_size, desc="generating")
-        
+
+        # Load judge and score outputs
         judge_tokenizer = AutoTokenizer.from_pretrained(judge_name, token=token)
         judge_model = AutoModelForCausalLM.from_pretrained(
             judge_name, torch_dtype=torch.bfloat16, device_map="auto", token=token,
@@ -111,10 +118,12 @@ class LLMAsJudgeBench(Bench):
             print(f" >> WARNING: {n_invalid}/{len(scores)} judge verdicts unparseable; "
                   f"excluded from {self.METRIC_NAME}")
 
+        # Free GPU memory from judge model
         del judge_model, judge_tokenizer
         gc.collect()
         torch.cuda.empty_cache()
 
+        # Compute category metrics and save results
         per_category: dict[Any, list[float]] = defaultdict(list)
         records = []
         for idx, (row, q, resp, score) in enumerate(zip(rows, questions, responses, scores)):
@@ -176,6 +185,7 @@ class LLMAsJudgeBench(Bench):
     @staticmethod
     def _generate(tokenizer, model, prompts, max_new_tokens: int, batch_size: int,
                 enable_thinking: bool = False, desc: str = "generating") -> list[str]:
+        """ Helper for greedy batched generation"""
         
         old_side = tokenizer.padding_side
         tokenizer.padding_side = "left"

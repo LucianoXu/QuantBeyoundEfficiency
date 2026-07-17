@@ -13,6 +13,7 @@ WILD_JUDGE_PROMPT = (
 
 
 class WildBench(LLMAsJudgeBench):
+    """ Benchmark handler for the Wildchat-nontoxic dataset. """
     BENCHMARK_NAME = "WILD-Bench"
     DATASET_NAME = "allenai/WildChat-nontoxic"
     SPLIT = "train"
@@ -21,6 +22,9 @@ class WildBench(LLMAsJudgeBench):
     ID_COLUMN = "conversation_id"
 
     def prepare_dataset(self, dataset_name: str, split: str, style: str, token: str) -> tuple[list[dict], list[str]]:
+        """ Loads Wildchat-nontoxic dataset and filters it for single-turn English prompts.
+        Returns the full record with the corresponding question. """
+
         from datasets import load_dataset
         ds = load_dataset(dataset_name, split=split, token=token)
         ds = ds.select(range(10000))

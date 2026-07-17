@@ -13,6 +13,7 @@ SORRY_JUDGE_PROMPT = (
 
 
 class SorryBench(LLMAsJudgeBench):
+    """ Benchmark handler for the SORRY Bench dataset. """
     BENCHMARK_NAME = "SORRY-Bench"
     DATASET_NAME = "sorry-bench/sorry-bench-202406"
     SPLIT = "train"
@@ -22,6 +23,8 @@ class SorryBench(LLMAsJudgeBench):
     ID_COLUMN = "question_id"
 
     def prepare_dataset(self, dataset_name: str, split: str, style: str, token: str) -> tuple[list[dict], list[str]]:
+        """ Loads SORRY Bench Dataset from Huggingface and pairs its inputs with corresponding questions. """
+
         from datasets import load_dataset
         ds = load_dataset(dataset_name, split=split, token=token)
         ds = ds.filter(lambda r: r["prompt_style"] == style)
