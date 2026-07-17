@@ -111,8 +111,9 @@ jailbreaks on the INT4 quantized model.
 
 Our key findings are the following:
 \begin{itemize}
-	\item Not all model capabilities transfer evenly with quantization. We observe that performance decreases in critical safety domains such as instruction following, safety refusal, and deception, while other domains stay more stable.
-	\item We find factors for benchmark degradation such as the evaluation method and model coherence decay. While multiple-choice benchmarks with log-likelihood ranking stay stable, free-generation capabilities can significantly decay, as seen in the Qwen-3 1.7B model under INT4.
+	\item Not all model capabilities transfer evenly with quantization. In particular, we observe that performance decreases in critical safety domains such as instruction following, safety refusal, and deception.
+	\item We find factors for benchmark degradation such as the evaluation method and model coherence decay. 
+	\item While multiple-choice benchmarks with log-likelihood ranking stay stable, free-generation capabilities can significantly decay, as seen in the Qwen-3 1.7B model under INT4.
 	\item We can find adversarial suffix attacks that are benign for BF16 models, but successfully jailbreak the INT4 model. 
 \end{itemize}
 
