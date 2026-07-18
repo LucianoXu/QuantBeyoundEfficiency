@@ -11,4 +11,6 @@ Configuration fall into one of two categories defined by the `config_type` argum
 
 ## How to create a new configuration
 
-Copy one of the minimal examples at `templates/test` and compare with the detailed options in 'templates\experiments'
+1. **Check minimal examples:** See `templates/test/model_bench_matrix.yaml` for a working configuration.
+2. **Review run experiments:** Take a loot at `templates/experiments` for in detail implementations.
+3. **Valid configuration keys:**: Check the `README.md` of the repository for implemented models and benchmarks.
