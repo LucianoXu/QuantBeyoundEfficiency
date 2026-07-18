@@ -108,29 +108,32 @@ Only the following implementations are supported and included in the project.
 ### Benchmark types
 
 #### Multiple Choice or Loglikelihood ranking
-All are implemented through the [LM Evaluation harness](https://github.com/EleutherAI/lm-evaluation-harness/blob/main/lm_eval/tasks/README.md)
+All benchmarks are implemented through the [LM Evaluation harness](https://github.com/EleutherAI/lm-evaluation-harness/blob/main/lm_eval/tasks/README.md)
 For detailed descriptions please refer the linked documentation.
 
 | Config | Benchmark |
 | :--- | :--- |
 | `GSM8K` | gsm8k |
-| `MMLU` | mmlu |
-| `MMLU-Pro` | mmlu_pro |
 | `HellaSwag` | hellaswag |
 | `ARC` | arc_challenge |
 | `TruthfulQA` | truthfulqa_mc2 |
 | `BBH` | bbh |
 | `MATH` | minerva_math |
-| `HumanEval` | humaneval |
 | `gpqa` | gpqa_main_n_shot |
-| `mgsm_direct` | mgsm_direct |
 | `hendrycks_ethics` | hendrycks_ethics_local |
 | `bbq` | bbq |
 
 #### Free Generation
 
+`MMLU`, `MMLU-Pro`, `HumanEval` and `mgsm-direct` are implemented through the [LM Evaluation harness](https://github.com/EleutherAI/lm-evaluation-harness/blob/main/lm_eval/tasks/README.md).
+`Sorry-Bench`, `DECEPTION-Bench`, `IF-Bench` and `WILD-Bench` are implemented through a custom LLM-as-a-judge model.
+
 | Config | Benchmark |
 | :--- | :--- |
+| `MMLU` | mmlu |
+| `MMLU-Pro` | mmlu_pro |
+| `HumanEval` | humaneval |
+| `mgsm_direct` | mgsm_direct |
 | `SORRY-Bench` | [SORRY-Bench](https://sorry-bench.github.io) |
 | `DECEPTION-Bench` | [DECEPTION-Bench](https://huggingface.co/datasets/PKU-Alignment/DeceptionBench) |
 | `IF-Bench` | [InstructionFollowing Bench](https://huggingface.co/datasets/kqsong/InFoBench) |
@@ -142,5 +145,5 @@ For detailed descriptions please refer the linked documentation.
 - New models, quantization techniques, benchmarks and analysis follow the same interface and extend the factory.
 - Raw experiment data are preserved in `trials/` by default. Move important results into `results/`, which is tracked and synced.
 
-<!-- TODO: Delete mgsm_direct and mmlu (?) and human_eal
+<!-- TODO:
  --/>
