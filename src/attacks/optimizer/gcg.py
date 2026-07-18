@@ -6,6 +6,7 @@ import torch
 
 
 def masked_topk_per_position(grad: torch.Tensor, topk: int, disallowed_mask: torch.Tensor) -> torch.Tensor:
+    """Finds the top-k token indeices with largest negative gradient per position. """
     # mask disallowed tokens
     g = grad.clone()
     g[:, disallowed_mask] = float("inf")
@@ -13,6 +14,7 @@ def masked_topk_per_position(grad: torch.Tensor, topk: int, disallowed_mask: tor
 
 
 def sample_position_swaps(suffix_ids: torch.Tensor, top_indices: torch.Tensor, batch_size: int) -> torch.Tensor:
+    """Generate adversarial suffix candidates by randomly swapping tokens. """
     l_suf = suffix_ids.shape[0]
     topk = top_indices.shape[1]
     device = suffix_ids.device
@@ -25,6 +27,7 @@ def sample_position_swaps(suffix_ids: torch.Tensor, top_indices: torch.Tensor, b
 
 
 class GCGOptimizer:
+    """Handles gradient search iteration to progressively optimize adversarial tokens. """
 
     def __init__(self, objective, disallowed_mask: torch.Tensor, config: dict[str, Any]):
         self.obj = objective
@@ -39,6 +42,7 @@ class GCGOptimizer:
         self.curriculum_patience = config.get("curriculum_patience", 25)  # steps at a stage before force-adding
 
     def run(self, init_suffix: torch.Tensor, prompts: list[dict[str, Any]]) -> dict[str, Any]:
+        """ Runs the gradient optimization loop to find the best adversarial suffix. """
         m = len(prompts)
         suffix = init_suffix.clone()
         best_loss, best_suffix = float("inf"), suffix.clone()

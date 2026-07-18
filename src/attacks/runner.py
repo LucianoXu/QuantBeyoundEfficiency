@@ -16,9 +16,8 @@ from .eval import evaluate_on_model
 
 
 def run_attack(args: dict[str, Any]) -> dict[str, Any]:
-    '''
-    prepare the attack -> run the attack -> evaluation
-    '''
+    """ Runs the attack pipeline including data preparation, optimizing the adversarial suffix and evaluate the results."""
+
     output_dir = Path(args["output_dir"])
 
     output_dir.mkdir(parents=True, exist_ok=False)
