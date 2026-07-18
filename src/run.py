@@ -17,6 +17,17 @@ from .benches.factory import bench_factory
 
 
 def run(args: dict[str, Any] | str | Path) -> Any:
+    """ Initializes the experiment by loading the model and the benchmarking type/attack given by the config.
+
+    Args:
+        args: A dictionary holding the config arguments or a str/Path pointing to the .yaml configuration.
+
+    Returns:
+        The results of the initialized experiment.
+
+    Raises:
+        ValueError: If the extracted 'config_type' does not map to a supported experiment.
+    """
 
     print(" >> Experiment Top-level")
 
@@ -45,7 +56,21 @@ def run(args: dict[str, Any] | str | Path) -> Any:
         raise ValueError("Invalid Config Type.")
 
 
-def run_model_bench(args: dict[str, Any], tokenizer: Any = None, model: Any = None):
+def run_model_bench(args: dict[str, Any], tokenizer: Any = None, model: Any = None) -> dict[str, Any] | None:
+    """ Executes a single evaluation run for a given model and a given benchmark.
+
+    Args:
+        args: Configuration dictionary for the execution details.
+        tokenizer: Optional pre-loaded tokenizer for target model. Defaults to None.
+        model: Optional target model. Defaults to None.
+
+    Returns:
+        A dictionarz containing the compiled evaluation results or None if the benchmark throws an exception.
+
+    Raises:
+         FileExistsError: If the output tracking folder already exists. (e.g. trials)
+    """
+
     model_not_passed = model is None or tokenizer is None
     output_dir = Path(args['output_dir'])
     # create a folder, and raise an error if it already exists
@@ -89,6 +114,15 @@ def run_model_bench(args: dict[str, Any], tokenizer: Any = None, model: Any = No
     return res
 
 def run_model_bench_matrix(args: dict[str, Any]):
+    """ Executes a cross evaluation matrix for a multiple quantized models and benchmarks.
+
+    Args:
+        args: Configuration dictionary for the execution details.
+
+    Raises:
+         FileExistsError: If the output tracking folder already exists. (e.g. trials)
+         ValueError: If duplicate model or benchmark ids are found.
+    """
 
     output_dir = Path(args['output_dir'])
     # create a folder, and raise an error if it already exists
