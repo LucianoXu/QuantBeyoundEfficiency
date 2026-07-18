@@ -6,34 +6,61 @@
 
 In this project we evaluated the capabilities of LLM at 4B and below beyond classic performance and capabilities metrics.
 
+Our project tackled this from two distinct angles:
+
+### 1. Passive Evaluation (Benchmarks)
+
+We analyze how the quantized models change under standard evaluation benchmarks in comparison to the full-precision baseline.
+
+### 2. Active Evaluation (Adversarial Suffix Attack)
+
+We executed a **Greedy Coordinate Gradient (GCG)** adversarial attack that successfully jailbreaks the **INT4** model,
+but does not show the same behavior at the base **FP16** model.
 
 ## Setup
 
-### 1. Navigate to repository directory
+### 1. Prepare the repository
+```
+git clone <repo-id>
+cd path/to/QuantBeyoundEfficiency
+```
 
-`cd path/to/QuantBeyoundEfficiency`
+### 2. Decide if you are using uv or the classical approach
 
-### 2. Create and activate a virtual environment
+#### 2a. Using uv
 
 ```
+# create the virtual environment
+uv venv 
+# install the base dependencies
+uv sync
+# if you want to reproduce the judge results
+uv sync --extra judge --extra lens
+# if you are running inference on cuda cores
+uv sync --index pytorch-cuda
+```
+
+#### 2b. Classical approach
+
+```
+# Creating virtual envrionment
 python -m venv venv source
-# Linux/MacOS:
+# Activate with Linux/MacOS:
 source venv/bin/activate
-# Windows:
+# Activate with Windows:
 venv\scripts\activate
+# install necessary requirements
+pip install -r requirements.txt -e .
 ```
 
-### 3. Install necessary requirements
+Note: If you want to run local inference on NVIDIA gpu check requirements.txt and uncomment the necessary lines.
+If you want to run the judge results uncomment the libaries under  `#interpretability`.
 
-`pip install -r requirements.txt -e .`
-
-Note: If you want to run local inference on NVIDIA gpu check requirements_cuda.txt
-
-### 4. Add necessary Tokens
+### 3. Add necessary Tokens
 
 Copy `.env.example` as `.env` in the root and paste your [HuggingFace token](https://huggingface.co/settings/tokens) there.
 
-### 5. Check the Cookbook
+### 4. Check the Cookbook
 
 Check `cookbook.py` for basic usage. 
 
