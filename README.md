@@ -39,6 +39,7 @@
 - **model**
 - **model_bench**
 - **model_bench_matrix**
+- **attack**
 
 ## Guidelines
 

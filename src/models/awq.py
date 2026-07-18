@@ -8,10 +8,32 @@ from transformers.generation.utils import GenerationMixin
 DEFAULT_AWQ_SAVE_DIR= Path("./awq_calibration")
 
 def awq_checkpoint_ready(save_dir: Path) -> bool:
+    """ Checks if a valid AWQ checkpoint exists in the target directory.
+
+    Args:
+        save_dir: The directory path to check for the AWQ checkpoint.
+
+    Returns:
+        True if awq checkpoint exists, otherwise False.
+    """
+
     return save_dir.is_dir() and (save_dir / "config.json").exists() and any(save_dir.glob("*.safetensors"))
 
 
 def awq_model_factory(model_args: dict[str, Any], awq_scheme: str, seed: int) -> tuple[PreTrainedTokenizerBase, GenerationMixin]:
+    """ Retrieves the AWQ quantized model. Initializes calibration if no cache exists.
+
+    Args:
+        model_args: Configuration properties initialized the model setup.
+        awq_scheme: The precision scheme (e.g. W4A16).
+        seed: Randomized seed utilized for dataset shuffling for the calibration.
+
+    Returns:
+        A tuple containing:
+            - The tokenizer for the given target model.
+            - The quantized target model.
+    """
+
     model_name = model_args["model_name"]
     device_map = model_args["device_map"]
 
@@ -46,9 +68,21 @@ def calibrate_and_save_awq(
     awq_scheme: str,
     seed: int,
 ) -> None:
-    '''
-    Calibrate and svae the mode. See https://github.com/vllm-project/llm-compressor/blob/main/examples/awq/llama_example.py.
-    '''
+    """ Executes post-training AWQ calibration and saves the model.
+
+    Args:
+        model_name: Huggingface model identifier.
+        tokenizer: Tokenizer matching the target model.
+        save_dir: Save destination for the target models calibrated weights and tokenizer.
+        awq_scheme: The precision scheme (e.g. W4A16).
+        seed: Randomized seed utilized for dataset shuffling for the calibration.
+
+    Note: datasets and llmcompressor components are loaded lazily.
+
+    For more information see: https://github.com/vllm-project/llm-compressor/blob/main/examples/awq/llama_example.py.
+    """
+
+
 
     # lazy import. llmcompressor takes very long time.
     from datasets import load_dataset

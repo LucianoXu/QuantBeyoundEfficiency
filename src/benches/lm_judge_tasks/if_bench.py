@@ -14,7 +14,10 @@ INFOBENCH_JUDGE_PROMPT = (
 )
 
 class IFBench(LLMAsJudgeBench):
-    """ Benchmark handler for the Instruction Following dataset. """
+    """ Benchmark handler for the Instruction Following dataset.
+
+    See base class 'LLMasJudgeBench' for detailied specifications.
+    """
     BENCHMARK_NAME = "IF-Bench"
     DATASET_NAME = "kqsong/InFoBench"
     SPLIT = "train"
@@ -23,7 +26,10 @@ class IFBench(LLMAsJudgeBench):
     CATEGORY_COLUMN = "category"
 
     def prepare_dataset(self, dataset_name: str, split: str, style: str, token: str) -> tuple[list[dict[str, Any]], list[str]]:
-        """ Loads Instruction Follow Dataset from Huggingface and pairs its inputs with instructions. """
+        """ Loads Instruction Follow Dataset from Huggingface and pairs its inputs with instructions.
+
+        See base class 'LLMasJudgeBench.prepare_dataset' for detailed specifications.
+        """
         from datasets import load_dataset
         ds = load_dataset(dataset_name, split=split, token=token)
         rows = list(ds)

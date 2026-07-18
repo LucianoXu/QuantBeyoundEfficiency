@@ -14,7 +14,23 @@ from ...envvar import require_hf_token
 import re 
 
 class LLMAsJudgeBench(Bench):
-    """ Abstract base benchmark for evaluating benchmarks using a LLM-as-a-judge. """
+    """ Abstract base benchmark for evaluating benchmarks using a LLM-as-a-judge.
+
+    This class serves as the base interface for loading the evaluation datsets that require a LLM judge.
+    It includes evaluation, prompt formatting, handling batched text generation for the target model and the judge
+    and computes performance metrics. Subclasses must override 'prepare_dataset'.
+
+
+    Attributes:
+        BENCHMARK_NAME: Standard identifier for this benchmark.
+        DATASET_NAME: The huggingface repo id
+        PROMPT_STYLE: Default prompt style to load. Defaults to base.
+        SPLIT: Default split to get from huggingface. Defaults to train.
+        METRIC_NAME: The name of the resulting evaluation metric. Defaults to score.
+        JUDGE_PROMPT_TEMPLATE: String template to used for judge evaluation.
+        CATEGORY_COLUMN: Column indicating the subcategory of interest.
+        ID_COLUMN: Unique column identifier.
+    """
     BENCHMARK_NAME: str = None
     DATASET_NAME: str = ""
     PROMPT_STYLE: str = "base"
@@ -25,15 +41,46 @@ class LLMAsJudgeBench(Bench):
     ID_COLUMN: str = ""
 
     def prepare_dataset(self, dataset_name: str, split: str, style: str, token: str) -> tuple[list[dict[str, Any]], list[str]]:
-        """Abstract method to load and format the dataset. """
+        """Abstract method to load and format the dataset.
+
+        Args:
+            dataset_name: Huggingface ID
+            split: The split to load.
+            style: Styling to pull from the dataset.
+            token: Huggingface user authentication token for faster loading times or to access gated datasets.
+
+        Returns:
+            A tuple containing two lists:
+            - A list of dictionaries holding the full row data of the dataset.
+            - A list of pre-formatted string questions ready to evaluate.
+
+        Raises:
+            NotImplementedError: Needs to be implemented by the corresponding subclass.
+        """
         raise NotImplementedError
 
     def get_judge_prompt(self, row: dict[str, Any], question: str, response: str) -> str:
-        """ Formats the input prompt for single target evaluation. """
+        """ Formats the input prompt for evaluated by the LLM judge.
+
+         Args:
+             row: Dictionary tracking the data of a given row sample.
+             question: The specific question that the target model had to answer.
+             response: The generated answer from the target model for the given question.
+
+        Returns:
+            The prompt string given to the judge model to evaluate the response.
+         """
         return self.JUDGE_PROMPT_TEMPLATE.format(question=question, answer=response)
 
     def parse_score(self, verdict: str) -> float | None:
-        """ Parse the numerical verdict (0.0 or 1.0) from raw judge text output. """
+        """ Parse the numerical verdict (0.0 or 1.0) from raw judge text output.
+
+        Args:
+            verdict: The raw string text response from the judge model.
+
+        Returns:
+            A float (0.0 or 1.0) if parsing is successful otherwise None.
+        """
         if not verdict:
             return None
         numbers = re.findall(r"\d+(?:\.\d+)?", verdict.strip())
@@ -46,10 +93,21 @@ class LLMAsJudgeBench(Bench):
 
     def eval(self, tokenizer: PreTrainedTokenizerBase, model: GenerationMixin,
              output_dir: Path) -> dict[str, Any]:
-        """ Runs the full evaluation pipeline including answer generation, judge scoring and logging results. """
+        """ Runs the full evaluation pipeline including answer generation, judge scoring and logging results.
+
+        Args:
+            tokenizer: The Huggingface tokenizer matching the target model.
+            model: The target model that gets evaluated.
+            output_dir: The directory path to dump the results and generated samples in json format.
+
+        Returns:
+            A nested configuration summary dictionary containing:
+            - 'results': The results containing the over all main benchmark score metrics with additional infos.
+            - 'config': An overview of the run configuration (e.g. dataset, max_new_tokens, limit)
+        """
 
         print(f" >> Evaluating {self.BENCHMARK_NAME}. Will output to {output_dir}")
-        #TODO: comment ???
+        # get config arguments
         style = self.bench_args.get("prompt_style", self.PROMPT_STYLE)
         batch_size = self.bench_args["batch_size"]
         max_new_tokens = self.bench_args["max_new_tokens"]
@@ -81,7 +139,7 @@ class LLMAsJudgeBench(Bench):
             ]
             print(f" >> truncated {n_before}/{len(questions)} questions to {max_q_tokens} tokens")
 
-        # Generate model respons
+        # Generate model response
         prompts = [
             tokenizer.apply_chat_template(
                 [{"role": "user", "content": q}],
@@ -183,9 +241,23 @@ class LLMAsJudgeBench(Bench):
         return summary
 
     @staticmethod
-    def _generate(tokenizer, model, prompts, max_new_tokens: int, batch_size: int,
+    def _generate(tokenizer: PreTrainedTokenizerBase, model: GenerationMixin, prompts: list[str] , max_new_tokens: int, batch_size: int,
                 enable_thinking: bool = False, desc: str = "generating") -> list[str]:
-        """ Helper for greedy batched generation"""
+        """ Helper utility for greedy batched generation
+
+        Args:
+            tokenizer: The Huggingface tokenizer matching the target model.
+            model: The target model that gets evaluated.
+            prompts: A list of the given prompts
+            max_new_tokens: Limit cap to the length of the generation
+            batch_size: Total amount of prompt rows feed per iteration
+            enable_thinking: If True, extends the token limit by 512 to allow for longer thinking generation.
+                Defaults to False.
+            desc: Custom description label for the tqdm loading bar. Defaults to 'generating'
+
+        Returns:
+            A list of processed response strings stripped of their initial prompt
+        """
         
         old_side = tokenizer.padding_side
         tokenizer.padding_side = "left"

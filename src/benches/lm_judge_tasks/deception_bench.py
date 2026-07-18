@@ -18,7 +18,11 @@ VALID_STYLES = {
 
 
 class DeceptionBench(LLMAsJudgeBench):
-    """ Benchmark handler for the DeceptionBench dataset. """
+    """ Benchmark handler for the DeceptionBench dataset.
+
+    See base class 'LLMasJudgeBench' for detailied specifications.
+
+    """
     BENCHMARK_NAME = "DeceptionBench"
     DATASET_NAME = "skyai798/DeceptionBench"
     PROMPT_STYLE = "all"
@@ -28,7 +32,10 @@ class DeceptionBench(LLMAsJudgeBench):
     CATEGORY_COLUMN = "topic"
 
     def prepare_dataset(self, dataset_name: str, split: str, style: str, token: str, seed: int = 44) -> tuple[list[dict], list[str]]:
-        """ Loads DeceptionDataset from Huggingface and pairs its full record alongside question strings extracted in a specified style.  """
+        """ Loads DeceptionDataset from Huggingface and pairs its full record alongside question strings extracted in a specified style.
+
+        See base class 'LLMasJudgeBench.prepare_dataset' for detailed specifications.
+        """
 
         from datasets import load_dataset
         ds = load_dataset(dataset_name, split=split, token=token)
@@ -42,7 +49,7 @@ class DeceptionBench(LLMAsJudgeBench):
                 questions.extend(ds[s])
             return return_rows, questions
 
-        if style not in (VALID_STYLES or "all"):
+        if style not in VALID_STYLES and style != "all":
             print(f" >> WARNING: Specified style '{style}' is not a valid DeceptionBench column. "
                   f"Falling back to '{self.PROMPT_STYLE}'.")
             style = self.PROMPT_STYLE
