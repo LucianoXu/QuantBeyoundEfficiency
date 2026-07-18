@@ -246,22 +246,21 @@ DeceptionBench used a slightly modified system prompt (Figure~\ref{fig:judge_pro
 \footnotesize
 \begin{tabular}{lcccc}
 \toprule
-\textbf{Run (\%)} & \textbf{DeceptionBench} & \textbf{SORRY-bench} & \textbf{InFoBench} & \textbf{WildChat-nontoxic} \\
-             & (deception\_rate) & (fulfillment\_rate) & (follow\_rate) & (success\_rate) \\
-\midrule
-\textbf{BF16} & 42.67             & 14.67             & 83.33             & 66.00             \\
-\textbf{INT8} & 47.00 \de{(+4.33)} & 13.33 \imp{(-1.34)} & 80.33 \de{(-3.00)} & 62.67 \de{(-3.33)} \\
-\textbf{AWQ}  & 45.33 \de{(+2.66)} & 11.00 \imp{(-3.67)} & 77.67 \de{(-5.66)} & 62.33 \de{(-3.67)} \\
-\textbf{INT4} & 53.67 \de{(+11.00)} & 19.00 \de{(+4.33)}  & 82.33 \de{(-1.00)} & 57.67 \de{(-8.33)} \\
+ & \multicolumn{2}{c}{\textbf{General}} & \multicolumn{2}{c}{\textbf{Safety}} \\
+ \cmidrule(lr){2-3} \cmidrule(lr){4-5}
+\textbf{Rate (\%)} & \textbf{InFoBench} & \textbf{WildChat-nontoxic}  & \textbf{DeceptionBench} & \textbf{SORRY-bench}\\
+      & (follow\_rate) & (success\_rate) & (deception\_rate) & (fulfillment\_rate)\\\midrule
+\textbf{BF16}& 83.33             & 66.00  & 42.67             & 14.67                         \\
+\textbf{INT8}& 80.33 \de{(-3.00)} & 62.67 \de{(-3.33)}& 47.00 \de{(+4.33)} & 13.33 \imp{(-1.34)}  \\
+\textbf{AWQ}  & 77.67 \de{(-5.66)} & 62.33 \de{(-3.67)} & 45.33 \de{(+2.66)} & 11.00 \imp{(-3.67)}  \\
+\textbf{INT4}  & 82.33 \de{(-1.00)} & 57.67 \de{(-8.33)} & 53.67 \de{(+11.00)} & 19.00 \de{(+4.33)} \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\paragraph{}
-DeceptionBench shows a significant increase in the deception rate under INT4 quantization, and SORRY-bench's fulfillment rate increases as well. 
+In table \ref{tab:comparison_table_Qwen3_4B_free_gen_lm_judge} DeceptionBench shows a significant increase in the deception rate under INT4 quantization, and SORRY-bench's fulfillment rate increases as well. 
 The model's capability to follow instructions seems to be more impacted under AWQ compared to INT4 and INT8.
 Finally, performance on WildChat-NonToxic decays across all three quantization formats, with the most pronounced decrease occurring in INT4. 
-
 
 
 We observe that instruction following, safety refusal, and the model's willingness to comply 
@@ -317,7 +316,7 @@ which was performed with a generation length of 512 and has a total size of N=45
 \footnotesize
 \begin{tabular}{lcccc}
 \toprule
-\textbf{Run (\%)} & \textbf{GPQA} & \textbf{BBQ} & \textbf{Hendrycks Ethics (Average)} & \textbf{TruthfulQA} \\
+\textbf{Accuracy (\%)} & \textbf{GPQA} & \textbf{BBQ} & \textbf{Hendrycks Ethics (Average)} & \textbf{TruthfulQA} \\
 \midrule
 \textbf{BF16} & 31.03         & 50.40         & 64.38       & 45.89         \\
 \textbf{INT8} & 28.79 \de{(-2.24)} & 49.50 \de{(-0.90)} &65.38 \imp{(+1)} & 46.80 \imp{(+0.91)} \\
@@ -335,7 +334,7 @@ which was performed with a generation length of 512 and has a total size of N=45
 \footnotesize
 \begin{tabular}{lcccc}
 \toprule
-\textbf{Run (\%)} & \textbf{Human Eval} & \textbf{mgsm\_direct\_en} & \textbf{MMLU-Pro} & \textbf{Sorry Bench} \\
+\textbf{Rate (\%)} & \textbf{Human Eval} & \textbf{mgsm\_direct\_en} & \textbf{MMLU-Pro} & \textbf{Sorry Bench} \\
 \midrule
 \textbf{BF16} & 41.46          & 13.20          & 42.56          & 56.67          \\
 \textbf{INT8} & 40.85 \de{(-0.61)}  & 11.60 \de{(-1.60)}  & 39.94 \de{(-2.62)}  & 59.78 \de{(+3.11)}  \\
