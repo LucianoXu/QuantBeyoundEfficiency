@@ -44,7 +44,7 @@ uv sync --index pytorch-cuda
 
 ```
 # Creating virtual envrionment
-python -m venv venv source
+python -m venv venv 
 # Activate with Linux/MacOS:
 source venv/bin/activate
 # Activate with Windows:
@@ -54,31 +54,37 @@ pip install -r requirements.txt -e .
 ```
 
 Note: If you want to run local inference on NVIDIA gpu check requirements.txt and uncomment the necessary lines.
-If you want to run the judge results uncomment the libaries under  `#interpretability`.
+If you want to run the judge results uncomment the libraries under  `#interpretability`.
 
 ### 3. Add necessary Tokens
 
 Copy `.env.example` as `.env` in the root and paste your [HuggingFace token](https://huggingface.co/settings/tokens) there.
+Optionally also add your [Deepseek API key](https://platform.deepseek.com/api_keys) for coherence testing.
 
 ### 4. Check the Cookbook
 
-Check `cookbook.py` for basic usage. 
+Check `cookbook.ipynb` for basic usage. 
 
 ## Project Structure
 
-- `README.md`: this file, project introduction
-- `requirements.txt`: python environment requirements
-- `references/`: documents like papers and project notes
-- `report/`: the final latex report
-- `results/`: important experiment results (tracked)
-- `trials/`: intermediate experiment results (.gitignore)
-- `src/`: python source files
-- `scripts/`: script files for all jobs
-- `templates/`: task configuration templates
-- `.env`: environment variable configuration (.gitignore)
-- `devlog.md`: development and progress log
-- `cookbook.ipynb`: push-button experiment cookbooks
+### Directories
 
+- `report/`: The final LaTeX report
+- `results/`: Main experiment results (tracked)
+- `src/`: Python source files
+- `scripts/`: Script files for all jobs
+- `templates/`: Task configuration templates
+- `trials/`: Intermediate experiment results (.gitignore)
+
+### Configuration & Documents
+
+- `.env`: Environment variable configuration (.gitignore)
+- `cookbook.ipynb`: Push-button experiment cookbooks
+- `devlog.md`: Development and progress log
+- `README.md`: This file, project introduction
+- `requirements.txt`: Python environment requirements
+- `pyproject.toml`: Project configuration and dependencies
+- `uv.lock`: Lockfile for reproducible dependency management
 ## Scope
 
 - Model size up to 4B.
@@ -144,6 +150,3 @@ For detailed descriptions please refer the linked documentation.
 - Task parameters are tracked by `.yaml` configuration files. Use factories for model and benchmark construction.
 - New models, quantization techniques, benchmarks and analysis follow the same interface and extend the factory.
 - Raw experiment data are preserved in `trials/` by default. Move important results into `results/`, which is tracked and synced.
-
-<!-- TODO:
- --/>
