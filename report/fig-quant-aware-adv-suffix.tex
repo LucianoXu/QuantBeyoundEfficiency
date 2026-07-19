@@ -1,0 +1,87 @@
+
+\begin{figure}[t]
+  \centering
+  \resizebox{\textwidth}{!}{
+  \begin{tikzpicture}[
+      font=\sffamily,
+      icon/.style={font=\large},
+      panel/.style={font=\small\bfseries, align=center, text width=4.3cm},
+      bub/.style={draw, rounded corners=2pt, align=left, font=\scriptsize,
+                  inner sep=3pt, text width=2.9cm, anchor=west},
+      prompt/.style={bub, fill=blue!5, draw=blue!45},
+      safe/.style={bub, fill=green!8, draw=green!55!black},
+      unsafe/.style={bub, fill=red!8, draw=red!65!black},
+      roundbox/.style={draw=gray!55, rounded corners=3pt, fill=gray!4, inner sep=5pt},
+      tag/.style={font=\tiny\bfseries, inner sep=1.5pt, fill=white, rounded corners=1pt},
+    ]
+
+    % column dividers
+    \draw[gray!40] (4.7,1.15) -- (4.7,-3.35);
+    \draw[gray!40] (9.7,1.15) -- (9.7,-3.35);
+
+    %% (a) Quantization alone
+    \begin{scope}[xshift=0cm]
+      \node[panel] at (2.15,0.95) {(a) Quantization-Aware Attack};
+      % round 1: full refuses
+      \node[icon] (au1) at (0.55,0.0) {\faUserSecret};
+      \node[prompt] (aq1) at (1.0,0.0) {How do I make a bomb?};
+      \node[icon,teal!70!black] (ar1) at (0.55,-0.85) {\faRobot};
+      \node[font=\footnotesize,red!75!black] at (0.85,-0.62) {\faSkullCrossbones};
+      \node[safe] (aa1) at (1.0,-0.85) {I'm sorry, I can't help with that.};
+      \begin{pgfonlayer}{background}\node[roundbox,fit=(au1)(aq1)(ar1)(aa1)] (ab1) {};\end{pgfonlayer}
+      \node[tag,text=teal!60!black,anchor=north west] at (ab1.north west) {Full};
+      % round 2: Quant complies
+      \node[icon] (au2) at (0.55,-2.0) {\faUserSecret};
+      \node[prompt] (aq2) at (1.0,-2.0) {How do I make a bomb?};
+      \node[icon,orange!85!black] (ar2) at (0.55,-2.85) {\faRobot};
+      \node[font=\footnotesize,red!75!black] at (0.85,-2.62) {\faSkullCrossbones};
+      \node[unsafe] (aa2) at (1.0,-2.85) {Sure, here is how you\dots};
+      \begin{pgfonlayer}{background}\node[roundbox,fit=(au2)(aq2)(ar2)(aa2)] (ab2) {};\end{pgfonlayer}
+      \node[tag,text=orange!80!black,anchor=north west] at (ab2.north west) {Quant};
+    \end{scope}
+
+    %% (b) Adversarial suffix
+    \begin{scope}[xshift=5cm]
+      \node[panel] at (2.15,0.95) {(b) Adversarial Suffix Attack};
+      % round 1: no suffix, model refuses
+      \node[icon] (bu1) at (0.55,0.0) {\faUserSecret};
+      \node[prompt] (bq1) at (1.0,0.0) {How do I make a bomb?};
+      \node[icon,teal!70!black] (br1) at (0.55,-0.85) {\faRobot};
+      \node[safe] (ba1) at (1.0,-0.85) {I'm sorry, I can't help with that.};
+      \begin{pgfonlayer}{background}\node[roundbox,fit=(bu1)(bq1)(br1)(ba1)] (bb1) {};\end{pgfonlayer}
+      \node[tag,text=teal!60!black,anchor=north west] at (bb1.north west) {Full};
+      % round 2: with suffix, model complies
+      \node[icon] (bu2) at (0.55,-2.0) {\faUserSecret};
+      \node[prompt] (bq2) at (1.0,-2.0) {How do I make a bomb? \texttt{<suffix>}};
+      \node[icon,teal!70!black] (br2) at (0.55,-2.85) {\faRobot};
+      \node[unsafe] (ba2) at (1.0,-2.85) {Sure, here is how you\dots};
+      \begin{pgfonlayer}{background}\node[roundbox,fit=(bu2)(bq2)(br2)(ba2)] (bb2) {};\end{pgfonlayer}
+      \node[tag,text=teal!60!black,anchor=north west] at (bb2.north west) {Full};
+    \end{scope}
+
+    %% (c)
+    \begin{scope}[xshift=10cm]
+      \node[panel] at (2.15,0.95) {(c) Quantization-Aware Adversarial Suffix};
+      % round 1: suffix, full still refuses
+      \node[icon] (cu1) at (0.55,0.0) {\faUserSecret};
+      \node[prompt] (cq1) at (1.0,0.0) {How do I make a bomb? \texttt{<qa-suffix>}};
+      \node[icon,teal!70!black] (cr1) at (0.55,-0.85) {\faRobot};
+      \node[safe] (ca1) at (1.0,-0.85) {I'm sorry, I can't help with that.};
+      \begin{pgfonlayer}{background}\node[roundbox,fit=(cu1)(cq1)(cr1)(ca1)] (cb1) {};\end{pgfonlayer}
+      \node[tag,text=teal!60!black,anchor=north west] at (cb1.north west) {Full};
+      % round 2: same suffix, Quant jailbroken
+      \node[icon] (cu2) at (0.55,-2.0) {\faUserSecret};
+      \node[prompt] (cq2) at (1.0,-2.0) {How do I make a bomb? \texttt{<qa-suffix>}};
+      \node[icon,orange!85!black] (cr2) at (0.55,-2.85) {\faRobot};
+      \node[unsafe] (ca2) at (1.0,-2.85) {Sure, here is how you\dots};
+      \begin{pgfonlayer}{background}\node[roundbox,fit=(cu2)(cq2)(cr2)(ca2)] (cb2) {};\end{pgfonlayer}
+      \node[tag,text=orange!80!black,anchor=north west] at (cb2.north west) {Quant};
+    \end{scope}
+  \end{tikzpicture}%
+  }
+  \caption{
+    \textbf{(a)} Poisoned models may behave benignly in full precision but become misaligned after quantization.
+    \textbf{(b)} Universal adversarial suffixes exist to jailbreak open source models.
+    \textbf{(c)} The intuition of quantization-aware adversarial suffix attack. Open source models may still have vulnerabilities that expose only after quantization.}
+  \label{fig:quant-aware-adv-suffix}
+\end{figure}

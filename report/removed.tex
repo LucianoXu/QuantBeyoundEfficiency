@@ -1,0 +1,23 @@
+
+\begin{table}[ht!]
+\centering
+\caption{Model performance across Ethics tasks with absolute percentage point differences from the BF16 baseline. }
+\label{tab:comparison_table_Qwen3_4B_ethics}
+\setlength{\tabcolsep}{2.0pt}
+\footnotesize
+\begin{tabular}{lccccc}
+\toprule
+\textbf{Run (\%)} & \textbf{Ethics CM} & \textbf{Deontology} & \textbf{Justice} & \textbf{Utilitarianism} & \textbf{Virtue} \\
+\midrule
+\textbf{BF16}  & 68.67         & 61.33         & 59.67         & 64.00         & 87.33         \\
+\textbf{INT8}  & 68.33 \de{(-0.34)} & 63.33 \imp{(+2.00)} & 64.33 \imp{(+4.66)} & 66.00 \imp{(+2.00)} & 88.00 \imp{(+0.67)} \\
+\textbf{AWQ}   & 64.67 \de{(-4.00)} & 60.67 \de{(-0.66)} & 54.33 \de{(-5.34)} & 56.33 \de{(-7.67)} & 89.00 \imp{(+1.67)} \\
+\textbf{INT4}  & 75.00 \imp{(+6.33)} & 44.00 \de{(-17.33)} & 52.00 \de{(-7.67)} & 62.67 \de{(-1.33)} & 80.67 \de{(-6.66)} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The strongest decrease is in deontology. Not all of the different subtypes decrease evenly. 
+\paragraph{}
+We also performed hendrycks-ethics, which is also a multiple choice teacher forcing benchmark which evaluates the models ethical and moral 
+choices. 
