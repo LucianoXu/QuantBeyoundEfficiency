@@ -29,18 +29,18 @@ but does not show the same behavior at the base **FP16** model.
 safeguards severely decayed at 4-bit quantization in `DeceptionBench`.
 
 
-![Free Generation Benchmark Results](imgs/FGBench_table.png)
+![Free Generation Benchmark Results](imgs/FGBench_table.webp)
 
 <em> Figure 1: Comparison of Loglikelihood ranked benchmarks. </em> 
 
 2. Benchmark stability *depends on several factors* such as benchmark domain (capability vs safety), evaluation type (Loglikehood ranking vs free generation) and their subtlety (Deception vs hard safety violations).
 
-![Multiple Choice Benchmark Results](imgs/Multiple%20Choice%20Benchmark%20Results.png)
+![Multiple Choice Benchmark Results](imgs/Multiple%20Choice%20Benchmark%20Results.webp)
 <em> Figure 2: Comparison of Multiple Choice benchmarks. </em> 
 
 3. Quantization *allows for novel attack vectors*, proving a change in model safeguards.
 
-![Adversarial Attack Benchmark](imgs/attack_table.png)
+![Adversarial Attack Benchmark](imgs/attack_table.webp)
 <em> Figure 3: Comparison of Suffix Attack Success </em> 
 ## Setup
 
