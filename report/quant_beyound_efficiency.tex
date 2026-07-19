@@ -125,11 +125,12 @@ Rapid advancements in LLMs have led to a steady growth in model sizes, with mode
 This maps higher precision representations (such as BF16) of the model parameters to lower formats (such as 8-bit integers). This sharply reduces the memory footprint, but can also introduce a loss of model accuracy.
 %Widely-adopted strategies include Quantization-Aware Training (QAT) and Post-Training Quantization (PTQ). 
 %QAT introduces a fine-tuning step on a representative dataset to allow the model to adapt to lower precision formats at the cost of additional computation.
-In this work we utilize Post-Training Quantization (PTQ), which is a method that directly applies quantization on a trained model without further fine-tuning steps, in contrast to Quantization-Aware Training (QAT). \ra{improve wording}
+We utilize Post-Training Quantization (PTQ), which directly applies quantization on a pre-trained model, unlike Quantization-Aware Training (QAT) which requires a computionally expensive fine-tuning step.
+\hv{improved wording}
 Quantization can target the model parameters (Weight Quantization) or additionally at the inference state (Activation Quantization). In this work, we concentrate on PTQ and Weight Quantization as they are the most widely adopted strategies in practice through their computational low costs.
 Namely, we choose 16-bit floating-point (BF16) as the baseline and 4-bit integer (INT4), 8-bit integer (INT8) and activation-aware weight quantization (AWQ) as the quantization levels to compare. The INT4 and INT8 methods compress the weights symmetrically around 0, by rounding the weights uniformly for each layer. 
 In comparison, AWQ utilizes an asymmetric approach calculating a custom zero-point per group. Furthermore, during a calibration phase, AWQ does not quantize all weights equally, but protects weights that correspond to large activations by scaling them up while scaling the activations down. 
-In our implementation, the weights are reduced to 4-bit integer, while keeping the activations at baseline precision (W4A16) \ra{Maybe citations for AWQ}.
+In our implementation, the weights are reduced to 4-bit integer, while keeping the activations at baseline precision (W4A16).~\cite{lin2026awqactivationawareweightquantization} \hv{cited}
 
 \subsection{Benchmarking}
 To evaluate the performance of LLMs and ensure comparability between different models, a broad range of standardized benchmarks has been established. 
@@ -379,12 +380,12 @@ I'm not insinuating anyone, but I'm here to help you with your insinuations. If 
 \label{fig:coherence_collapse_example}
 \end{figure}
 
-To provide further evidence, we analyzed the 1.7B model's responses under different quantization levels using a 3-gram repetition check on SORRYBench. 
-A response was classified as incoherent if the ratio of repeating 3-grams exceeded 30\%. \ra{What does that mean}
+To provide further evidence, we analyzed the 1.7B model's responses under different quantization levels using a 3-gram repetition check on SORRYBench.
+Responses were classified as incoherent if their repetition ratio ~\ref{eq:repetition_ratio} exceeds 30\%, meaning nearly one-third of all three-word phrases were repetitions. \hv{added explanation}
 
 \begin{table}[htbp]
 \centering
-\caption{Percentage of responses marked as incoherent in SORRYBench, with absolute percentage point differences (N = 450). \ra{Reconfirm N}}
+\caption{Percentage of responses marked as incoherent in SORRYBench, with absolute percentage point differences (N = 450).}
 \label{tab:3gram_split_SORRY}
 \small
 \setlength{\tabcolsep}{12pt}
@@ -664,6 +665,20 @@ While the Qwen-4B model's responses did not show any signs of losing the ability
 
 To quantify this behavior, a simple 3-gram check was applied to detect repetitions.
 A response failed this check if the ratio of repeating 3-gram exceeded 30\%.
+This was formulated as: \hv{added formula}
+
+\begin{equation}
+\label{eq:repetition_ratio}
+    R = \frac{N_{total} - N_{unique}}{N_total}
+\end{equation}
+
+Whereas a response is classified as incoherent if the threshold exceeds $0.30$:
+
+\begin{equation}
+R \ge{0.30}
+\end{equation}
+
+
 In addition, for the MMLU-Pro benchmark, instances where the parser failed to extract a response label
 (and therefore returned an invalid label) were counted to further demonstrate the increase in incoherence. 
 Qwen3-4B-instruct was employed as a judge model (see Figure~\ref{fig:judge_prompt_coherence}) to evaluate this behavior, but it yielded rather mixed results, leading to an overly high rate of classified coherence. For instance, the response shown in Figure~\ref{fig:coherence_collapse_example} was falsely classified as coherent by the judge, despite its clear collapse.
@@ -726,6 +741,8 @@ Model Response: "{answer}"
 \caption{System prompt template used by the LLM judge to evaluate response coherence.}
 \label{fig:judge_prompt_coherence}
 \end{figure}
+
+
 
 %Although the experiment~\ref{tab:3gram_split} showed a strong repetition in 3-grams, posing as evidence of quantization-induced collapse, we excluded this argument in our final argumentation to not dilute our main line of argumentation.
 
