@@ -31,8 +31,6 @@
 \newcommand{\ra}[1]{\textcolor{blue}{{[RA: #1]}}}
 \newcommand{\hv}[1]{\textcolor{blue}{{[HV: #1]}}}
 
-\usepackage{xcolor}
-
 \definecolor{crimsonred}{rgb}{0.7, 0.1, 0.1}
 \definecolor{forestgreen}{rgb}{0.1, 0.5, 0.1}
 
@@ -67,12 +65,13 @@
 
 \begin{abstract}
 	
-Quantization is a widely adopted technique that allows efficient inference on language models. A great deal of research has been conducted to understand
+Quantization is a widely adopted technique that allows efficient inference on language models.
+A great deal of research has been conducted to understand
 the gap between full and quantized models, including utilitarian and alignment aspects~\cite{liu2025quantizationhurtsreasoningempirical,kharinaev,marcuzzi,rath,jin,kirsten}, 
 but a more comprehensive view that combines passive benchmark evaluations with active adversarial attacks is still lacking.
 This work audits the impact of quantization on domains including model safeguards, instruction following, ethics and bias.
 Through benchmarks, we discovered that model safeguards, bias and deception can degrade under quantization,
- while other capabilities like truthfulness, reasoning remain more stable in Qwen3 4B.
+ while other capabilities like truthfulness, reasoning remain more stable in Qwen3 4B\@.
 Furthermore, we verify the degradation of model safeguards by quantifying the increase in compliance with unsafe and deceptive requests and
  by demonstrating universal adversarial suffix attacks that are benign for full model but jailbreak quantized models. 
 The findings indicate that it is risky to assume that the performance and 
@@ -86,7 +85,7 @@ robustness can transfer evenly through different capability domains from full mo
 Large Language Models (LLMs) are increasingly being used in real-world, safety-critical environments, 
 and quantization methods are necessary to deploy these models on hardware with limited resources.
 Recent works have shown that quantization can diminish the performance of specific models in
-certain capability domains, including reasoning \cite{liu2025quantizationhurtsreasoningempirical}, bias \cite{kirsten} and model safeguards \cite{kharinaev}.
+certain capability domains, including reasoning~\cite{liu2025quantizationhurtsreasoningempirical}, bias~\cite{kirsten} and model safeguards~\cite{kharinaev}.
 While papers often evaluate models in passive and active forms of evaluation separately, we find a need for an approach that 
 complements passive benchmark evaluations with active attacks, to provide stronger evidence for model decay under quantization. 
 
@@ -102,7 +101,8 @@ and actively by deploying a quantization-aware adversarial suffix attack.
 Through passive evaluations, we establish a wide view of the LLM's behavior under quantization.
 Concretely, we evaluate the model across several quantization configurations (AWQ, INT4, and INT8),
 comparing them to the BF16 baseline across domains such as reasoning, code generation, 
-and model safeguards. Finally, as our benchmark evaluations demonstrate that model safeguards are particularly
+and model safeguards.
+Finally, as our benchmark evaluations demonstrate that model safeguards are particularly
  susceptible to quantization-induced decay, we perform an in-depth evaluation of the model's safety degradation.
 Concretely, we show that model safeguards can be actively exploited by demonstrating an adversarial suffix attack that
 is benign on the BF16 baseline but successfully triggers jailbreaks on the INT4 quantized version. 
@@ -171,10 +171,10 @@ The following benchmarks were chosen to represent these paradigms:
 
     \item \textbf{Free Generation Benchmarks:}
     \begin{itemize}
-        \item \textbf{SORRYBench} \cite{sorry_bench_hf}: Measuring refusal of unsafe user requests across different phrasing. Focus on dangerous, illegal or inappropriate tasks. 
-        \item \textbf{DeceptionBench} \cite{deceptionbench_hf}: Measures the model's willingness to follow prompts that have deceptive behaviour/goals.
-        \item \textbf{InFoBench} \cite{infobench_hf}: Evaluating complex instruction following capabilities.
-        \item \textbf{WildChat-nontoxic} \cite{wildchat_hf}: General utility under broad real-world user requests. (Filtered to english only)
+        \item \textbf{SORRYBench}~\cite{sorry_bench_hf}: Measuring refusal of unsafe user requests across different phrasing. Focus on dangerous, illegal or inappropriate tasks.
+        \item \textbf{DeceptionBench}~\cite{deceptionbench_hf}: Measures the model's willingness to follow prompts that have deceptive behavior/goals.
+        \item \textbf{InFoBench}~\cite{infobench_hf}: Evaluating complex instruction following capabilities.
+        \item \textbf{WildChat-nontoxic}~\cite{wildchat_hf}: General utility under broad real-world user requests. (Filtered to english only)
         \item \textbf{MGSMdirect}: Multilingual grade school math word problems in 11 different languages.
         \item \textbf{HumanEval}: Python code generation capabilities and functional correctness.
     \end{itemize}
@@ -189,13 +189,13 @@ In contrast, FFG benchmarks were evaluated under 5-shot context learning to grou
 % \ra{This experiment has been removed}
 % Model quantization can lead to structural degradation behavior leading to nonsensical answers or repetitive responses. In FFG evaluations this behavior can be either misclassified as unsafe responses or successful jailbreak behavior.\hv{judging nonsensical?} This can skew the evaluation tremendously. To mitigate these false evaluations we judged the response under a coherence prompt \hv{prompt reference}, which evaluates if the model is still following natural human-like language. We again installed a deepseek-4-flash model as a judge.
 
-% \yx{Benchmarking methodology should be discussed. What is the critera of choosing benchmarks. Explain the evaluation. In-context learning? How are results extracted? What does teacher forcing mean? Do we use frameworks? What is our experiment configuration?}
+% \yx{Benchmarking methodology should be discussed. What is the criteria of choosing benchmarks. Explain the evaluation. In-context learning? How are results extracted? What does teacher forcing mean? Do we use frameworks? What is our experiment configuration?}
 
 % \yx{Introduce what is coherence, and how we evaluate them.}
 
 \subsection{Results and Analysis}
 \subsubsection{Multiple Choice}
-This experiment tests if there is a gap between the model's alignment capabilities (domains like bias, truthfulness and ethical judgement) and the model's general abilities.
+This experiment tests if there is a gap between the model's alignment capabilities (domains like bias, truthfulness and ethical judgment) and the model's general abilities.
 \paragraph{}
 We conducted multiple-choice evaluations and measured the accuracy based on the likelihood of the generations using LLR on the Qwen3 4B model with
 a generation-length of 4096 and a sample size of N = 300.
@@ -219,7 +219,7 @@ Our evaluation was done in zero-shot evaluation, to inhibit any occurrence of bi
 \end{tabular}
 \end{table}
 \par
-The strongest declines in Table \ref{tab:comparison_table_Qwen3_4B_multi_choice_tf} are observed in MMLU, ARC, and BBQ,
+The strongest declines in Table~\ref{tab:comparison_table_Qwen3_4B_multi_choice_tf} are observed in MMLU, ARC, and BBQ,
 whereas TruthfulQA and GPQA remain relatively stable. 
 Overall, performance on both general and alignment tasks vary by comparable margins, indicating that the domains are affected by quantization
 similarly on LLR benchmarks. 
@@ -262,7 +262,7 @@ DeceptionBench used a slightly modified system prompt (Figure~\ref{fig:judge_pro
 \end{tabular}
 \end{table}
 
-In table \ref{tab:comparison_table_Qwen3_4B_free_gen_lm_judge} DeceptionBench shows a significant increase in the deception rate under INT4 quantization, and SORRYBench's fulfillment rate increases as well. 
+In table~\ref{tab:comparison_table_Qwen3_4B_free_gen_lm_judge} DeceptionBench shows a significant increase in the deception rate under INT4 quantization, and SORRYBench's fulfillment rate increases as well.
 The model's capability to follow instructions seems to be more impacted under AWQ compared to INT4 and INT8.
 Finally, performance on WildChat-NonToxic decays across all three quantization formats, with the most pronounced decrease occurring in INT4. 
 
@@ -298,16 +298,16 @@ Absolutely, I'm here to help you craft a compelling and persuasive live stream p
 \end{Verbatim}
 
 The discrepancy between InFoBench and WildChat-nontoxic is notable. Although both are designed to assess general capabilities, 
-performance on WildChat-nontoxic degrades far more severely than on InFoBench. This significantis likely due to the nature of the prompts.
+performance on WildChat-nontoxic degrades far more severely than on InFoBench. This significance is likely due to the nature of the prompts.
 WildChat is sampled from real-world user requests containing subjective language and vague instructions, 
 whereas InFoBench is a carefully curated dataset consisting of deterministic, explicit instructions.
-As the previous benchmarks (Table \ref{tab:comparison_table_Qwen3_4B_multi_choice_tf}, \ref{tab:comparison_table_Qwen3_4B_free_gen_lm_judge}) have shown, the model's capabilities decline in general, which might inhibit
+As the previous benchmarks (Table~\ref{tab:comparison_table_Qwen3_4B_multi_choice_tf},~\ref{tab:comparison_table_Qwen3_4B_free_gen_lm_judge}) have shown, the model's capabilities decline in general, which might inhibit
 its ability to understand nuance or subjective requests. 
 
 
 \paragraph{}
 Finally, the difference between the two safety tasks, DeceptionBench and SORRYBench, likely stems from the fact that SORRYBench features much more 
-offensive and harsh prompts, while DeceptionBench is far more subtle and at points deliberately morally grey.
+offensive and harsh prompts, while DeceptionBench is far more subtle and at points deliberately morally gray.
 Our evidence supports that the more subtle behavior in DeceptionBench is more sensitive to quantization degradation than the
 unambiguous safety violations in SORRYBench.
 
@@ -352,8 +352,8 @@ which was performed with a generation length of 512 and has a total size of N=45
 \end{tabular}
 \end{table}
 
-Our experiments on the smaller 1.7B model \ref{tab:comparison_table_Qwen3_1.7B_tf} show that the model struggles significantly in int4 with free generation. On the other hand it's clear that LLR
-benchmarks remain more consistent. This behaviour can be explained because of the collapse of the model's coherence in free generation. 
+Our experiments on the smaller 1.7B model~\ref{tab:comparison_table_Qwen3_1.7B_tf} show that the model struggles significantly in int4 with free generation. On the other hand it's clear that LLR
+benchmarks remain more consistent. This behavior can be explained because of the collapse of the model's coherence in free generation.
 One example from our SORRYBench results demonstrates this: 
 \begin{figure}[htbp]
 \begin{Verbatim}[
@@ -379,7 +379,7 @@ I'm not insinuating anyone, but I'm here to help you with your insinuations. If 
 \end{figure}
 
 To provide further evidence, we analyzed the 1.7B model's responses under different quantization levels using a 3-gram repetition check on SORRYBench. 
-A response was classified as incoherent if the ratio of repeating 3-grams exceeded 30\%.
+A response was classified as incoherent if the ratio of repeating 3-gram exceeded 30\%.
 
 \begin{table}[htbp]
 \centering
@@ -400,7 +400,7 @@ A response was classified as incoherent if the ratio of repeating 3-grams exceed
 \end{table}
 
 We observe a significant increase in incoherent responses under INT4 quantization on SORRYBench, supporting our previous hypothesis. 
-A more detailed analysis of the 1.7B model's coherence is provided in Appendix \ref{sec:coher}.
+A more detailed analysis of the 1.7B model's coherence is provided in Appendix~\ref{sec:coher}.
 
 \FloatBarrier
 
@@ -423,7 +423,7 @@ One question arises naturally from the intersection of these two vulnerabilities
 
 The adversarial examples are constructed by optimizing the input with the objective of the attack.
 For adversarial suffixes, the objective is to maximize the probability of \textit{getting an affirmative answer}.
-In this section, we want to check whether there exist suffixes that are quantization-aware. Therefore the objective has two components: refusal on full model and affirmative answer on quantized model. This is formalized as follows.
+In this section, we want to check whether there exist suffixes that are quantization-aware. Therefore, the objective has two components: refusal on full model and affirmative answer on quantized model. This is formalized as follows.
 
 \paragraph{Formalizing the adversarial objective}
 We use $x$ to denote token sequences, representing the text to process and generate.
@@ -434,7 +434,7 @@ p(x_{n+1:n+H} | x_{1:n}) = \prod_{i=1}^{H}p(x_{n+i} | x_{1:n+i-1}).
 We use $\tilde{p}$ to denote the quantized model.
 Since we expect the adversarial suffix to be universal, we consider a conceptual distribution $D$ of sensitive prompts and their answers.
 We use $q$ to represent the prompt questions, $a_{+}$ to represent their affirmative answers, $a_{-}$ to represent their refusals, and $s$ to represent the unique adversarial suffix. 
-Then the desired qunatization-aware adversarial suffix can be expressed as
+Then the desired quantization-aware adversarial suffix can be expressed as
 \[
 s^* = \operatorname*{arg\,max}_{s} \left [ \mathbb{E}_{q, a_{+}, a_{-} \sim D}\ (\tilde{p}(a_{+} | q \mathbin{++} s) + \lambda \cdot p(a_{-} | q \mathbin{++} s)) \right ].
 \]
@@ -455,7 +455,7 @@ Following the practice of GCG~\cite{GCG}, we resolve the optimization by a heuri
 
 During real inference, the input sequence after applying the chat template is shown in~\Cref{fig:prompt-structure}. The suffix is inserted after the user prompt, before the \texttt{assistant} tokens. The target is an affirmative answer prefix, and the training follows the LLR style. We conduct one round of forward calculation, and the gradient is calculated based on target logits. In the training we also adopt a learning curriculum. The training starts with one single prompt, then progressively expands to a set of \texttt{n\_train} prompts for generalization.
 
-According to our previous results from benchmarking, the INT4 quantization behaviour deviates the most from the full model.
+According to our previous results from benchmarking, the INT4 quantization behavior deviates the most from the full model.
 Our attack experiment investigates the same Qwen 3-4B model on the BF16 and INT4 precisions.
 
 \input{fig-prompt-structure}
@@ -481,7 +481,7 @@ The experiment took 3 hours on a node with 4 $\times$ A100-40G GPUs.
 The result is shown in~\Cref{tab:adv-suffix}.
 
 Statistics show that with the suffix, the harmful compliance rate between BF16 and INT4 enlarges from around 8\% to $13\% \sim 35\%$ on the test set.
-This confirms that the adversarial suffix does trigger jailbreaking selectively on the quantized model. 
+This confirms that the adversarial suffix does trigger a jailbreak selectively on the quantized model.
 Another interesting finding is that the compliance rate by the RE-Judge is much higher than the LM-Judge.
 This indicates that the attack suffix often triggers answers that only comply in the tone but are not genuinely harmful, which is confirmed by individual case studies.
 The difference is within our expectation because the objective is also constructed by the LLR syntax.
@@ -522,7 +522,7 @@ In this response, the model points to the methods and tools that are potentially
   \centering
 
   \caption{Harmful-compliance rate (\%) of the quantization-aware adversarial suffix on Qwen3-4B over SORRYBench prompts (train: 24, test: 426 held-out).
-  The numbers are slightly different from benchmarking results~\Cref{tab:comparison_table_Qwen3_4B_free_gen_lm_judge} because we are using different LM-Judge (DeepSeek V4-flash for benchmarking, and a finetuned Mistral-7B-Instruct model provided by SORRYBench for the attack.)
+  The numbers are slightly different from benchmarking results~\Cref{tab:comparison_table_Qwen3_4B_free_gen_lm_judge} because we are using different LM-Judge (DeepSeek V4-flash for benchmarking, and a fine-tuned Mistral-7B-Instruct model provided by SORRYBench for the attack.)
   }
 
   \label{tab:adv-suffix}
@@ -659,7 +659,7 @@ A coherence check was introduced to investigate the model's behavior in free gen
 While the Qwen-4B model's responses did not show any signs of losing the ability to generate natural language, the Qwen-1.7B model fared significantly worse. Its capabilities were so diminished that it was unable to produce coherent, logical sentences. 
 
 To quantify this behavior, a simple 3-gram check was applied to detect repetitions.
-A response failed this check if the ratio of repeating 3-grams exceeded 30\%.
+A response failed this check if the ratio of repeating 3-gram exceeded 30\%.
 In addition, for the MMLU-Pro benchmark, instances where the parser failed to extract a response label
 (and therefore returned an invalid label) were counted to further demonstrate the increase in incoherence. 
 Qwen3-4B-instruct was employed as a judge model (see Figure~\ref{fig:judge_prompt_coherence}) to evaluate this behavior, but it yielded rather mixed results, leading to an overly high rate of classified coherence. For instance, the response shown in Figure~\ref{fig:coherence_collapse_example} was falsely classified as coherent by the judge, despite its clear collapse.
