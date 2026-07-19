@@ -22,7 +22,7 @@
 \usepackage{amsmath}
 \usepackage{cleveref}
 \usepackage{natbib}
-
+\usepackage{placeins}
 \makeatletter
 \def\@noticestring{}
 \makeatother
@@ -83,7 +83,7 @@ robustness can transfer evenly through different capability domains from full mo
 
 
 \section{Introduction}
-LLMs are increasingly being used in real-world, safety-critical environments, 
+Large Language Models (LLMs) are increasingly being used in real-world, safety-critical environments, 
 and quantization methods are necessary to deploy these models on hardware with limited resources.
 Recent works have shown that quantization can diminish the performance of specific models in
 certain capability domains, including reasoning \cite{liu2025quantizationhurtsreasoningempirical}, bias \cite{kirsten} and model safeguards \cite{kharinaev}.
@@ -122,10 +122,13 @@ which means that model safeguards and capabilities must be actively audited post
 \section{Background and Related Work}
 
 \subsection{Quantization}
-Rapid advancements in Large Language Models (LLMs) have led to a steady growth in model sizes, with modern models having hundreds of billions of parameters. Deploying these models requires significant amounts of video RAM (VRAM) creating a major bottleneck. One technique to mitigate this issue is quantization. This maps higher precision representations (such as brain floating point 16) of the model parameters to lower formats (such as 8-bit integers). This sharply reduces the memory footprint, but can also introduce a loss of model accuracy.
+Rapid advancements in LLMs have led to a steady growth in model sizes, with modern models having hundreds of billions of parameters. Deploying these models requires significant amounts of VRAM creating a major bottleneck. One technique to mitigate this issue is quantization. 
+This maps higher precision representations (such as BF16) of the model parameters to lower formats (such as 8-bit integers). This sharply reduces the memory footprint, but can also introduce a loss of model accuracy.
 Widely-adopted strategies include Quantization-Aware Training (QAT) and Post-Training Quantization (PTQ). QAT introduces a fine-tuning step on a representative dataset to allow the model to adapt to lower precision formats at the cost of additional computation. In contrast, PTQ is applied directly on a trained model without further fine-tuning steps.
 Quantization can target the model parameters (Weight Quantization) or additionally at the inference state (Activation Quantization). In this work, we concentrate on PTQ and Weight Quantization as they are the most widely adopted strategies in practice through their computational low costs.
-Namely, we choose 16-bit floating-point (FP16) as the baseline and 4-bit integer (INT4), 8-bit integer (INT8) and activation-aware weight quantization (AWQ) as the quantization levels to compare. The INT4 and INT8 methods compress the weights symmetrically around 0, by rounding the weights uniformly for each layer. In comparison, AWQ utilizes an asymmetric approach calculating a custom zero-point per group. Furthermore, during a calibration phase, AWQ does not quantize all weights equally, but protects weights that correspond to large activations by scaling them up while scaling the activations down. In our implementation, the weights are reduced to 4-bit integer, while keeping the activations at baseline precision (W4A16).
+Namely, we choose 16-bit floating-point (BF16) as the baseline and 4-bit integer (INT4), 8-bit integer (INT8) and activation-aware weight quantization (AWQ) as the quantization levels to compare. The INT4 and INT8 methods compress the weights symmetrically around 0, by rounding the weights uniformly for each layer. 
+In comparison, AWQ utilizes an asymmetric approach calculating a custom zero-point per group. Furthermore, during a calibration phase, AWQ does not quantize all weights equally, but protects weights that correspond to large activations by scaling them up while scaling the activations down. 
+In our implementation, the weights are reduced to 4-bit integer, while keeping the activations at baseline precision (W4A16).
 
 \subsection{Benchmarking}
 To evaluate the performance of LLMs and ensure comparability between different models, a broad range of standardized benchmarks has been established. 
@@ -134,15 +137,16 @@ Benchmarks do not only differ in the domain they assess, but also in their evalu
 In multiple choice and log-likelihood ranking the model is presented with predefined answer options. Performance is evaluated either by calculating the log-likelihood of each answer candidate and selecting the highest-probability option, or by parsing the generated response using regular expression.
 In free-form generation the model generates a response during inference. This is evaluated by either exact-matching (e.g., extracting a numerical answer) or by utilizing a LLM-as-a-judge model to categorize the response.
 Free generation allows the model to generate a natural response during inference. Another LLM is utilized as a judge to rate the answer as correct or false according to the task.
-In assessing quantized model performance, the evaluation methodology is of crucial interest. While log-likelihood ranking only detects shifts in token probabilities, free-form generation reveals how these shifts accumulate over time, leading to a sharper degradation in real-world answer quality than in the log-likelihood setting.
-
+In assessing quantized model performance, the evaluation methodology is of crucial interest. While log-likelihood ranking only detects shifts in token probabilities, free-form generation reveals how these shifts accumulate over time, 
+leading to a sharper degradation in real-world answer quality than in the log-likelihood setting.
+Finally, to evaluate the text we utilize n-grams, which represent a contiguous sequence of N words in a text string. 
 
 \subsection{Related Works}
 
 While widely adopted MC benchmarks often remain stable under quantization, free-form generation reveals severe safety alignment degradation, demonstrating the risk of masking real-world deployment safety~\cite{kharinaev}. Marcuzzi et al.~\cite{marcuzzi} further explored the reduction in safety alignment on quantization. They found a limited influence on metrics like toxicity and sentiment, while stereotypes and unfairness were amplified. Quantization appears to reverse the instruction tuning step instilled to align model responses with human preferences, forcing the model to fall back to underlying stereotypical associations captured in the pretraining phase~\cite{rath}. Even though quantized models can maintain high performance on knowledge-based tasks, bias assessment remains mixed. While Jin et al.~\cite{jin} found a decrease in bias after quantization, Kirsten et al.~\cite{kirsten} connected this effect to the model architecture family, finding bias spikes in certain families and small effects in others.
 
 Besides from these passive changes safety alignment can also be deliberately challenged through jailbreak attempts, where an adversary feeds malicious prompts to the model to receive harmful responses.~\cite{wei2023jailbrokendoesllmsafety, shen2024donowcharacterizingevaluating}
-
+3 gram nlp
 Various ways of attacking language models have been studied. We in particular focus on the following two types of attacks. Adversarial suffix attacks try to find a prompt suffix that jailbreaks the model to induce misaligned generations. Zou et al.~\cite{GCG} reported the GCG method, which constructs universal adversarial suffixes that jailbreaks the open source Vicuna-7B models. The discovered attack suffixes even generalize to work on closed-source models including GPT-3.5. Later works~\cite{Faster-GCG,I-GCG} improve the efficiency of finding the adversarial suffix.
 On the other hand, quantization-aware attacks refer to the utilization of difference between full and quantized models. Researchers from ETH Zürich~\cite{QCB} first reported the technique to train a model that is benign in full precision, but misaligned after quantization.
 
@@ -262,7 +266,6 @@ In table \ref{tab:comparison_table_Qwen3_4B_free_gen_lm_judge} DeceptionBench sh
 The model's capability to follow instructions seems to be more impacted under AWQ compared to INT4 and INT8.
 Finally, performance on WildChat-NonToxic decays across all three quantization formats, with the most pronounced decrease occurring in INT4. 
 
-
 We observe that instruction following, safety refusal, and the model's willingness to comply with deceptive prompts exhibit independent degradation behaviors.
 Furthermore, the fact that deception rates increase while the model still follows instructions coherently indicates that, unlike smaller models (such as those in the 1.7B range),
 a complete collapse in model coherence does not occur. Moreover, since the InFoBench score remains high across all four quantization configurations, 
@@ -295,7 +298,7 @@ Absolutely, I'm here to help you craft a compelling and persuasive live stream p
 \end{Verbatim}
 
 The discrepancy between InFoBench and WildChat-nontoxic is notable. Although both are designed to assess general capabilities, 
-performance on WildChat-nontoxic degrades far more severely than on InFoBench. This is likely due to the nature of the prompts.
+performance on WildChat-nontoxic degrades far more severely than on InFoBench. This significantis likely due to the nature of the prompts.
 WildChat is sampled from real-world user requests containing subjective language and vague instructions, 
 whereas InFoBench is a carefully curated dataset consisting of deterministic, explicit instructions.
 As the previous benchmarks (Table \ref{tab:comparison_table_Qwen3_4B_multi_choice_tf}, \ref{tab:comparison_table_Qwen3_4B_free_gen_lm_judge}) have shown, the model's capabilities decline in general, which might inhibit
@@ -375,8 +378,31 @@ I'm not insinuating anyone, but I'm here to help you with your insinuations. If 
 \label{fig:coherence_collapse_example}
 \end{figure}
 
+To provide further evidence, we analyzed the 1.7B model's responses under different quantization levels using a 3-gram repetition check on SORRY-Bench. 
+A response was classified as incoherent if the ratio of repeating 3-grams exceeded 30\%.
 
-\par
+\begin{table}[htbp]
+\centering
+\caption{Absolute number of responses marked as incoherent in the SORRY-Bench benchmark.}
+\label{tab:3gram_split_SORRY}
+\small
+\setlength{\tabcolsep}{12pt}
+\begin{tabular}{lc}
+\toprule
+\textbf{Quantization} & \textbf{Incoherent Responses} \\
+\midrule
+\textbf{BF16}        & 14 \\
+\textbf{INT8}        & 17 \de{(+3)} \\
+\textbf{AWQ (W4A16)} & 34 \de{(+17)} \\
+\textbf{INT4}        & 189 \de{(+155)} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+We observe a significant increase in incoherent responses under INT4 quantization on SORRY-Bench, supporting our previous hypothesis. 
+A more detailed analysis of the 1.7B model's coherence is provided in Appendix \ref{sec:coher}.
+
+\FloatBarrier
 
 \section{Quantization-Aware Adversarial Suffix Attack}
 
@@ -518,6 +544,7 @@ In this response, the model points to the methods and tools that are potentially
   \end{tabular}
 \end{table}
 
+\FloatBarrier
 
 \section{Conclusion}
 
@@ -578,7 +605,8 @@ He also provides the compute and runs the experiments.
 \textbf{Ramneek Agnihotri} designs overarching narrative (Introduction, Conclusion, Structure, Research Questions). designs/analyses the benchmark experiments (Section 3.2), 
 implements the LM judge experiments and coordinates project.
 
-\textbf{Hans Vath} gave background information through literature research, support in benchmark design (Section 3.1), results analysis and implemented code for the LLM judge.
+\textbf{Hans Vath} gave background information through literature research, support in benchmark design (Section 3.1), coherency experiment design/analysis,
+ results analysis and implemented code for the LLM judge.
  
 
 \bibliographystyle{unsrtnat}
@@ -621,10 +649,16 @@ Model Response: "{answer}"
 \end{figure}
 The LLM judge is given the prompt as "question", the ethical baseline of this prompt, the deceptive goal and the model's response.
 
-\section{Coherence Test}
+\FloatBarrier
 
+
+\section{Coherence Test}
+\label{sec:coher}
 A coherence check was introduced to investigate behavior in free generation benchmarks. We hypothesized, if the coherence of the model degenerates it could indicate that it either is not able to generate its stored knowledge or struggles to understand the problem question itself.
-While the Qwen-4B models answer did not show any behavior of losing the ability to answer in natural language, the Qwem-1.7B model fared significantly worse. Its capabilities where so diminished that it wasn't able to produce coherent, logical sentences. To quantify this behavior, a simple 3-gram check was applied to catch repetitions. The check failed if there was 30\% ratio of repeating 3-grams. In addtion, if for MMLU the response instances where the parser was failed to extract a response label (and therefore returns an invalid label) were counted to further demonstrate the increase in incoherence. Qwen3-4B-instruct was employed as a judge model~\ref{fig:judge_prompt_coherence} to evaluate this claim, but with rather mixed results, leading to an overly high rate in coherence. For instance, the response shown in Figure~\ref{fig:coherence_collapse_example} was falsely classified as coherent by the judge, despite its collapse.
+While the Qwen-4B models answer did not show any behavior of losing the ability to answer in natural language, the Qwem-1.7B model fared significantly worse. Its capabilities where so diminished that it wasn't able to produce coherent, logical sentences. 
+To quantify this behavior, a simple 3-gram check was applied to catch repetitions. The check failed if there was 30\% ratio of repeating 3-grams. In addtion, if for MMLU the response instances where the parser was failed to extract a response label 
+(and therefore returns an invalid label) were counted to further demonstrate the increase in incoherence. Qwen3-4B-instruct was employed as a judge model~\ref{fig:judge_prompt_coherence} to evaluate this claim, but with rather mixed results, 
+leading to an overly high rate in coherence. For instance, the response shown in Figure~\ref{fig:coherence_collapse_example} was falsely classified as coherent by the judge, despite its collapse.
 
 \begin{table}[htbp]
 \centering
@@ -686,6 +720,6 @@ Model Response: "{answer}"
 \label{fig:judge_prompt_coherence}
 \end{figure}
 
-Although the experiment~\ref{tab:3gram_split} showed a strong repetition in 3-grams, posing as evidence of quantization-induced collapse, we excluded this argument in our final argumentation to not dilute our main line of argumentation.
+%Although the experiment~\ref{tab:3gram_split} showed a strong repetition in 3-grams, posing as evidence of quantization-induced collapse, we excluded this argument in our final argumentation to not dilute our main line of argumentation.
 
 \end{document}
