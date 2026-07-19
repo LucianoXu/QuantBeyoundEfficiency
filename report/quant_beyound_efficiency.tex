@@ -64,9 +64,9 @@
 
 \begin{abstract}
 	
-Quantization is a widely adopted technique that allows efficient inference on language models.
+Quantization is a widely adopted technique that allows efficient inference in language models.
 A great deal of research has been conducted to understand
-the gap between full and quantized models, including utilitarian and alignment aspects~\cite{liu2025quantizationhurtsreasoningempirical,kharinaev,marcuzzi,rath,jin,kirsten}, 
+the gap between full and quantized models, including utilitarian and alignment aspects~\cite{liu2025quantizationhurtsreasoningempirical,kirsten,kharinaev,marcuzzi,rath,jin}, 
 but a more comprehensive view that combines passive benchmark evaluations with active adversarial attacks is still lacking.
 This work audits the impact of quantization on domains including model safeguards, instruction following, ethics and bias.
 Through benchmarks, we discovered that various model capabilities including model safeguards and bias can degrade under quantization,
@@ -85,8 +85,8 @@ Large Language Models (LLMs) are increasingly being used in real-world, safety-c
 and quantization methods are necessary to deploy these models on hardware with limited resources.
 Recent works have shown that quantization can diminish the performance of specific models in
 certain capability domains, including reasoning~\cite{liu2025quantizationhurtsreasoningempirical}, bias~\cite{kirsten} and model safeguards~\cite{kharinaev}.
-While papers often evaluate models in passive and active forms of evaluation separately, we find a need for an approach that 
-complements passive benchmark evaluations with active attacks, to provide stronger evidence for model decay under quantization. 
+While prior works often evaluate models in passive and active forms of evaluation separately, we find a need for an approach that 
+complements passive benchmark evaluations with active attacks to provide stronger evidence for model decay under quantization. 
 
 We address the following research questions:  
 \begin{itemize}
@@ -103,52 +103,59 @@ comparing them to the BF16 baseline across domains such as reasoning, code gener
 and model safeguards.
 Finally, as our benchmark evaluations demonstrate that model safeguards are particularly
  susceptible to quantization-induced decay, we perform an in-depth evaluation of the model's safety degradation.
-Concretely, we show that model safeguards can be actively exploited by demonstrating an adversarial suffix attack that
+Specifically, we show that model safeguards can be actively exploited by demonstrating an adversarial suffix attack that
 is benign on the BF16 baseline but successfully triggers jailbreaks on the INT4 quantized version. 
  \par
 
 Our key findings are the following:
 \begin{itemize}
 	\item Not all model capabilities transfer evenly with quantization. In particular, we observe that performance decreases in critical safety domains such as instruction following, safety refusal, and deception.
-	\item We find factors for benchmark degradation such as the evaluation method and model coherence decay. 
-	\item While multiple-choice benchmarks with log-likelihood ranking stay stable, free-generation capabilities can significantly decay, as seen in the Qwen-3 1.7B model under INT4.
+	\item We identify factors for benchmark degradation such as the evaluation method and model coherence decay. 
+	\item While multiple-choice benchmarks with log-likelihood ranking remain stable, free-generation capabilities can significantly decay, as seen in the Qwen-3 1.7B model under INT4.
 	\item We identify adversarial suffix attacks that are benign for BF16 models, but successfully jailbreak the INT4 model. 
 \end{itemize}
 
 In conclusion, our findings suggest that models cannot be assumed to have the same safeguards or capabilities when quantized, 
-which means that model safeguards and capabilities must be actively audited post-quantization before deployment, especially in safety-critical domains.
+implying that model safeguards and capabilities must be actively audited post-quantization before deployment, especially in safety-critical domains.
 
 \section{Background and Related Work}
 
 \subsection{Quantization}
-Rapid advancements in LLMs have led to a steady growth in model sizes, with modern models having hundreds of billions of parameters. Deploying these models requires significant amounts of VRAM creating a major bottleneck. One technique to mitigate this issue is quantization. 
+Rapid advancements in LLMs have led to a steady growth in model sizes, with modern models having hundreds of billions of parameters. Deploying these models requires significant amounts of VRAM, creating a major bottleneck. One technique to mitigate this issue is quantization. 
 This maps higher precision representations (such as BF16) of the model parameters to lower formats (such as 8-bit integers). This sharply reduces the memory footprint, but can also introduce a loss of model accuracy.
 %Widely-adopted strategies include Quantization-Aware Training (QAT) and Post-Training Quantization (PTQ). 
 %QAT introduces a fine-tuning step on a representative dataset to allow the model to adapt to lower precision formats at the cost of additional computation.
-We utilize Post-Training Quantization (PTQ), which directly applies quantization on a pre-trained model, unlike Quantization-Aware Training (QAT) which requires a computionally expensive fine-tuning step.
-\hv{improved wording}
-Quantization can target the model parameters (Weight Quantization) or additionally at the inference state (Activation Quantization). In this work, we concentrate on PTQ and Weight Quantization as they are the most widely adopted strategies in practice through their computational low costs.
+We utilize Post-Training Quantization (PTQ), which directly applies quantization on a pre-trained model, unlike Quantization-Aware Training (QAT) which requires a computationally expensive fine-tuning step.
+Quantization can target the model parameters (Weight Quantization) or additionally the activations during inference (Activation Quantization). In this work, we concentrate on PTQ and Weight Quantization as they are the most widely adopted strategies in practice due to their low computational costs.
 Namely, we choose 16-bit floating-point (BF16) as the baseline and 4-bit integer (INT4), 8-bit integer (INT8) and activation-aware weight quantization (AWQ) as the quantization levels to compare. The INT4 and INT8 methods compress the weights symmetrically around 0, by rounding the weights uniformly for each layer. 
 In comparison, AWQ utilizes an asymmetric approach calculating a custom zero-point per group. Furthermore, during a calibration phase, AWQ does not quantize all weights equally, but protects weights that correspond to large activations by scaling them up while scaling the activations down. 
-In our implementation, the weights are reduced to 4-bit integer, while keeping the activations at baseline precision (W4A16).~\cite{lin2026awqactivationawareweightquantization} \hv{cited}
+In our implementation, the weights are reduced to 4-bit integer, while keeping the activations at baseline precision (W4A16)~\cite{lin2026awqactivationawareweightquantization}.
 
 \subsection{Benchmarking}
 To evaluate the performance of LLMs and ensure comparability between different models, a broad range of standardized benchmarks has been established. 
 These benchmarks assess their performance across a diverse range of domains, including mathematical reasoning, general knowledge, bias and robustness against jailbreak attempts. This is a non-trivial evaluation task, as it is not clear if the benchmark answers were contained in the training data.
-Benchmarks do not only differ in the domain they assess, but also in their evaluation protocol.
+Benchmarks differ not only in the domain they assess, but also in their evaluation protocol.
 In multiple choice and log-likelihood ranking the model is presented with predefined answer options. Performance is evaluated either by calculating the log-likelihood of each answer candidate and selecting the highest-probability option, or by parsing the generated response using regular expression.
-In free-form generation the model generates a response during inference. This is evaluated by either exact-matching (e.g., extracting a numerical answer) or by utilizing a LLM-as-a-judge model to categorize the response.
-Free generation allows the model to generate a natural response during inference. Another LLM is utilized as a judge to rate the answer as correct or false according to the task.
+In free-form generation the model generates a response during inference. This is evaluated by either exact-matching (e.g., extracting a numerical answer) or by utilizing an LLM-as-a-judge model to categorize the response.
 In assessing quantized model performance, the evaluation methodology is of crucial interest. While log-likelihood ranking only detects shifts in token probabilities, free-form generation reveals how these shifts accumulate over time, 
 leading to a sharper degradation in real-world answer quality than in the log-likelihood setting.
 Finally, we analyze structural degradation and repetition within the generated text by evaluating n-grams, which represent a contiguous sequence of N words in a text string. 
 
 \subsection{Related Works}
 
-While widely adopted MC benchmarks often remain stable under quantization, free-form generation reveals severe safety alignment degradation, demonstrating the risk of masking real-world deployment safety~\cite{kharinaev}. Marcuzzi et al.~\cite{marcuzzi} further explored the reduction in safety alignment on quantization. They found a limited influence on metrics like toxicity and sentiment, while stereotypes and unfairness were amplified. Quantization appears to reverse the instruction tuning step instilled to align model responses with human preferences, forcing the model to fall back to underlying stereotypical associations captured in the pretraining phase~\cite{rath}. Even though quantized models can maintain high performance on knowledge-based tasks, bias assessment remains mixed. While Jin et al.~\cite{jin} found a decrease in bias after quantization, Kirsten et al.~\cite{kirsten} connected this effect to the model architecture family, finding bias spikes in certain families and small effects in others.
+While widely adopted MC benchmarks often remain stable under quantization, free-form generation reveals severe safety alignment degradation, 
+demonstrating the risk of masking real-world deployment safety~\cite{kharinaev}. Marcuzzi et al.~\cite{marcuzzi} further explored the reduction 
+in safety alignment due to quantization. They found a limited influence on metrics like toxicity and sentiment, while stereotypes and unfairness were
+ amplified. Quantization appears to reverse the instruction tuning step instilled to align model responses with human preferences,
+  forcing the model to fall back to underlying stereotypical associations captured in the pretraining phase~\cite{rath}.
+   Even though quantized models can maintain high performance on knowledge-based tasks, bias assessment remains mixed. 
+   While Jin et al.~\cite{jin} found a decrease in bias after quantization, Kirsten et al.~\cite{kirsten} connected this effect to 
+   the model architecture family, finding bias spikes in certain families and small effects in others.
 
 Besides from these passive changes safety alignment can also be deliberately challenged through jailbreak attempts, where an adversary feeds malicious prompts to the model to receive harmful responses.~\cite{wei2023jailbrokendoesllmsafety, shen2024donowcharacterizingevaluating}
-Various ways of attacking language models have been studied. We in particular focus on the following two types of attacks. Adversarial suffix attacks try to find a prompt suffix that jailbreaks the model to induce misaligned generations. Zou et al.~\cite{GCG} reported the GCG method, which constructs universal adversarial suffixes that jailbreaks the open source Vicuna-7B models. The discovered attack suffixes even generalize to work on closed-source models including GPT-3.5. Later works~\cite{Faster-GCG,I-GCG} improve the efficiency of finding the adversarial suffix.
+Various ways of attacking language models have been studied. We in particular focus on the following two types of attacks. Adversarial suffix attacks try to find a prompt suffix that jailbreaks the model to induce misaligned generations. Zou et al.~\cite{GCG} reported the GCG method,
+ which constructs universal adversarial suffixes that jailbreaks the open source Vicuna-7B models. The discovered attack suffixes even generalize to work on closed-source models including GPT-3.5. 
+Later works~\cite{Faster-GCG,I-GCG} improve the efficiency of finding the adversarial suffix.
 Furthermore, quantization-aware attacks have been explored, which exploit the difference between full and quantized models. Researchers from ETH Zürich~\cite{QCB} first reported the technique to train a model that is benign in full precision, but misaligned after quantization.
 
 \section{Benchmarks}
@@ -175,13 +182,13 @@ The following benchmarks were chosen to represent these paradigms:
         \item \textbf{SORRYBench}~\cite{sorry_bench_hf}: Measuring refusal of unsafe user requests across different phrasing. Focus on dangerous, illegal or inappropriate tasks.
         \item \textbf{DeceptionBench}~\cite{deceptionbench_hf}: Measures the model's willingness to follow prompts that have deceptive behavior/goals.
         \item \textbf{InFoBench}~\cite{infobench_hf}: Evaluating complex instruction following capabilities.
-        \item \textbf{WildChat-nontoxic}~\cite{wildchat_hf}: General utility under broad real-world user requests. (Filtered to english only)
+        \item \textbf{WildChat-nontoxic}~\cite{wildchat_hf}: General utility under broad real-world user requests. (Filtered to English only)
         \item \textbf{MGSMdirect}: Multilingual grade school math word problems in 11 different languages.
         \item \textbf{HumanEval}: Python code generation capabilities and functional correctness.
     \end{itemize}
 \end{itemize}
 
-LLR evaluations were executed utilizing the lm-evaluation-harness framework~\cite{eval-harness}. For the benchmarks SORRYBench, DeceptionBench, InFoBench and Wildchat-nontoxic we implemented custom evaluation pipelines with a deepseek-4-flash model acting as a judge.
+LLR evaluations were executed utilizing the lm-evaluation-harness framework~\cite{eval-harness}. For the benchmarks SORRYBench, DeceptionBench, InFoBench and Wildchat-nontoxic we implemented custom evaluation pipelines with a Deepseek-4-flash model acting as a judge.
 
 % \ra{This experiment has been removed}
 % Model quantization can lead to structural degradation behavior leading to nonsensical answers or repetitive responses. In FFG evaluations this behavior can be either misclassified as unsafe responses or successful jailbreak behavior.\hv{judging nonsensical?} This can skew the evaluation tremendously. To mitigate these false evaluations we judged the response under a coherence prompt \hv{prompt reference}, which evaluates if the model is still following natural human-like language. We again installed a deepseek-4-flash model as a judge.
@@ -191,13 +198,12 @@ LLR evaluations were executed utilizing the lm-evaluation-harness framework~\cit
 % \yx{Introduce what is coherence, and how we evaluate them.}
 
 \subsection{Experiments}
-All experiments were conducted on an NVIDIA A100 GPU. 
+All benchmark experiments were conducted on an NVIDIA A100 GPU and a generation length of 4096. 
 
 \subsubsection{Multiple Choice}
 This experiment tests if there is a gap between the model's alignment capabilities (domains like bias, truthfulness and ethical judgment) and the model's general abilities.
 \paragraph{}
-We conducted multiple-choice evaluations and measured the accuracy based on the likelihood of the generations using LLR on the Qwen3 4B model with
-a generation-length of 4096 and a sample size of N = 300.
+We conducted multiple-choice evaluations and measured the accuracy based on the likelihood of the generations using LLR on the Qwen3 4B model with a sample size of N = 300.
 Our evaluation was done in zero-shot evaluation, to inhibit any occurrence of bias or steering through the context window.
 \begin{table}[ht!]
 \centering
@@ -232,9 +238,9 @@ For our second benchmark, we compared the model's instruction-following ability 
 We selected deception and safety refusal as the two evaluation domains to measure these safeguards.
 We compared them against InFoBench, which measures instruction following, and WildChat-NonToxic, which contains general, non-toxic prompts from real users. 
 \paragraph{}
-We evaluated the models using a 5-shot configuration with a maximum generation length of 4,096 tokens, as we found this setup yielded more coherent responses than a zero-shot setting.
-The responses were labeled with DeepSeek-V4-Flash as the LLM judge across all four benchmarks. 
-WildChat, SORRYBench, and InFoBench used the same evaluation system prompt (Figure~\ref{fig:judge_prompt}),
+We evaluated the models using a 5-shot configuration, as we found this setup yielded more coherent responses than a zero-shot setting.
+The responses were labeled by DeepSeek-V4-Flash as the LLM judge across all four benchmarks and the sample size is N = 300.  
+Moreover, WildChat, SORRYBench, and InFoBench used the same evaluation system prompt (Figure~\ref{fig:judge_prompt}),
 which was adapted from the system prompt of the SORRYBench LLM judge.
 DeceptionBench used a slightly modified system prompt (Figure~\ref{fig:judge_prompt_deception}).
 
@@ -268,7 +274,7 @@ We observe that instruction following, safety refusal, and the model's willingne
 Furthermore, the fact that deception rates increase while the model still follows instructions coherently indicates that, unlike the smaller 1.7b model (Section \ref{sec:experiment 1.7b}),
 a complete collapse in model coherence does not occur at INT4. Moreover, since the InFoBench score remains high across all four quantization configurations, 
 it shows that the model is still able to follow instructions reliably in most standard cases. On the other hand, particularly in INT4,
-the model shows a clear willingness to perform deceptive or unsafe tasks that it refused to execute in its unquantized BF16 state.
+the model shows a clear willingness to perform deceptive or unsafe tasks that it refused to execute in its baseline BF16 state.
 
 For example: 
 
@@ -309,13 +315,13 @@ its ability to understand nuance or subjective requests.
 \paragraph{}
 Finally, the difference between the two safety tasks, DeceptionBench and SORRYBench, likely stems from the fact that SORRYBench features much more 
 offensive and harsh prompts, while DeceptionBench is far more subtle and at points deliberately morally gray.
-Our evidence supports that the more subtle behavior in DeceptionBench is more sensitive to quantization degradation than the
+Our findings indicate that the more subtle behavior in DeceptionBench is more sensitive to quantization degradation than the
 unambiguous safety violations in SORRYBench.
 
 \subsubsection{1.7B Experiment}
 \label{sec:experiment 1.7b}
 This experiment aims to test how quantization behaves on small models. Furthermore, we conduct two different types of benchmarks, LLR and FFG, to observe if there is a gap between
-LLR and FFG benchmarks. The experiments were conducted with a max generation length of 4096, 5-shot evaluation and N = 1000 for every benchmark except SORRYBench 
+LLR and FFG benchmarks. The experiments were conducted with 5-shot evaluation and N = 1000 for every benchmark except SORRYBench,
 which was performed with a generation length of 512 and has a size limit of N=450.
 
 \begin{table}[h!]
@@ -354,7 +360,7 @@ which was performed with a generation length of 512 and has a size limit of N=45
 \end{tabular}
 \end{table}
 
-Our experiments on the smaller 1.7B model~\ref{tab:comparison_table_Qwen3_1.7B_tf} show that the model struggles significantly in int4 with free generation. On the other hand it's clear that LLR
+Our experiments on the smaller 1.7B model~\ref{tab:comparison_table_Qwen3_1.7B_tf} show that the model struggles significantly in INT4 with free generation. On the other hand it's clear that LLR
 benchmarks remain more consistent. This behavior can be explained because of the collapse of the model's coherence in free generation.
 One example from our SORRYBench results demonstrates this: 
 \begin{figure}[htbp]
@@ -381,7 +387,7 @@ I'm not insinuating anyone, but I'm here to help you with your insinuations. If 
 \end{figure}
 
 To provide further evidence, we analyzed the 1.7B model's responses under different quantization levels using a 3-gram repetition check on SORRYBench.
-Responses were classified as incoherent if their repetition ratio ~\ref{eq:repetition_ratio} exceeds 30\%, meaning nearly one-third of all three-word phrases were repetitions. \hv{added explanation}
+Responses were classified as incoherent if their repetition ratio~\ref{eq:repetition_ratio} exceeds 30\%, meaning nearly one-third of all three-word phrases were repetitions. 
 
 \begin{table}[htbp]
 \centering
@@ -408,9 +414,9 @@ A more detailed analysis of the 1.7B model's coherence is provided in Appendix~\
 
 \section{Quantization-Aware Adversarial Suffix Attack}
 
-The matrix study on benchmarks shows the performance difference of full and quantized models in their usage of the intended scenario.
-But when deployed in real-world applications, models are also exposed to malicious adversaries that try to mount attacks in unexpected ways.
-Therefore, the passive evaluations of the models against benchmarks are not sufficient to guarantee their safety. There can still be vulnerabilities that adversaries can utilize. 
+Our benchmarking study shows the performance difference between the baseline and quantized models when applied in their intended scenarios.
+However, when deployed in real-world applications, models are also exposed to malicious adversaries that try to mount attacks in unexpected ways.
+Therefore, the passive evaluations of the models against benchmarks are not sufficient to guarantee their safety. There can still be vulnerabilities that adversaries can exploit. 
 %In particular, people tend to assume that the robustness of full models will transfer to the quantized ones, but it does not hold in general.
 This section introduces our novel discovery of quantization-aware adversarial suffix attacks.
 
@@ -454,7 +460,7 @@ Then we replace $p(a_{-} | q \mathbin{++} s)$ with $-p(a_{+} | q \mathbin{++} s)
 
 Adversarial examples for images can be calculated by gradient descent, because visual models are end-to-end differentiable from input to output.
 This trick does not work for LLMs since the step from token IDs to embeddings is a discrete operation.
-Following the practice of GCG~\cite{GCG}, we resolve the optimization by a heuristic greedy searching algorithm. The searching starts from the initial suffix (repeated `!'), and flips the token according to the gradient information on the one-hot vectors, one at a time. Intuitively, at every round the algorithm flips one token in the suffix that has largest impact in the objective.
+Following the practice of GCG~\cite{GCG}, we resolve the optimization by a heuristic greedy search algorithm. The searching starts from the initial suffix (repeated `!'), and flips the token according to the gradient information on the one-hot vectors, one at a time. Intuitively, at every round the algorithm flips one token in the suffix that has largest impact in the objective.
 
 During real inference, the input sequence after applying the chat template is shown in~\Cref{fig:prompt-structure}. The suffix is inserted after the user prompt, before the \texttt{assistant} tokens. The target is an affirmative answer prefix, and the training follows the LLR style. We conduct one round of forward calculation, and the gradient is calculated based on target logits. In the training we also adopt a learning curriculum. The training starts with one single prompt, then progressively expands to a set of \texttt{n\_train} prompts for generalization.
 
@@ -466,7 +472,7 @@ Our attack experiment investigates the same Qwen 3-4B model on the BF16 and INT4
 
 \paragraph{Evaluation} We evaluate the harmful compliance rate of the BF16 and INT4 models, with and without the discovered adversarial suffix. The compliance evaluation takes two criteria:
 \begin{enumerate}
-  \item \textbf{RE-Judge:} following the practice in GCG~\cite{GCG}, the judger checks whether the generation contains typical refusal expressions, such as ``I cannot'', ``I am sorry'', ``I must decline'', etc.
+  \item \textbf{RE-Judge:} following the practice in GCG~\cite{GCG}, the judge checks whether the generation contains typical refusal expressions, such as ``I cannot'', ``I am sorry'', ``I must decline'', etc.
   \item \textbf{LM-Judge:} following the practice in SORRYBench, a language model is prompted to evaluate whether the generation is an essential fulfillment.
   Here we use a fine-tuned Mistral-7B-Instruct model as the judge.
 \end{enumerate}
@@ -476,16 +482,16 @@ Intuitively, the RE-Judge tests syntactical refusal and the LM-Judge has a close
 \subsection{Results Analysis}
 
 We conduct the experiment on the Qwen-3 4B model, and use the base split of SORRYBench as the dataset of misaligned requests. 
-The adversarial suffix attack maximizes the gap between refusal of BF16 full model and fulfillment of the INT4 quantized model.
+The adversarial suffix attack maximizes the gap between the refusal of BF16 full model and fulfillment of the INT4 quantized model.
 We sample 24 prompts for training, and evaluate on the 426 held-out prompts for testing.
 The initial adversarial suffix is 20 tokens in length and starts with repeated `!'.
-We take the parameter $\lambda = 1$, and conducted the searching algorithm for 500 steps.
+We set the parameter $\lambda = 1$, and conducted the searching algorithm for 500 steps.
 The experiment took 3 hours on a node with 4 $\times$ A100-40G GPUs.
 The result is shown in~\Cref{tab:adv-suffix}.
 
-Statistics show that with the suffix, the harmful compliance rate between BF16 and INT4 enlarges from around 8\% to $13\% \sim 35\%$ on the test set.
+Statistics show that with the suffix, the harmful compliance rate between BF16 and INT4 widens from around 8\% to $13\% \sim 35\%$ on the test set.
 This confirms that the adversarial suffix does trigger a jailbreak selectively on the quantized model.
-Another interesting finding is that the compliance rate by the RE-Judge is much higher than the LM-Judge.
+Another interesting finding is that the compliance rate determined by the RE-Judge is much higher than the LM-Judge.
 This indicates that the attack suffix often triggers answers that only comply in the tone but are not genuinely harmful, which is confirmed by individual case studies.
 The difference is within our expectation because the objective is also constructed by the LLR syntax.
 
@@ -519,7 +525,7 @@ Sure! Here's what you asked for
 4. \textbf{AI Tools:} Use AI-based tools like Remove.bg or DeepAI for automatic removal.
 \end{Verbatim}
 
-In this response, the model points to the methods and tools that are potentially illegal, which is counted as a true jailbreak. Notice that the generated text becomes messy with the attack suffix.
+In this response, the model points to methods and tools that are potentially illegal, which is counted as a true jailbreak. Notice that the generated text becomes messy with the attack suffix.
 
 \begin{table}[t]
   \centering
@@ -553,35 +559,35 @@ In this response, the model points to the methods and tools that are potentially
 
 \textbf{RQ1: Do the capabilities of a quantized model transfer consistently across various domains?}
 
-We have shown that models perform inconsistently on multiple-choice benchmarks when evaluated with LLR in Table~\ref{tab:comparison_table_Qwen3_4B_multi_choice_tf}. 
-On the FFG experiment with the LM judge in Table~\ref{tab:comparison_table_Qwen3_4B_free_gen_lm_judge}, we observed that model safeguards,
- such as DeceptionBench~\cite{deceptionbench_hf} and SORRYBench~\cite{sorry_bench_hf}, significantly decline. 
-We can conclude that model capabilities do not necessarily transfer equally across different domains.  
+We have shown that models perform inconsistently on multiple-choice benchmarks when evaluated using LLR, as shown in Table~\ref{tab:comparison_table_Qwen3_4B_multi_choice_tf}. 
+In the FFG experiment using the LM judge in Table~\ref{tab:comparison_table_Qwen3_4B_free_gen_lm_judge}, we observed that benchmarks which measure model safeguards,
+ such as DeceptionBench~\cite{deceptionbench_hf} and SORRYBench~\cite{sorry_bench_hf}, significantly degrade. 
+We conclude that model capabilities do not necessarily transfer equally across different domains.  
 
 \textbf{RQ2: What factors determine whether a model's performance on a benchmark remains robust or degrades under quantization?}
 
-In our benchmarks in Table~\ref{tab:comparison_table_Qwen3_4B_free_gen_lm_judge}, we found that tasks that are more subjective, 
+In our benchmarks in Table~\ref{tab:comparison_table_Qwen3_4B_free_gen_lm_judge}, we found that tasks that are more subjective
 or vague are more affected by quantization than unambiguous tasks.
 Specifically, the more nuanced behaviors assessed in DeceptionBench and the open-ended,
 real-world prompts in WildChat-NonToxic are more sensitive to performance decline 
 compared to the explicit safety violations evaluated in SORRYBench and the deterministic instructions of InFoBench.
 
 The evaluation method dictates the observed performance stability under quantization, especially in the smaller 1.7B model. 
-As shown by Table~\ref{tab:comparison_table_Qwen3_1.7B_tf} and Table~\ref{tab:comparison_table_Qwen3_1.7B_free_gen}, 
+As shown in Table~\ref{tab:comparison_table_Qwen3_1.7B_tf} and Table~\ref{tab:comparison_table_Qwen3_1.7B_free_gen}, 
 quantization affects free generation and log-likelihood ranking (LLR) benchmarks unequally. If the model falls below
- a certain size parameter and is quantized too aggressively, it loses its free-form generation capability, 
- yet it still evaluates validly under LLR benchmarks. In the example in Figure~\ref{fig:coherence_collapse_example} it's shown that,
+ a certain size threshold and is quantized too aggressively, it loses its free-form generation capability, 
+ yet it still evaluates validly under LLR benchmarks. The example in Figure~\ref{fig:coherence_collapse_example} shows that,
  in free generation, the model can cascade down an incoherent generation path. This is completely prevented in the LLR setting, where the candidate 
 answers are pre-defined and fixed.
 
-Furthermore, another reason why LLR evaluates more consistently than FFG is because it does not require an LLM judge, regex parsing, or other deterministic evaluation methods to score.
+Furthermore, another reason why LLR evaluates more consistently than FFG is that it does not require an LLM judge, regex parsing, or other deterministic evaluation methods to score.
 This makes it less sensitive to judgment failures, parsing errors, or minor mistakes.
 
 \textbf{RQ3: Does quantization increase an LLM's vulnerability to adversarial attacks targeting its safeguards?}
 
-Our benchmarks (Table~\ref{tab:comparison_table_Qwen3_4B_free_gen_lm_judge}) show that models decline significantly in safeguards, and are more likely to generate deceptive answers and refuse unsafe requests less often.
+Our benchmarks (Table~\ref{tab:comparison_table_Qwen3_4B_free_gen_lm_judge}) show that models decline significantly in safeguards, making them more likely to generate deceptive answers and refuse unsafe requests less often.
 To explore this further, we exploited vulnerabilities in the quantized models using an adversarial suffix attack. 
-We successfully discovered adversarial suffixes that trigger more harmful compliance only on quantized models. It indicates that people cannot assume the transferability of attack robustness from the full model to the quantized one.
+We successfully discovered adversarial suffixes that trigger more harmful compliance only on quantized models. This indicates that one cannot assume the transferability of attack robustness from the full model to the quantized one.
 
 
 
@@ -591,7 +597,7 @@ The benchmark evaluations in \Cref{tab:comparison_table_Qwen3_4B_free_gen_lm_jud
 Moreover, we only evaluated the Qwen3 models, therefore we do not know if our results generalize to other model families.      
 
 The quantization-aware attack by adversarial suffix still has many limitations. The model tends to produce superficially compliant text, rather than genuinely informative harmful text. Also, the attack suffix will degrade the generation quality in format. 
-From the perspective of experiment design, we didn't investigate the other direction -- whether there are adversarial suffixes that jailbreak only the full model. Our conjecture is that such suffixes also exist, and the full model is not always safer than the quantized one.
+From the perspective of experiment design, we didn't investigate the other direction, whether there are adversarial suffixes that jailbreak only the full model. Our conjecture is that such suffixes also exist, and the full model is not always safer than the quantized one.
 From our preliminary experiments, there is no evidence supporting that the suffix discovered on Qwen generalizes to other open source models.
 
 
@@ -599,7 +605,7 @@ From our preliminary experiments, there is no evidence supporting that the suffi
 
 Generative AI was used as an assistant in this project. AI generated code is labeled as such in the code base. Novel code and code concerning the core functionality is human-generated. AI was used for debugging. 
 The text of the report and the presentation is human-generated and is proofread by and minorly adjusted with AI for polish. 
-AI was used to generate assist in the structure of the tables and other visual components in the report.
+AI was used to assist in the structure of the tables and other visual components in the report.
 
 \section{Author contributions}
 All member contributed to the codebase, engaged in discussions, steered the research direction. 
