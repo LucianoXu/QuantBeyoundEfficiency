@@ -110,8 +110,7 @@ is benign on the BF16 baseline but successfully triggers jailbreaks on the INT4 
 Our key findings are the following:
 \begin{itemize}
 	\item Not all model capabilities transfer evenly with quantization. In particular, we observe that performance decreases in critical safety domains such as instruction following, safety refusal, and deception.
-	\item We identify factors for benchmark degradation such as the evaluation method and model coherence decay. 
-	\item While multiple-choice benchmarks with log-likelihood ranking remain stable, free-generation capabilities can significantly decay, as seen in the Qwen-3 1.7B model under INT4.
+	\item We identify factors for benchmark degradation such as the task nuance, evaluation method and model coherency. 
 	\item We identify adversarial suffix attacks that are benign for BF16 models, but successfully jailbreak the INT4 model. 
 \end{itemize}
 
@@ -133,7 +132,7 @@ In our implementation, the weights are reduced to 4-bit integer, while keeping t
 
 \subsection{Benchmarking}
 To evaluate the performance of LLMs and ensure comparability between different models, a broad range of standardized benchmarks has been established. 
-These benchmarks assess their performance across a diverse range of domains, including mathematical reasoning, general knowledge, bias and robustness against jailbreak attempts. This is a non-trivial evaluation task, as it is not clear if the benchmark answers were contained in the training data.
+These benchmarks assess their performance across a diverse range of domains, including mathematical reasoning, general knowledge, bias and robustness against jailbreak attempts. 
 Benchmarks differ not only in the domain they assess, but also in their evaluation protocol.
 In multiple choice and log-likelihood ranking the model is presented with predefined answer options. Performance is evaluated either by calculating the log-likelihood of each answer candidate and selecting the highest-probability option, or by parsing the generated response using regular expression.
 In free-form generation the model generates a response during inference. This is evaluated by either exact-matching (e.g., extracting a numerical answer) or by utilizing an LLM-as-a-judge model to categorize the response.
@@ -201,7 +200,7 @@ LLR evaluations were executed utilizing the lm-evaluation-harness framework~\cit
 All benchmark experiments were conducted on an NVIDIA A100 GPU and a generation length of 4096. 
 
 \subsubsection{Multiple Choice}
-This experiment tests if there is a gap between the model's alignment capabilities (domains like bias, truthfulness and ethical judgment) and the model's general abilities.
+This experiment tests if there is a gap between the model's alignment capabilities (bias, truthfulness and ethical judgment) and the model's general abilities.
 \paragraph{}
 We conducted multiple-choice evaluations and measured the accuracy based on the likelihood of the generations using LLR on the Qwen3 4B model with a sample size of N = 300.
 Our evaluation was done in zero-shot evaluation, to inhibit any occurrence of bias or steering through the context window.
@@ -613,16 +612,15 @@ All member contributed to the codebase, engaged in discussions, steered the rese
 \textbf{Yingte Xu} implements the codebase framework and designs the attack experiment. He implements the code for AWQ quantization.
 He also provides the compute and runs the experiments.
 
-\textbf{Ramneek Agnihotri} designs overarching narrative (Introduction, Conclusion, Structure, Research Questions). designs/analyses the benchmark experiments (Section 3.2), 
-implements the LM judge experiments and coordinates project.
+\textbf{Ramneek Agnihotri} designs overarching narrative (Introduction, Conclusion, Research Questions). designs/analyses the benchmark experiments (Section 3.2), 
+implements the code for FFG LM Judge experiments and coordinates project.
 
-\textbf{Hans Vath} gave background information through literature research, support in benchmark design (Section 3.1), coherency experiment design/analysis,
- results analysis and implemented code for the LLM judge.
+\textbf{Hans Vath} gave background information through literature research, support in benchmark design (Section 3.1, 3.2), coherency experiment design/analysis,
+ and implemented code for the LLM judge.
  
 
 \bibliographystyle{unsrtnat}
 \bibliography{references}
-
 
 
 \appendix
@@ -671,7 +669,7 @@ While the Qwen-4B model's responses did not show any signs of losing the ability
 
 To quantify this behavior, a simple 3-gram check was applied to detect repetitions.
 A response failed this check if the ratio of repeating 3-gram exceeded 30\%.
-This was formulated as: \hv{added formula}
+This was formulated as:
 
 \begin{equation}
 \label{eq:repetition_ratio}
@@ -685,9 +683,10 @@ R \ge{0.30}
 \end{equation}
 
 
-In addition, for the MMLU-Pro benchmark, instances where the parser failed to extract a response label
-(and therefore returned an invalid label) were counted to further demonstrate the increase in incoherence. 
-Qwen3-4B-instruct was employed as a judge model (see Figure~\ref{fig:judge_prompt_coherence}) to evaluate this behavior, but it yielded rather mixed results, leading to an overly high rate of classified coherence. For instance, the response shown in Figure~\ref{fig:coherence_collapse_example} was falsely classified as coherent by the judge, despite its clear collapse.
+In addition, for the MMLU-Pro benchmark, we tracked instances of parsing failures
+(and therefore returned an invalid label) to demonstrate the increase in incoherence through a secondary metric.
+We utilized Qwen3-4B-instruct  as a judge model (see Figure~\ref{fig:judge_prompt_coherence}) to evaluate this behavior.
+However, the judge yielded an overestimated rate of classified coherence. For instance, the response shown in Figure~\ref{fig:coherence_collapse_example} was falsely classified as coherent by the judge, despite its clear collapse.
 \begin{table}[htbp]
 \centering
 \label{tab:3gram_split}
@@ -720,7 +719,7 @@ Psychology       & 1  & 0  && 0 \imp{(-1)}  & 0                            && 2 
 \caption{Systematic evaluation of the model generations in the MMLU-Pro and SORRYBench benchmark. It shows if the 3-gram ratio exceeded 30\% (Fail) indicating a high repetition in the response. For the MMLU-Pro benchmark it was also counted how often the parser was not able to parse the generated label leading to an invalid label. (Inv)}
 \end{table}
 
-While sighting the coherence evaluation of the model generations it has shown that both, the n-gram check and the LLM judge could fail the coherence check.~\ref{fig:llm_judge_ngram_failure}
+At closer inspection of the model generations for the coherence analysis revealed that both, the n-gram check and the LLM judge failed to identify incoherence as shown in Figure~\ref{fig:llm_judge_ngram_failure}.
 
 \begin{figure}[htbp]
 \begin{Verbatim}[frame=leftline, framerule=2pt, rulecolor=\color{gray!60}, framesep=1em, fontsize=\footnotesize, xleftmargin=1.5em, xrightmargin=0.5em, breaklines=true, breakanywhere=true]
@@ -753,4 +752,3 @@ Model Response: "{answer}"
 %Although the experiment~\ref{tab:3gram_split} showed a strong repetition in 3-grams, posing as evidence of quantization-induced collapse, we excluded this argument in our final argumentation to not dilute our main line of argumentation.
 
 \end{document}
-
