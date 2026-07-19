@@ -3,6 +3,8 @@
 This directory contains YAML configuration files used to define the experiments.
 All experiments were either passive benchmark evaluations across different quantization levels or an active adversarial attack between full precision and a quantization level.
 
+The template for the 0 shot experiment in Table 1 shows that N = 1000 was executed, however before the run was done on the cluster, the value was changed to N = 300.
+
 ## Overview of Experiment Templates
 
 Configuration fall into one of two categories defined by the `config_type` argument:
