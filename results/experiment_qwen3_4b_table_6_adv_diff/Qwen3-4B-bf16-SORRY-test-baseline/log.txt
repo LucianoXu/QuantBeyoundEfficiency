@@ -1,83 +1,0 @@
- >> Model-Benchmark Pair Experiment
- >> Setting up randome seed 0
- >> Benchmark Factory for {'bench_name': 'SORRY-Bench', 'prompt_style': 'base', 'judge_model': 'sorry-bench/ft-mistral-7b-instruct-v0.2-sorry-bench-202406', 'batch_size': 32, 'max_new_tokens': 512, 'chat_template_kwargs': {'enable_thinking': False}, 'log_samples': True, 'question_ids': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 199, 200, 201, 202, 203, 204, 205, 206, 207, 209, 210, 211, 212, 213, 214, 215, 217, 218, 219, 220, 221, 222, 223, 224, 225, 226, 227, 228, 229, 230, 231, 232, 233, 234, 235, 236, 237, 238, 239, 240, 241, 242, 243, 244, 246, 247, 248, 250, 251, 252, 253, 254, 255, 256, 257, 258, 260, 261, 263, 264, 265, 266, 267, 268, 269, 270, 271, 272, 273, 274, 275, 276, 277, 278, 279, 280, 281, 282, 283, 284, 285, 286, 287, 288, 289, 290, 291, 292, 293, 294, 295, 296, 297, 298, 300, 301, 302, 303, 304, 305, 306, 307, 308, 309, 310, 311, 312, 313, 314, 315, 316, 318, 319, 320, 321, 322, 323, 324, 325, 326, 327, 328, 329, 330, 331, 332, 333, 334, 335, 336, 337, 338, 339, 340, 341, 342, 343, 344, 345, 346, 347, 348, 349, 350, 351, 352, 353, 354, 355, 356, 357, 358, 359, 360, 361, 362, 363, 364, 365, 366, 367, 368, 369, 370, 371, 372, 373, 374, 375, 376, 377, 378, 379, 380, 381, 382, 383, 384, 385, 386, 388, 390, 391, 392, 393, 394, 395, 396, 397, 398, 399, 400, 401, 403, 404, 405, 406, 407, 408, 409, 411, 412, 413, 414, 415, 416, 417, 418, 419, 420, 421, 422, 423, 424, 426, 427, 428, 429, 430, 431, 432, 434, 435, 436, 437, 438, 439, 440, 441, 442, 443, 444, 445, 446, 447, 448, 449], 'config_type': 'bench', 'random_seed': 0}
- >> Evaluating SORRY-Bench. Will output to trials/sorry_matrix_qwen3_4b_v3_ids_testfull/Qwen3-4B-bf16-SORRY-test-baseline
---- Logging error ---
-Traceback (most recent call last):
-  File "/raven/u/yinxu/work/QuantBeyoundEfficiency/.venv/lib/python3.10/site-packages/datasets/load.py", line 1123, in dataset_module_factory
-    _raise_if_offline_mode_is_enabled()
-  File "/raven/u/yinxu/work/QuantBeyoundEfficiency/.venv/lib/python3.10/site-packages/datasets/utils/file_utils.py", line 288, in _raise_if_offline_mode_is_enabled
-    raise huggingface_hub.errors.OfflineModeIsEnabled(
-huggingface_hub.errors.OfflineModeIsEnabled: Offline mode is enabled.
-
-The above exception was the direct cause of the following exception:
-
-Traceback (most recent call last):
-  File "/raven/u/yinxu/work/QuantBeyoundEfficiency/.venv/lib/python3.10/site-packages/datasets/load.py", line 1159, in dataset_module_factory
-    raise ConnectionError(f"Couldn't reach '{path}' on the Hub ({e.__class__.__name__})") from e
-ConnectionError: Couldn't reach 'sorry-bench/sorry-bench-202406' on the Hub (OfflineModeIsEnabled)
-
-During handling of the above exception, another exception occurred:
-
-Traceback (most recent call last):
-  File "/mpcdf/soft/SLE_15/packages/x86_64/anaconda/3/2023.03/lib/python3.10/logging/__init__.py", line 1103, in emit
-    stream.write(msg + self.terminator)
-  File "/raven/u/yinxu/work/QuantBeyoundEfficiency/src/utils.py", line 59, in write
-    s.write(data)
-ValueError: I/O operation on closed file.
-Call stack:
-  File "<string>", line 1, in <module>
-  File "/raven/u/yinxu/work/QuantBeyoundEfficiency/src/run.py", line 38, in run
-    return run_model_bench_matrix(args)
-  File "/raven/u/yinxu/work/QuantBeyoundEfficiency/src/run.py", line 148, in run_model_bench_matrix
-    run_model_bench(model_bench_config, tokenizer, model)
-  File "/raven/u/yinxu/work/QuantBeyoundEfficiency/src/run.py", line 80, in run_model_bench
-    res = bench.eval(tokenizer, model, output_dir)
-  File "/raven/u/yinxu/work/QuantBeyoundEfficiency/src/benches/sorry_bench.py", line 61, in eval
-    ds = load_dataset(dataset_name, split=self.bench_args.get("split", "train"), token=token)
-  File "/raven/u/yinxu/work/QuantBeyoundEfficiency/.venv/lib/python3.10/site-packages/datasets/load.py", line 1698, in load_dataset
-    builder_instance = load_dataset_builder(
-  File "/raven/u/yinxu/work/QuantBeyoundEfficiency/.venv/lib/python3.10/site-packages/datasets/load.py", line 1325, in load_dataset_builder
-    dataset_module = dataset_module_factory(
-  File "/raven/u/yinxu/work/QuantBeyoundEfficiency/.venv/lib/python3.10/site-packages/datasets/load.py", line 1205, in dataset_module_factory
-    return CachedDatasetModuleFactory(path, cache_dir=cache_dir).get_module()
-  File "/raven/u/yinxu/work/QuantBeyoundEfficiency/.venv/lib/python3.10/site-packages/datasets/load.py", line 835, in get_module
-    logger.warning(warning_msg)
-Message: "Using the latest cached version of the dataset since sorry-bench/sorry-bench-202406 couldn't be found on the Hugging Face Hub (offline mode is enabled)."
-Arguments: ()
-Using the latest cached version of the dataset since sorry-bench/sorry-bench-202406 couldn't be found on the Hugging Face Hub (offline mode is enabled).
---- Logging error ---
-Traceback (most recent call last):
-  File "/mpcdf/soft/SLE_15/packages/x86_64/anaconda/3/2023.03/lib/python3.10/logging/__init__.py", line 1103, in emit
-    stream.write(msg + self.terminator)
-  File "/raven/u/yinxu/work/QuantBeyoundEfficiency/src/utils.py", line 59, in write
-    s.write(data)
-ValueError: I/O operation on closed file.
-Call stack:
-  File "<string>", line 1, in <module>
-  File "/raven/u/yinxu/work/QuantBeyoundEfficiency/src/run.py", line 38, in run
-    return run_model_bench_matrix(args)
-  File "/raven/u/yinxu/work/QuantBeyoundEfficiency/src/run.py", line 148, in run_model_bench_matrix
-    run_model_bench(model_bench_config, tokenizer, model)
-  File "/raven/u/yinxu/work/QuantBeyoundEfficiency/src/run.py", line 80, in run_model_bench
-    res = bench.eval(tokenizer, model, output_dir)
-  File "/raven/u/yinxu/work/QuantBeyoundEfficiency/src/benches/sorry_bench.py", line 61, in eval
-    ds = load_dataset(dataset_name, split=self.bench_args.get("split", "train"), token=token)
-  File "/raven/u/yinxu/work/QuantBeyoundEfficiency/.venv/lib/python3.10/site-packages/datasets/load.py", line 1698, in load_dataset
-    builder_instance = load_dataset_builder(
-  File "/raven/u/yinxu/work/QuantBeyoundEfficiency/.venv/lib/python3.10/site-packages/datasets/load.py", line 1363, in load_dataset_builder
-    builder_instance: DatasetBuilder = builder_cls(
-  File "/raven/u/yinxu/work/QuantBeyoundEfficiency/.venv/lib/python3.10/site-packages/datasets/packaged_modules/cache/cache.py", line 125, in __init__
-    config_name, version, hash = _find_hash_in_cache(
-  File "/raven/u/yinxu/work/QuantBeyoundEfficiency/.venv/lib/python3.10/site-packages/datasets/packaged_modules/cache/cache.py", line 95, in _find_hash_in_cache
-    logger.warning(warning_msg)
-Message: "Found the latest cached dataset configuration 'default' at /u/yinxu/.cache/huggingface/datasets/sorry-bench___sorry-bench-202406/default/0.0.0/b34822276edde97592eda99c0b56d306f8830469 (last modified on Wed Jul  8 11:37:09 2026)."
-Arguments: ()
-Found the latest cached dataset configuration 'default' at /u/yinxu/.cache/huggingface/datasets/sorry-bench___sorry-bench-202406/default/0.0.0/b34822276edde97592eda99c0b56d306f8830469 (last modified on Wed Jul  8 11:37:09 2026).
- >> selected 426 prompts by question_ids
- >> 426 prompts (prompt_style=base)
-generating:   0%|          | 0/14 [00:00<?, ?batch/s]generating:   7%|7         | 1/14 [00:25<05:26, 25.12s/batch]generating:  14%|#4        | 2/14 [00:50<05:01, 25.09s/batch]generating:  21%|##1       | 3/14 [01:11<04:16, 23.27s/batch]generating:  29%|##8       | 4/14 [01:39<04:13, 25.31s/batch]generating:  36%|###5      | 5/14 [02:04<03:46, 25.21s/batch]generating:  43%|####2     | 6/14 [02:37<03:41, 27.69s/batch]generating:  50%|#####     | 7/14 [03:02<03:07, 26.79s/batch]generating:  57%|#####7    | 8/14 [03:27<02:37, 26.33s/batch]generating:  64%|######4   | 9/14 [03:52<02:10, 26.01s/batch]generating:  71%|#######1  | 10/14 [04:18<01:43, 25.77s/batch]generating:  79%|#######8  | 11/14 [04:43<01:16, 25.57s/batch]generating:  86%|########5 | 12/14 [05:07<00:50, 25.32s/batch]generating:  93%|#########2| 13/14 [05:32<00:25, 25.22s/batch]generating: 100%|##########| 14/14 [05:57<00:00, 24.99s/batch]generating: 100%|##########| 14/14 [05:57<00:00, 25.53s/batch]
-Loading weights:   0%|          | 0/291 [00:00<?, ?it/s]Loading weights:   0%|          | 1/291 [00:00<00:52,  5.57it/s]Loading weights:   4%|4         | 13/291 [00:00<00:05, 50.40it/s]Loading weights:   8%|7         | 22/291 [00:00<00:04, 55.47it/s]Loading weights:  11%|#         | 31/291 [00:00<00:03, 65.48it/s]Loading weights:  14%|#3        | 40/291 [00:00<00:03, 69.03it/s]Loading weights:  17%|#6        | 49/291 [00:00<00:03, 69.62it/s]Loading weights:  21%|##        | 60/291 [00:00<00:02, 78.52it/s]Loading weights:  24%|##3       | 69/291 [00:01<00:02, 77.39it/s]Loading weights:  27%|##6       | 78/291 [00:01<00:02, 78.17it/s]Loading weights:  30%|##9       | 86/291 [00:01<00:02, 75.04it/s]Loading weights:  33%|###2      | 96/291 [00:01<00:02, 78.80it/s]Loading weights:  36%|###5      | 104/291 [00:01<00:02, 78.13it/s]Loading weights:  39%|###8      | 113/291 [00:01<00:02, 76.59it/s]Loading weights:  44%|####3     | 128/291 [00:01<00:01, 95.86it/s]Loading weights:  48%|####7     | 139/291 [00:01<00:01, 81.80it/s]Loading weights:  51%|#####     | 148/291 [00:01<00:01, 81.44it/s]Loading weights:  54%|#####4    | 158/291 [00:02<00:01, 84.97it/s]Loading weights:  57%|#####7    | 167/291 [00:02<00:01, 84.92it/s]Loading weights:  60%|######    | 176/291 [00:02<00:01, 82.17it/s]Loading weights:  64%|######3   | 185/291 [00:02<00:01, 77.60it/s]Loading weights:  66%|######6   | 193/291 [00:02<00:01, 75.90it/s]Loading weights:  70%|######9   | 203/291 [00:02<00:01, 78.54it/s]Loading weights:  73%|#######2  | 212/291 [00:02<00:01, 78.78it/s]Loading weights:  76%|#######5  | 221/291 [00:02<00:00, 81.35it/s]Loading weights:  79%|#######9  | 230/291 [00:03<00:00, 78.17it/s]Loading weights:  82%|########2 | 240/291 [00:03<00:00, 80.95it/s]Loading weights:  86%|########5 | 249/291 [00:03<00:00, 76.91it/s]Loading weights:  88%|########8 | 257/291 [00:03<00:00, 74.74it/s]Loading weights:  91%|#########1| 266/291 [00:03<00:00, 75.99it/s]Loading weights:  95%|#########4| 275/291 [00:03<00:00, 79.58it/s]Loading weights:  98%|#########7| 284/291 [00:03<00:00, 74.43it/s]Loading weights: 100%|##########| 291/291 [00:03<00:00, 77.70it/s]
-judging:   0%|          | 0/14 [00:00<?, ?batch/s]judging:   7%|7         | 1/14 [00:02<00:28,  2.17s/batch]judging:  14%|#4        | 2/14 [00:04<00:24,  2.03s/batch]judging:  21%|##1       | 3/14 [00:05<00:20,  1.90s/batch]judging:  29%|##8       | 4/14 [00:07<00:19,  1.97s/batch]judging:  36%|###5      | 5/14 [00:10<00:18,  2.08s/batch]judging:  43%|####2     | 6/14 [00:13<00:20,  2.55s/batch]judging:  50%|#####     | 7/14 [00:15<00:17,  2.44s/batch]judging:  57%|#####7    | 8/14 [00:18<00:14,  2.38s/batch]judging:  64%|######4   | 9/14 [00:20<00:11,  2.35s/batch]judging:  71%|#######1  | 10/14 [00:22<00:09,  2.32s/batch]judging:  79%|#######8  | 11/14 [00:24<00:06,  2.26s/batch]judging:  86%|########5 | 12/14 [00:26<00:04,  2.20s/batch]judging:  93%|#########2| 13/14 [00:29<00:02,  2.22s/batch]judging: 100%|##########| 14/14 [00:29<00:00,  1.78s/batch]judging: 100%|##########| 14/14 [00:29<00:00,  2.13s/batch]
- >> Saving the results to trials/sorry_matrix_qwen3_4b_v3_ids_testfull/Qwen3-4B-bf16-SORRY-test-baseline/result.json
- >> Saving the samples to trials/sorry_matrix_qwen3_4b_v3_ids_testfull/Qwen3-4B-bf16-SORRY-test-baseline/samples_sorry_bench.jsonl
