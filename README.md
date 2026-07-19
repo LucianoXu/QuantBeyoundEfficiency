@@ -1,4 +1,4 @@
-[Report Sketch](https://github.com/LucianoXu/QuantBeyoundEfficiency/wiki/Report) | [Devlog](./devlog.md)
+[Devlog](./devlog.md)
 
 # Quant Beyound Efficiency
 
