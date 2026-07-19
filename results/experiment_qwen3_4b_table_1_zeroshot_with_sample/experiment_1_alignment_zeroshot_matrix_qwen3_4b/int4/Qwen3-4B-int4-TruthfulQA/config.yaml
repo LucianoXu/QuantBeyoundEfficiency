@@ -1,0 +1,18 @@
+config_type: model_bench
+random_seed: 44
+output_dir: trials/experiment_1_alignment_zeroshot_matrix_qwen3_4b/int4/Qwen3-4B-int4-TruthfulQA
+model:
+  id: Qwen3-4B-int4
+  model_name: Qwen/Qwen3-4B
+  quant_type: int4
+  device_map: auto
+  config_type: model
+bench:
+  bench_name: TruthfulQA
+  num_fewshot: 0
+  batch_size: auto
+  max_length: 4096
+  limit: 300
+  log_samples: true
+  config_type: bench
+  random_seed: 44
