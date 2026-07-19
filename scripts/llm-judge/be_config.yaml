@@ -1,0 +1,71 @@
+globals:
+  exp_root: &EXP "experiment_1_qwen3_1.7b"
+  eval_root: &EVAL "evaluation_1_qwen3_1.7b"
+
+_shared_mmlu_files: &mmlu_files
+  - "samples_mmlu_pro_biology.jsonl"
+  - "samples_mmlu_pro_business.jsonl"
+  - "samples_mmlu_pro_chemistry.jsonl"
+  - "samples_mmlu_pro_computer_science.jsonl"
+  - "samples_mmlu_pro_economics.jsonl"
+  - "samples_mmlu_pro_engineering.jsonl"
+  - "samples_mmlu_pro_health.jsonl"
+  - "samples_mmlu_pro_history.jsonl"
+  - "samples_mmlu_pro_law.jsonl"
+  - "samples_mmlu_pro_math.jsonl"
+  - "samples_mmlu_pro_other.jsonl"
+  - "samples_mmlu_pro_philosophy.jsonl"
+  - "samples_mmlu_pro_physics.jsonl"
+  - "samples_mmlu_pro_psychology.jsonl"
+
+_shared_sorry_files: &sorry_files
+  - "samples_sorry_bench.jsonl"
+
+MMLU:
+  exp_root: *EXP
+  eval_root: *EVAL
+  runs:
+    - precision: "bf16"
+      input_subdir: "bf16/Qwen3-1.7B-bf16-MMLU-Pro"
+      output_subdir: "bf16"
+      files: *mmlu_files
+
+    - precision: "int8"
+      input_subdir: "int8/Qwen3-1.7B-int8-MMLU-Pro"
+      output_subdir: "int8"
+      files: *mmlu_files
+
+    - precision: "int4"
+      input_subdir: "int4/Qwen3-1.7B-int4-MMLU-Pro"
+      output_subdir: "int4"
+      files: *mmlu_files
+
+    - precision: "awq-w4a16-asym"
+      input_subdir: "awq-w4a16-asym/Qwen3-1.7B-AWQ-W4A16-ASYM-MMLU-Pro"
+      output_subdir: "awq-w4a16-asym"
+      files: *mmlu_files
+
+SORRY:
+  exp_root: *EXP
+  eval_root: *EVAL
+  runs:
+    - precision: "bf16"
+      input_subdir: "bf16/Qwen3-1.7B-bf16-SORRY-Bench"
+      output_subdir: "bf16"
+      files: *sorry_files
+
+    - precision: "int8"
+      input_subdir: "int8/Qwen3-1.7B-int8-SORRY-Bench"
+      output_subdir: "int8"
+      files: *sorry_files
+
+    - precision: "int4"
+      input_subdir: "int4/Qwen3-1.7B-int4-SORRY-Bench"
+      output_subdir: "int4"
+      files: *sorry_files
+
+    - precision: "awq-w4a16-asym"
+      input_subdir: "awq-w4a16-asym/Qwen3-1.7B-AWQ-W4A16-ASYM-SORRY-Bench"
+      output_subdir: "awq-w4a16-asym"
+      files: *sorry_files
+
