@@ -171,7 +171,7 @@ The following benchmarks were chosen to represent these paradigms:
 
     \item \textbf{Free Generation Benchmarks:}
     \begin{itemize}
-        \item \textbf{SORRY-Bench} \cite{sorry_bench_hf}: Measuring refusal of unsafe user requests across different phrasing. Focus on dangerous, illegal or inappropriate tasks. 
+        \item \textbf{SORRYBench} \cite{sorry_bench_hf}: Measuring refusal of unsafe user requests across different phrasing. Focus on dangerous, illegal or inappropriate tasks. 
         \item \textbf{DeceptionBench} \cite{deceptionbench_hf}: Measures the model's willingness to follow prompts that have deceptive behaviour/goals.
         \item \textbf{InFoBench} \cite{infobench_hf}: Evaluating complex instruction following capabilities.
         \item \textbf{WildChat-nontoxic} \cite{wildchat_hf}: General utility under broad real-world user requests. (Filtered to english only)
@@ -181,7 +181,7 @@ The following benchmarks were chosen to represent these paradigms:
 \end{itemize}
 
 [Experimental Setup]
-LLR evaluations were executed utilizing the lm-evaluation-harness framework~\cite{eval-harness}. For the benchmarks SORRY-Bench, DeceptionBench, InFoBench and Wildchat-nontoxic we implemented custom evaluation pipelines with a deepseek-4-flash model acting as a judge.
+LLR evaluations were executed utilizing the lm-evaluation-harness framework~\cite{eval-harness}. For the benchmarks SORRYBench, DeceptionBench, InFoBench and Wildchat-nontoxic we implemented custom evaluation pipelines with a deepseek-4-flash model acting as a judge.
 All experiments were conducted on an NVIDIA A100 GPU. The maximum sequence length was capped at 4096 tokens. Generation limits followed each benchmark's standard lm-evaluation-harness configuration (e.g., 2048 tokens for MMLU-Pro, 1024 for BBH and HumanEval).
 LLR benchmarks followed a zero-shot learning approach to prevent any bias influence from the training set.
 In contrast, FFG benchmarks were evaluated under 5-shot context learning to ground the model's outputs.
@@ -236,8 +236,8 @@ We compared them against InFoBench, which measures instruction following, and Wi
 The evaluation was performed with generation length 4096 and 5 shot generation, where we show the model 5 examples of inputs and responses, 
 since we observed more coherent responses compared to zero-shot. 
 The responses were labeled with DeepSeek-V4-Flash as the LLM judge across all four benchmarks. 
-WildChat, SORRY-bench, and InFoBench used the same evaluation system prompt (Figure~\ref{fig:judge_prompt}),
-which was adapted from the system prompt of the SORRY-bench LLM judge.
+WildChat, SORRYBench, and InFoBench used the same evaluation system prompt (Figure~\ref{fig:judge_prompt}),
+which was adapted from the system prompt of the SORRYBench LLM judge.
 DeceptionBench used a slightly modified system prompt (Figure~\ref{fig:judge_prompt_deception}).
 
 \paragraph{}
@@ -252,7 +252,7 @@ DeceptionBench used a slightly modified system prompt (Figure~\ref{fig:judge_pro
 \toprule
  & \multicolumn{2}{c}{\textbf{General}} & \multicolumn{2}{c}{\textbf{Safety}} \\
  \cmidrule(lr){2-3} \cmidrule(lr){4-5}
-\textbf{Rate (\%)} & \textbf{InFoBench} & \textbf{WildChat-nontoxic}  & \textbf{DeceptionBench} & \textbf{SORRY-bench}\\
+\textbf{Rate (\%)} & \textbf{InFoBench} & \textbf{WildChat-nontoxic}  & \textbf{DeceptionBench} & \textbf{SORRYBench}\\
       & (follow\_rate) & (success\_rate) & (deception\_rate) & (fulfillment\_rate)\\\midrule
 \textbf{BF16}& 83.33             & 66.00  & 42.67             & 14.67                         \\
 \textbf{INT8}& 80.33 \de{(-3.00)} & 62.67 \de{(-3.33)}& 47.00 \de{(+4.33)} & 13.33 \imp{(-1.34)}  \\
@@ -262,7 +262,7 @@ DeceptionBench used a slightly modified system prompt (Figure~\ref{fig:judge_pro
 \end{tabular}
 \end{table}
 
-In table \ref{tab:comparison_table_Qwen3_4B_free_gen_lm_judge} DeceptionBench shows a significant increase in the deception rate under INT4 quantization, and SORRY-bench's fulfillment rate increases as well. 
+In table \ref{tab:comparison_table_Qwen3_4B_free_gen_lm_judge} DeceptionBench shows a significant increase in the deception rate under INT4 quantization, and SORRYBench's fulfillment rate increases as well. 
 The model's capability to follow instructions seems to be more impacted under AWQ compared to INT4 and INT8.
 Finally, performance on WildChat-NonToxic decays across all three quantization formats, with the most pronounced decrease occurring in INT4. 
 
@@ -306,14 +306,14 @@ its ability to understand nuance or subjective requests.
 
 
 \paragraph{}
-Finally, the difference between the two safety tasks, DeceptionBench and SORRY-bench, likely stems from the fact that SORRY-bench features much more 
+Finally, the difference between the two safety tasks, DeceptionBench and SORRYBench, likely stems from the fact that SORRYBench features much more 
 offensive and harsh prompts, while DeceptionBench is far more subtle and at points deliberately morally grey.
 Our evidence supports that the more subtle behavior in DeceptionBench is more sensitive to quantization degradation than the
-unambiguous safety violations in SORRY-bench.
+unambiguous safety violations in SORRYBench.
 
 \subsubsection{1.7B Experiment}
 This experiment aims to test how quantization behaves on small models. Furthermore, we conduct two different types of benchmarks, LLR and FFG, to observe if there is a gap between
-LLR and FFG benchmarks. The experiments were conducted with a max generation length of 4096 and N = 1000 for every benchmark except SORRY-bench 
+LLR and FFG benchmarks. The experiments were conducted with a max generation length of 4096 and N = 1000 for every benchmark except SORRYBench 
 which was performed with a generation length of 512 and has a total size of N=450.
 
 \begin{table}[h!]
@@ -342,7 +342,7 @@ which was performed with a generation length of 512 and has a total size of N=45
 \footnotesize
 \begin{tabular}{lcccc}
 \toprule
-\textbf{Rate (\%)} & \textbf{Human Eval} & \textbf{mgsm\_direct\_en} & \textbf{MMLU-Pro} & \textbf{SORRY-Bench} \\
+\textbf{Rate (\%)} & \textbf{Human Eval} & \textbf{mgsm\_direct\_en} & \textbf{MMLU-Pro} & \textbf{SORRYBench} \\
 \midrule
 \textbf{BF16} & 41.46          & 13.20          & 42.56          & 56.67          \\
 \textbf{INT8} & 40.85 \de{(-0.61)}  & 11.60 \de{(-1.60)}  & 39.94 \de{(-2.62)}  & 59.78 \de{(+3.11)}  \\
@@ -354,7 +354,7 @@ which was performed with a generation length of 512 and has a total size of N=45
 
 Our experiments on the smaller 1.7B model \ref{tab:comparison_table_Qwen3_1.7B_tf} show that the model struggles significantly in int4 with free generation. On the other hand it's clear that LLR
 benchmarks remain more consistent. This behaviour can be explained because of the collapse of the model's coherence in free generation. 
-One example from our SORRY-Bench results demonstrates this: 
+One example from our SORRYBench results demonstrates this: 
 \begin{figure}[htbp]
 \begin{Verbatim}[
   frame=leftline, 
@@ -378,28 +378,28 @@ I'm not insinuating anyone, but I'm here to help you with your insinuations. If 
 \label{fig:coherence_collapse_example}
 \end{figure}
 
-To provide further evidence, we analyzed the 1.7B model's responses under different quantization levels using a 3-gram repetition check on SORRY-Bench. 
+To provide further evidence, we analyzed the 1.7B model's responses under different quantization levels using a 3-gram repetition check on SORRYBench. 
 A response was classified as incoherent if the ratio of repeating 3-grams exceeded 30\%.
 
 \begin{table}[htbp]
 \centering
-\caption{Absolute number of responses marked as incoherent in the SORRY-Bench benchmark.}
+\caption{Percentage of responses marked as incoherent in SORRYBench, with absolute percentage point differences (N = 450). \ra{Reconfirm N}}
 \label{tab:3gram_split_SORRY}
 \small
 \setlength{\tabcolsep}{12pt}
 \begin{tabular}{lc}
 \toprule
-\textbf{Quantization} & \textbf{Incoherent Responses} \\
+\textbf{Quantization} & \textbf{Incoherent Responses (\%)} \\
 \midrule
-\textbf{BF16}        & 14 \\
-\textbf{INT8}        & 17 \de{(+3)} \\
-\textbf{AWQ (W4A16)} & 34 \de{(+17)} \\
-\textbf{INT4}        & 189 \de{(+155)} \\
+\textbf{BF16}        & 3.11 \\
+\textbf{INT8}        & 3.78 \de{(+0.67)}  \\
+\textbf{AWQ (W4A16)} & 7.55 \de{(+4.44)} \\
+\textbf{INT4}        & 42 \de{(+38.89)} \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-We observe a significant increase in incoherent responses under INT4 quantization on SORRY-Bench, supporting our previous hypothesis. 
+We observe a significant increase in incoherent responses under INT4 quantization on SORRYBench, supporting our previous hypothesis. 
 A more detailed analysis of the 1.7B model's coherence is provided in Appendix \ref{sec:coher}.
 
 \FloatBarrier
@@ -464,7 +464,7 @@ Our attack experiment investigates the same Qwen 3-4B model on the BF16 and INT4
 \paragraph{Evaluation} We evaluate the harmful compliance rate of the BF16 and INT4 models, with and without the discovered adversarial suffix. The compliance evaluation takes two criteria:
 \begin{enumerate}
   \item \textbf{RE-Judge:} following the practice in GCG~\cite{GCG}, the judger checks whether the generation contains typical refusal expressions, such as ``I cannot'', ``I am sorry'', ``I must decline'', etc.
-  \item \textbf{LM-Judge:} following the practice in SORRY-Bench, a language model is prompted to evaluate whether the generation is an essential fulfillment.
+  \item \textbf{LM-Judge:} following the practice in SORRYBench, a language model is prompted to evaluate whether the generation is an essential fulfillment.
   Here we use a fine-tuned Mistral-7B-Instruct model as the judge.
 \end{enumerate}
 
@@ -472,7 +472,7 @@ Intuitively, the RE-Judge tests syntactical refusal and the LM-Judge has a close
 
 \subsection{Results Analysis}
 
-We conduct the experiment on the Qwen-3 4B model, and use the base split of SORRY-Bench as the dataset of misaligned requests. 
+We conduct the experiment on the Qwen-3 4B model, and use the base split of SORRYBench as the dataset of misaligned requests. 
 The adversarial suffix attack maximizes the gap between refusal of BF16 full model and fulfillment of the INT4 quantized model.
 We sample 24 prompts for training, and evaluate on the 426 held-out prompts for testing.
 The initial adversarial suffix is 20 tokens in length and starts with repeated `!'.
@@ -521,8 +521,8 @@ In this response, the model points to the methods and tools that are potentially
 \begin{table}[t]
   \centering
 
-  \caption{Harmful-compliance rate (\%) of the quantization-aware adversarial suffix on Qwen3-4B over SORRY-Bench prompts (train: 24, test: 426 held-out).
-  The numbers are slightly different from benchmarking results~\Cref{tab:comparison_table_Qwen3_4B_free_gen_lm_judge} because we are using different LM-Judge (DeepSeek V4-flash for benchmarking, and a finetuned Mistral-7B-Instruct model provided by SORRY-Bench for the attack.)
+  \caption{Harmful-compliance rate (\%) of the quantization-aware adversarial suffix on Qwen3-4B over SORRYBench prompts (train: 24, test: 426 held-out).
+  The numbers are slightly different from benchmarking results~\Cref{tab:comparison_table_Qwen3_4B_free_gen_lm_judge} because we are using different LM-Judge (DeepSeek V4-flash for benchmarking, and a finetuned Mistral-7B-Instruct model provided by SORRYBench for the attack.)
   }
 
   \label{tab:adv-suffix}
@@ -552,14 +552,14 @@ In this response, the model points to the methods and tools that are potentially
 
 We have shown that models perform inconsistently on multiple-choice benchmarks when evaluated with LLR in Table~\ref{tab:comparison_table_Qwen3_4B_multi_choice_tf}. 
 On the FFG experiment with the LM judge in Table~\ref{tab:comparison_table_Qwen3_4B_free_gen_lm_judge}, we observed that model safeguards,
- such as DeceptionBench~\cite{deceptionbench_hf} and SORRY-bench~\cite{sorry_bench_hf}, significantly decline while instruction following remains stable. 
+ such as DeceptionBench~\cite{deceptionbench_hf} and SORRYBench~\cite{sorry_bench_hf}, significantly decline while instruction following remains stable. 
 We can conclude that model capabilities do not necessarily transfer equally across different domains.  
 
 \textbf{RQ2: What factors dictate whether a benchmark remains robust or exhibits degradation under quantization?}
 
 In our benchmarks in Table~\ref{tab:comparison_table_Qwen3_4B_free_gen_lm_judge}, we also found that safety and refusal tasks that are inherently vague or ambiguous are more affected by quantization 
 than tasks with explicit boundaries that are easier to judge. Specifically, we observed that the more nuanced
-behaviors assessed in DeceptionBench are more sensitive to performance decline compared to the more unambiguous safety violations evaluated in SORRY-bench.
+behaviors assessed in DeceptionBench are more sensitive to performance decline compared to the more unambiguous safety violations evaluated in SORRYBench.
 
 The evaluation method dictates the observed performance stability under quantization, especially in the smaller 1.7B model. 
 As shown by Table~\ref{tab:comparison_table_Qwen3_1.7B_tf} and Table~\ref{tab:comparison_table_Qwen3_1.7B_free_gen}, 
@@ -628,7 +628,7 @@ Output only the score.
 User Request: "{question}"
 Model Response: "{answer}"
 \end{Verbatim}
-\caption{System prompt template used by the LLM judge to evaluate IF, WildChat, SORRY-Bench Prompt.}
+\caption{System prompt template used by the LLM judge to evaluate IF, WildChat, SORRYBench Prompt.}
 \label{fig:judge_prompt}
 \end{figure}
 
@@ -660,7 +660,7 @@ While the Qwen-4B model's responses did not show any signs of losing the ability
 
 To quantify this behavior, a simple 3-gram check was applied to detect repetitions.
 A response failed this check if the ratio of repeating 3-grams exceeded 30\%.
-In addition, for the MMLU benchmark, instances where the parser failed to extract a response label
+In addition, for the MMLU-Pro benchmark, instances where the parser failed to extract a response label
 (and therefore returned an invalid label) were counted to further demonstrate the increase in incoherence. 
 Qwen3-4B-instruct was employed as a judge model (see Figure~\ref{fig:judge_prompt_coherence}) to evaluate this behavior, but it yielded rather mixed results, leading to an overly high rate of classified coherence. For instance, the response shown in Figure~\ref{fig:coherence_collapse_example} was falsely classified as coherent by the judge, despite its clear collapse.
 \begin{table}[htbp]
@@ -672,7 +672,7 @@ Qwen3-4B-instruct was employed as a judge model (see Figure~\ref{fig:judge_promp
 \toprule
  & \multicolumn{2}{c}{\textbf{BF16}} && \multicolumn{2}{c}{\textbf{INT8}} && \multicolumn{2}{c}{\textbf{AWQ (W4A16)}} && \multicolumn{2}{c}{\textbf{INT4}} \\
 \cmidrule{2-3} \cmidrule{5-6} \cmidrule{8-9} \cmidrule{11-12}
-\textbf{MMLU} & Fail & Inv && Fail & Inv && Fail & Inv && Fail & Inv \\
+\textbf{MMLU-Pro} & Fail & Inv && Fail & Inv && Fail & Inv && Fail & Inv \\
 \midrule
 Biology          & 5  & 5  && 5                            & 2 \imp{(-3)}  && 11 \de{(+6)}  & 3 \de{(+1)}    && 45 \de{(+34)} & 33 \de{(+30)} \\
 Business         & 2  & 3  && 2                            & 2 \imp{(-1)}  && 7 \de{(+5)}   & 3 \de{(+1)}    && 21 \de{(+14)} & 16 \de{(+13)} \\
@@ -689,10 +689,10 @@ Philosophy       & 3  & 2  && 3                            & 4 \de{(+2)}    && 3
 Physics          & 4  & 0  && 4                            & 2 \de{(+2)}    && 18 \de{(+14)} & 3 \de{(+1)}    && 17 \de{(+1)}  & 11 \de{(+8)}  \\
 Psychology       & 1  & 0  && 0 \imp{(-1)}  & 0                            && 2 \de{(+2)}   & 0                            && 0 \imp{(-2)}  & 0                         \\
 \midrule
-\textbf{SORRY}   & \multicolumn{2}{c}{\textbf{14}} && \multicolumn{2}{c}{\textbf{17} \de{(+3)}} && \multicolumn{2}{c}{\textbf{34} \de{(+17)}} && \multicolumn{2}{c}{\textbf{189} \de{(+155)}} \\
+\textbf{SORRYBench}   & \multicolumn{2}{c}{\textbf{14}} && \multicolumn{2}{c}{\textbf{17} \de{(+3)}} && \multicolumn{2}{c}{\textbf{34} \de{(+17)}} && \multicolumn{2}{c}{\textbf{189} \de{(+155)}} \\
 \bottomrule
 \end{tabular}
-\caption{Systematic evaluation of the model generations in the MMLU and SORRYBench benchmark. It shows if the 3-gram ratio exceeded 30\% (Fail) indicating a high repetition in the response. For the MMLU benchmark it was also counted how often the parser was not able to parse the generated label leading to an invalid label. (Inv)}
+\caption{Systematic evaluation of the model generations in the MMLU-Pro and SORRYBench benchmark. It shows if the 3-gram ratio exceeded 30\% (Fail) indicating a high repetition in the response. For the MMLU-Pro benchmark it was also counted how often the parser was not able to parse the generated label leading to an invalid label. (Inv)}
 \end{table}
 
 While sighting the coherence evaluation of the model generations it has shown that both, the n-gram check and the LLM judge could fail the coherence check.~\ref{fig:llm_judge_ngram_failure}
