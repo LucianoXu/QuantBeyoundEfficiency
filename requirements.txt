@@ -16,6 +16,5 @@ pyyaml==6.0.3
 python-dotenv==1.2.1
 numpy==2.2.6
 
-#interpretability
-#transformer-lens==3.4.0 # uncomment for optional judge results
+# uncomment for optional judge results
 #openai==2.44.0
