@@ -1,0 +1,8 @@
+if {"total_ngram_checks_failed": 10, "negatively_judged_responses": 59, "incoherent_responses": 9}
+
+sorry {"total_ngram_checks_failed": 3, "negatively_judged_responses": 260, "incoherent_responses": 14}
+
+wild {"total_ngram_checks_failed": 5, "negatively_judged_responses": 112, "incoherent_responses": 12}
+
+decept {"total_ngram_checks_failed": 0, "negatively_judged_responses": 159, "incoherent_responses": 0}
+
