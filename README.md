@@ -5,8 +5,14 @@
 ## Project
 
 In this project we evaluated the capabilities of LLM at 4B and below beyond classic performance and capabilities metrics.
+We therefore posed the following questions:
 
-Our project tackled this from two distinct angles:
+1. Does model capability transfer to quantized models **consistently** across different domains?
+2. What factors dictate whether a benchmark is **robust or vulnerable** under quantization?
+3. Does quantization **influence safeguards** such that it allows for new attack vectors?
+
+
+Our project tackled this question from two distinct angles:
 
 ### 1. Passive Evaluation (Benchmarks)
 
@@ -17,6 +23,25 @@ We analyze how the quantized models change under standard evaluation benchmarks 
 We executed a **Greedy Coordinate Gradient (GCG)** adversarial attack that successfully jailbreaks the **INT4** model,
 but does not show the same behavior at the base **FP16** model.
 
+## Results
+
+1. Different model capabilities *do not transfer consistently* for quantized models. While core instruction-following capabilities in `InFoBench` remained stable,
+safeguards severely decayed at 4-bit quantization in `DeceptionBench`.
+
+
+![Free Generation Benchmark Results](imgs/FGBench_table.png)
+
+<em> Figure 1: Comparison of Loglikelihood ranked benchmarks. </em> 
+
+2. Benchmark stability *depends on several factors* such as benchmark domain (capability vs safety), evaluation type (Loglikehood ranking vs free generation) and their subtlety (Deception vs hard safety violations).
+
+![Multiple Choice Benchmark Results](imgs/Multiple%20Choice%20Benchmark%20Results.png)
+<em> Figure 2: Comparison of Multiple Choice benchmarks. </em> 
+
+3. Quantization *allows for novel attack vectors*, proving a change in model safeguards.
+
+![Adversarial Attack Benchmark](imgs/attack_table.png)
+<em> Figure 3: Comparison of Suffix Attack Success </em> 
 ## Setup
 
 ### 1. Prepare the repository
