@@ -436,7 +436,7 @@ In this section, we want to check whether there exist suffixes that are quantiza
 
 \paragraph{Formalizing the adversarial objective}
 We use $x$ to denote token sequences, representing the text to process and generate.
-We consider a LLM $p$ as a probabilistic model $p(x_{n+1}\mid x_{1:n})$, which corresponds to the probability of generating the next token $x_{n+1}$ given the existing token sequence $x_{1:n}$. Then the probability to generate a sequence $x_{n+1:n+H}$ will be
+We consider an LLM $p$ as a probabilistic model $p(x_{n+1}\mid x_{1:n})$, which corresponds to the probability of generating the next token $x_{n+1}$ given the existing token sequence $x_{1:n}$. Then the probability to generate a sequence $x_{n+1:n+H}$ will be
 \[
 p(x_{n+1:n+H} | x_{1:n}) = \prod_{i=1}^{H}p(x_{n+i} | x_{1:n+i-1}).
 \]
