@@ -91,6 +91,26 @@ class LLMAsJudgeBench(Bench):
             return score
         return None
 
+    def score_responses(self, rows: list[dict[str, Any]], questions: list[str],
+                        responses: list[str]) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+        """ Optional hook for extra, non-judge scoring of the model responses.
+
+        Subclasses can override this to add benchmark-specific per-sample fields and
+        aggregate metrics (e.g. a substring-based refusal detector) without
+        re-implementing the full evaluation pipeline.
+
+        Args:
+            rows: The full row data for each evaluated sample.
+            questions: The original questions (without any suffix).
+            responses: The target model's generated responses.
+
+        Returns:
+            A tuple of:
+            - A list of per-sample dicts merged into each logged record.
+            - A dict of aggregate metric fields merged into the benchmark results.
+        """
+        return [{} for _ in responses], {}
+
     def eval(self, tokenizer: PreTrainedTokenizerBase, model: GenerationMixin,
              output_dir: Path) -> dict[str, Any]:
         """ Runs the full evaluation pipeline including answer generation, judge scoring and logging results.
@@ -114,6 +134,10 @@ class LLMAsJudgeBench(Bench):
         limit = self.bench_args["limit"]
         log_samples = self.bench_args["log_samples"]
         chat_kwargs = self.bench_args["chat_template_kwargs"]
+        # optional: restrict evaluation to a fixed subset selected by ID_COLUMN
+        question_ids = self.bench_args.get("question_ids")
+        # optional: fixed string appended to each user turn (for suffix attacks)
+        suffix = self.bench_args.get("suffix")
         judge_args = self.bench_args["judge_args"]
         judge_name = judge_args["name"]
         judge_enable_thinking = judge_args["enable_thinking"]
@@ -122,7 +146,18 @@ class LLMAsJudgeBench(Bench):
         token = require_hf_token()
 
         rows, questions = self.prepare_dataset(self.DATASET_NAME, split=self.bench_args.get("split", self.SPLIT), style=style, token=token)
-        if limit:
+        if question_ids is not None:
+            id_to_idx = {row.get(self.ID_COLUMN): i for i, row in enumerate(rows)}
+            missing = [q for q in question_ids if q not in id_to_idx]
+            if missing:
+                raise ValueError(
+                    f"question_ids not found in dataset (prompt_style={style}): {missing}"
+                )
+            sel = [id_to_idx[q] for q in question_ids]
+            rows = [rows[i] for i in sel]
+            questions = [questions[i] for i in sel]
+            print(f" >> selected {len(rows)} prompts by question_ids")
+        elif limit:
             rows = rows[:limit]
             questions = questions[:limit]
         print(f" >> {len(rows)} prompts (prompt_style={style})")
@@ -139,13 +174,21 @@ class LLMAsJudgeBench(Bench):
             ]
             print(f" >> truncated {n_before}/{len(questions)} questions to {max_q_tokens} tokens")
 
+        # Optional adversarial suffix: the model sees question+suffix, but the judge
+        # and logged records keep the original question.
+        if suffix:
+            user_turns = [f"{q} {suffix}" for q in questions]
+            print(f" >> appending suffix to each prompt: {suffix!r}")
+        else:
+            user_turns = questions
+
         # Generate model response
         prompts = [
             tokenizer.apply_chat_template(
-                [{"role": "user", "content": q}],
+                [{"role": "user", "content": t}],
                 tokenize=False, add_generation_prompt=True, **chat_kwargs,
             )
-            for q in questions
+            for t in user_turns
         ]
         responses = self._generate(tokenizer, model, prompts, max_new_tokens, batch_size, desc="generating")
 
@@ -181,17 +224,20 @@ class LLMAsJudgeBench(Bench):
         gc.collect()
         torch.cuda.empty_cache()
 
+        # Optional benchmark-specific scoring of the responses (e.g. RE-Judge)
+        extra_fields, extra_metrics = self.score_responses(rows, questions, responses)
+
         # Compute category metrics and save results
         per_category: dict[Any, list[float]] = defaultdict(list)
         records = []
         for idx, (row, q, resp, score) in enumerate(zip(rows, questions, responses, scores)):
             category = row.get(self.CATEGORY_COLUMN) if self.CATEGORY_COLUMN else None
-            
+
             if score is not None and category is not None:
                 per_category[category].append(score)
-            
+
             question_id = row.get(self.ID_COLUMN) if (self.ID_COLUMN in row) else f"{idx}"
-            
+
             records.append({
                 "question_id": question_id,
                 "category": category,
@@ -199,6 +245,7 @@ class LLMAsJudgeBench(Bench):
                 "question": q,
                 "response": resp,
                 "score": score,
+                **extra_fields[idx],
             })
 
         valid = [s for s in scores if s is not None]
@@ -217,6 +264,8 @@ class LLMAsJudgeBench(Bench):
                 cat: sum(s) / len(s) for cat, s in sorted(per_category.items())
             }
 
+        metric_results.update(extra_metrics)
+
         summary = {
             "results": {
                 self.BENCHMARK_NAME: metric_results
@@ -227,6 +276,8 @@ class LLMAsJudgeBench(Bench):
                 "judge_model": judge_name,
                 "max_new_tokens": max_new_tokens,
                 "limit": limit,
+                "suffix": suffix,
+                "n_question_ids": len(question_ids) if question_ids is not None else None,
             },
         }
 

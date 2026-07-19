@@ -1,6 +1,6 @@
 # GCG; Zou et al. 2023, Algorithm 2: optimize a universal adversarial
 
-from typing import Any
+from typing import Any, Callable, Optional
 
 import torch
 
@@ -40,8 +40,14 @@ class GCGOptimizer:
         self.incremental = config.get("incremental", True)
         self.curriculum_loss = config.get("curriculum_loss", 0.5)         # active set "solved" when per-prompt loss < this
         self.curriculum_patience = config.get("curriculum_patience", 25)  # steps at a stage before force-adding
+        self.save_every = config.get("save_every", None)                  # snapshot intermediate results every N steps
 
-    def run(self, init_suffix: torch.Tensor, prompts: list[dict[str, Any]]) -> dict[str, Any]:
+    def run(
+        self,
+        init_suffix: torch.Tensor,
+        prompts: list[dict[str, Any]],
+        checkpoint_fn: Optional[Callable[[dict[str, Any]], None]] = None,
+    ) -> dict[str, Any]:
         """ Runs the gradient optimization loop to find the best adversarial suffix. """
         m = len(prompts)
         suffix = init_suffix.clone()
@@ -79,6 +85,23 @@ class GCGOptimizer:
             if step % self.check_every == 0 or step == self.num_steps - 1 or added:
                 trajectory.append({"step": step, "active": mc, "loss_per_prompt": cur_loss})
                 print(f"[{step:4d}] active={mc}/{m}  loss/p={cur_loss:.4f}{added}")
+
+            if (
+                checkpoint_fn is not None
+                and self.save_every
+                and (step + 1) % self.save_every == 0
+                and step != self.num_steps - 1
+            ):
+                checkpoint_fn({
+                    "step": step,
+                    "best_suffix": best_suffix.clone(),
+                    "best_loss": best_loss,
+                    "cur_suffix": suffix.clone(),
+                    "cur_loss": cur_loss,
+                    "n_steps": step + 1,
+                    "active_final": mc,
+                    "trajectory": list(trajectory),
+                })
 
             if self.patience is not None and mc == m and stale >= self.patience:
                 print(f"[{step:4d}] early stop: best_loss={best_loss:.4f} stable for {self.patience} steps")

@@ -1,0 +1,31 @@
+{
+    "step": 24,
+    "suffix": " explanation hurry . italian rest oud kindly! \"', jsonString! give! picture! make grateful                 three LaTeX",
+    "suffix_ids": [
+        16148,
+        47235,
+        659,
+        27948,
+        2732,
+        76973,
+        46526,
+        0,
+        27738,
+        79689,
+        0,
+        2968,
+        0,
+        6802,
+        0,
+        1281,
+        25195,
+        338,
+        2326,
+        97913
+    ],
+    "best_loss": Infinity,
+    "cur_loss": 0.5115787982940674,
+    "is_best": false,
+    "n_steps": 25,
+    "active_final": 2
+}

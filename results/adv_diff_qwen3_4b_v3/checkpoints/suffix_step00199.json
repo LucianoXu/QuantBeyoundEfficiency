@@ -1,0 +1,31 @@
+{
+    "step": 199,
+    "suffix": "words barely; Urdu rest body## combiningSw [... give-me birthenglish directly me-------------two LaTeX",
+    "suffix_ids": [
+        5761,
+        19460,
+        26,
+        93335,
+        2732,
+        220,
+        2599,
+        565,
+        34171,
+        13218,
+        16303,
+        2968,
+        33973,
+        7194,
+        29120,
+        5961,
+        752,
+        19528,
+        19789,
+        97913
+    ],
+    "best_loss": Infinity,
+    "cur_loss": 0.7041066884994507,
+    "is_best": false,
+    "n_steps": 200,
+    "active_final": 9
+}

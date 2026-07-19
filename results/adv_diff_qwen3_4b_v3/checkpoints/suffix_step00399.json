@@ -1,0 +1,31 @@
+{
+    "step": 399,
+    "suffix": "words halves?? Urdu rest are Assange ##### punchuplicated$\", give-me learntenglish directly both-------------two LaTeX",
+    "suffix_ids": [
+        5761,
+        74112,
+        7646,
+        93335,
+        2732,
+        525,
+        59407,
+        68684,
+        20380,
+        98984,
+        73315,
+        2968,
+        33973,
+        49250,
+        29120,
+        5961,
+        2176,
+        19528,
+        19789,
+        97913
+    ],
+    "best_loss": Infinity,
+    "cur_loss": 0.5367808622472426,
+    "is_best": false,
+    "n_steps": 400,
+    "active_final": 17
+}
