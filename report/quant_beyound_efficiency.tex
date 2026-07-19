@@ -231,7 +231,7 @@ evaluated benchmarks.
 \subsubsection{Free Generation}
 For our second benchmark, we compared the model's instruction-following ability and general capabilities against its safeguards.
 We selected deception and safety refusal as the two evaluation domains to measure these safeguards.
-We compared them against InFoBench, which measures instruction following, and WildChat-NonToxic, which contains general, non-toxic prompts. 
+We compared them against InFoBench, which measures instruction following, and WildChat-NonToxic, which contains general, non-toxic prompts from real users. 
 \paragraph{}
 The evaluation was performed with generation length 4096 and 5 shot generation, where we show the model 5 examples of inputs and responses, 
 since we observed more coherent responses compared to zero-shot. 
@@ -654,12 +654,15 @@ The LLM judge is given the prompt as "question", the ethical baseline of this pr
 
 \section{Coherence Test}
 \label{sec:coher}
-A coherence check was introduced to investigate behavior in free generation benchmarks. We hypothesized, if the coherence of the model degenerates it could indicate that it either is not able to generate its stored knowledge or struggles to understand the problem question itself.
-While the Qwen-4B models answer did not show any behavior of losing the ability to answer in natural language, the Qwem-1.7B model fared significantly worse. Its capabilities where so diminished that it wasn't able to produce coherent, logical sentences. 
-To quantify this behavior, a simple 3-gram check was applied to catch repetitions. The check failed if there was 30\% ratio of repeating 3-grams. In addtion, if for MMLU the response instances where the parser was failed to extract a response label 
-(and therefore returns an invalid label) were counted to further demonstrate the increase in incoherence. Qwen3-4B-instruct was employed as a judge model~\ref{fig:judge_prompt_coherence} to evaluate this claim, but with rather mixed results, 
-leading to an overly high rate in coherence. For instance, the response shown in Figure~\ref{fig:coherence_collapse_example} was falsely classified as coherent by the judge, despite its collapse.
+A coherence check was introduced to investigate the model's behavior in free generation benchmarks. We hypothesized that if the coherence of the model degenerates, it could indicate that the model is either unable to retrieve its stored knowledge or struggling to understand the question itself.
 
+While the Qwen-4B model's responses did not show any signs of losing the ability to generate natural language, the Qwen-1.7B model fared significantly worse. Its capabilities were so diminished that it was unable to produce coherent, logical sentences. 
+
+To quantify this behavior, a simple 3-gram check was applied to detect repetitions.
+A response failed this check if the ratio of repeating 3-grams exceeded 30\%.
+In addition, for the MMLU benchmark, instances where the parser failed to extract a response label
+(and therefore returned an invalid label) were counted to further demonstrate the increase in incoherence. 
+Qwen3-4B-instruct was employed as a judge model (see Figure~\ref{fig:judge_prompt_coherence}) to evaluate this behavior, but it yielded rather mixed results, leading to an overly high rate of classified coherence. For instance, the response shown in Figure~\ref{fig:coherence_collapse_example} was falsely classified as coherent by the judge, despite its clear collapse.
 \begin{table}[htbp]
 \centering
 \label{tab:3gram_split}
