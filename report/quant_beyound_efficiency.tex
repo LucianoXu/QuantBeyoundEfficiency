@@ -440,7 +440,7 @@ Then the desired quantization-aware adversarial suffix can be expressed as
 \[
 s^* = \operatorname*{arg\,max}_{s} \left [ \mathbb{E}_{q, a_{+}, a_{-} \sim D}\ (\tilde{p}(a_{+} | q \mathbin{++} s) + \lambda \cdot p(a_{-} | q \mathbin{++} s)) \right ].
 \]
-Here the intuition is to maximize the two probabilities of refusal on full model and fulfillment on quantized model, and the ratio is controlled by parameter $\lambda$.
+Here the intuition is to maximize the two probabilities of refusal on full model and fulfillment on quantized model. The relative strength is controlled by parameter $\lambda$, which takes positive values.
 Compared to the vanilla GCG algorithm~\cite{GCG} for adversarial examples, this objective introduces the refusal term on full model.
 
 \subsection{Experiment Setup}
