@@ -76,7 +76,6 @@ Furthermore, we verify the degradation of model safeguards by quantifying the in
 The findings indicate that it is risky to assume that the performance and 
 robustness can transfer evenly through different capability domains from full models to quantized models.
 
-% During quantization, same utility does not transfer to same alignment, and the robustness of full models does not transfer to quantized models.
 \end{abstract}
 
 
@@ -122,8 +121,6 @@ implying that model safeguards and capabilities must be actively audited post-qu
 \subsection{Quantization}
 Rapid advancements in LLMs have led to a steady growth in model sizes, with modern models having hundreds of billions of parameters. Deploying these models requires significant amounts of VRAM, creating a major bottleneck. One technique to mitigate this issue is quantization. 
 This maps higher precision representations (such as BF16) of the model parameters to lower formats (such as 8-bit integers). This sharply reduces the memory footprint, but can also introduce a loss of model accuracy.
-%Widely-adopted strategies include Quantization-Aware Training (QAT) and Post-Training Quantization (PTQ). 
-%QAT introduces a fine-tuning step on a representative dataset to allow the model to adapt to lower precision formats at the cost of additional computation.
 We utilize Post-Training Quantization (PTQ), which directly applies quantization on a pre-trained model, unlike Quantization-Aware Training (QAT) which requires a computationally expensive fine-tuning step.
 Quantization can target the model parameters (Weight Quantization) or additionally the activations during inference (Activation Quantization). In this work, we concentrate on PTQ and Weight Quantization as they are the most widely adopted strategies in practice due to their low computational costs.
 Namely, we choose 16-bit floating-point (BF16) as the baseline and 4-bit integer (INT4), 8-bit integer (INT8) and activation-aware weight quantization (AWQ) as the quantization levels to compare. The INT4 and INT8 methods compress the weights symmetrically around 0, by rounding the weights uniformly for each layer. 
@@ -189,12 +186,6 @@ The following benchmarks were chosen to represent these paradigms:
 
 LLR evaluations were executed utilizing the lm-evaluation-harness framework~\cite{eval-harness}. For the benchmarks SORRYBench, DeceptionBench, InFoBench and Wildchat-nontoxic we implemented custom evaluation pipelines with a Deepseek-4-flash model acting as a judge.
 
-% \ra{This experiment has been removed}
-% Model quantization can lead to structural degradation behavior leading to nonsensical answers or repetitive responses. In FFG evaluations this behavior can be either misclassified as unsafe responses or successful jailbreak behavior.\hv{judging nonsensical?} This can skew the evaluation tremendously. To mitigate these false evaluations we judged the response under a coherence prompt \hv{prompt reference}, which evaluates if the model is still following natural human-like language. We again installed a deepseek-4-flash model as a judge.
-
-% \yx{Benchmarking methodology should be discussed. What is the criteria of choosing benchmarks. Explain the evaluation. In-context learning? How are results extracted? What does teacher forcing mean? Do we use frameworks? What is our experiment configuration?}
-
-% \yx{Introduce what is coherence, and how we evaluate them.}
 
 \subsection{Experiments}
 All benchmark experiments were conducted on an NVIDIA A100 GPU and a generation length of 4096. 
@@ -416,7 +407,6 @@ A more detailed analysis of the 1.7B model's coherence is provided in Appendix~\
 Our benchmarking study shows the performance difference between the baseline and quantized models when applied in their intended scenarios.
 However, when deployed in real-world applications, models are also exposed to malicious adversaries that try to mount attacks in unexpected ways.
 Therefore, the passive evaluations of the models against benchmarks are not sufficient to guarantee their safety. There can still be vulnerabilities that adversaries can exploit. 
-%In particular, people tend to assume that the robustness of full models will transfer to the quantized ones, but it does not hold in general.
 This section introduces our novel discovery of quantization-aware adversarial suffix attacks.
 
 Our attack technique combines two concepts: adversarial suffix attacks and quantization-aware attacks.
@@ -749,6 +739,5 @@ Model Response: "{answer}"
 
 
 
-%Although the experiment~\ref{tab:3gram_split} showed a strong repetition in 3-grams, posing as evidence of quantization-induced collapse, we excluded this argument in our final argumentation to not dilute our main line of argumentation.
 
 \end{document}
