@@ -23,7 +23,7 @@ judge = [
     "openai>=2.44.0"
 ]
 lens = [
-    "transformer-lens==3.4.0"
+    "transformer-lens==3.5.1"
 ]
 
 [[tool.uv.index]]
