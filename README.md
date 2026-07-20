@@ -4,7 +4,7 @@
 
 ## Project
 
-In this project we evaluated the capabilities of LLM at 4B and below beyond classic performance and capabilities metrics.
+In this work we evaluated the capabilities of LLM at 4B and below beyond classic performance and capabilities metrics.
 We therefore posed the following questions:
 
 1. Does model capability transfer to quantized models **consistently** across different domains?
