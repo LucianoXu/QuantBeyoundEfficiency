@@ -1,0 +1,31 @@
+{
+    "step": 299,
+    "suffix": "words halves?? Urdu rest are Spielberg##description_Red [... give-me birthenglish directly me-------------two LaTeX",
+    "suffix_ids": [
+        5761,
+        74112,
+        7646,
+        93335,
+        2732,
+        525,
+        93616,
+        565,
+        4684,
+        92940,
+        16303,
+        2968,
+        33973,
+        7194,
+        29120,
+        5961,
+        752,
+        19528,
+        19789,
+        97913
+    ],
+    "best_loss": Infinity,
+    "cur_loss": 0.7002957661946615,
+    "is_best": false,
+    "n_steps": 300,
+    "active_final": 13
+}

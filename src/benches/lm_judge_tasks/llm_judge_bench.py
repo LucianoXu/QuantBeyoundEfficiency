@@ -14,6 +14,23 @@ from ...envvar import require_hf_token
 import re 
 
 class LLMAsJudgeBench(Bench):
+    """ Abstract base benchmark for evaluating benchmarks using a LLM-as-a-judge.
+
+    This class serves as the base interface for loading the evaluation datsets that require a LLM judge.
+    It includes evaluation, prompt formatting, handling batched text generation for the target model and the judge
+    and computes performance metrics. Subclasses must override 'prepare_dataset'.
+
+
+    Attributes:
+        BENCHMARK_NAME: Standard identifier for this benchmark.
+        DATASET_NAME: The huggingface repo id
+        PROMPT_STYLE: Default prompt style to load. Defaults to base.
+        SPLIT: Default split to get from huggingface. Defaults to train.
+        METRIC_NAME: The name of the resulting evaluation metric. Defaults to score.
+        JUDGE_PROMPT_TEMPLATE: String template to used for judge evaluation.
+        CATEGORY_COLUMN: Column indicating the subcategory of interest.
+        ID_COLUMN: Unique column identifier.
+    """
     BENCHMARK_NAME: str = None
     DATASET_NAME: str = ""
     PROMPT_STYLE: str = "base"
@@ -24,12 +41,46 @@ class LLMAsJudgeBench(Bench):
     ID_COLUMN: str = ""
 
     def prepare_dataset(self, dataset_name: str, split: str, style: str, token: str) -> tuple[list[dict[str, Any]], list[str]]:
+        """Abstract method to load and format the dataset.
+
+        Args:
+            dataset_name: Huggingface ID
+            split: The split to load.
+            style: Styling to pull from the dataset.
+            token: Huggingface user authentication token for faster loading times or to access gated datasets.
+
+        Returns:
+            A tuple containing two lists:
+            - A list of dictionaries holding the full row data of the dataset.
+            - A list of pre-formatted string questions ready to evaluate.
+
+        Raises:
+            NotImplementedError: Needs to be implemented by the corresponding subclass.
+        """
         raise NotImplementedError
 
     def get_judge_prompt(self, row: dict[str, Any], question: str, response: str) -> str:
+        """ Formats the input prompt for evaluated by the LLM judge.
+
+         Args:
+             row: Dictionary tracking the data of a given row sample.
+             question: The specific question that the target model had to answer.
+             response: The generated answer from the target model for the given question.
+
+        Returns:
+            The prompt string given to the judge model to evaluate the response.
+         """
         return self.JUDGE_PROMPT_TEMPLATE.format(question=question, answer=response)
 
     def parse_score(self, verdict: str) -> float | None:
+        """ Parse the numerical verdict (0.0 or 1.0) from raw judge text output.
+
+        Args:
+            verdict: The raw string text response from the judge model.
+
+        Returns:
+            A float (0.0 or 1.0) if parsing is successful otherwise None.
+        """
         if not verdict:
             return None
         numbers = re.findall(r"\d+(?:\.\d+)?", verdict.strip())
@@ -40,17 +91,53 @@ class LLMAsJudgeBench(Bench):
             return score
         return None
 
+    def score_responses(self, rows: list[dict[str, Any]], questions: list[str],
+                        responses: list[str]) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+        """ Optional hook for extra, non-judge scoring of the model responses.
+
+        Subclasses can override this to add benchmark-specific per-sample fields and
+        aggregate metrics (e.g. a substring-based refusal detector) without
+        re-implementing the full evaluation pipeline.
+
+        Args:
+            rows: The full row data for each evaluated sample.
+            questions: The original questions (without any suffix).
+            responses: The target model's generated responses.
+
+        Returns:
+            A tuple of:
+            - A list of per-sample dicts merged into each logged record.
+            - A dict of aggregate metric fields merged into the benchmark results.
+        """
+        return [{} for _ in responses], {}
+
     def eval(self, tokenizer: PreTrainedTokenizerBase, model: GenerationMixin,
              output_dir: Path) -> dict[str, Any]:
+        """ Runs the full evaluation pipeline including answer generation, judge scoring and logging results.
+
+        Args:
+            tokenizer: The Huggingface tokenizer matching the target model.
+            model: The target model that gets evaluated.
+            output_dir: The directory path to dump the results and generated samples in json format.
+
+        Returns:
+            A nested configuration summary dictionary containing:
+            - 'results': The results containing the over all main benchmark score metrics with additional infos.
+            - 'config': An overview of the run configuration (e.g. dataset, max_new_tokens, limit)
+        """
 
         print(f" >> Evaluating {self.BENCHMARK_NAME}. Will output to {output_dir}")
-
+        # get config arguments
         style = self.bench_args.get("prompt_style", self.PROMPT_STYLE)
         batch_size = self.bench_args["batch_size"]
         max_new_tokens = self.bench_args["max_new_tokens"]
         limit = self.bench_args["limit"]
         log_samples = self.bench_args["log_samples"]
         chat_kwargs = self.bench_args["chat_template_kwargs"]
+        # optional: restrict evaluation to a fixed subset selected by ID_COLUMN
+        question_ids = self.bench_args.get("question_ids")
+        # optional: fixed string appended to each user turn (for suffix attacks)
+        suffix = self.bench_args.get("suffix")
         judge_args = self.bench_args["judge_args"]
         judge_name = judge_args["name"]
         judge_enable_thinking = judge_args["enable_thinking"]
@@ -59,12 +146,23 @@ class LLMAsJudgeBench(Bench):
         token = require_hf_token()
 
         rows, questions = self.prepare_dataset(self.DATASET_NAME, split=self.bench_args.get("split", self.SPLIT), style=style, token=token)
-        if limit:
+        if question_ids is not None:
+            id_to_idx = {row.get(self.ID_COLUMN): i for i, row in enumerate(rows)}
+            missing = [q for q in question_ids if q not in id_to_idx]
+            if missing:
+                raise ValueError(
+                    f"question_ids not found in dataset (prompt_style={style}): {missing}"
+                )
+            sel = [id_to_idx[q] for q in question_ids]
+            rows = [rows[i] for i in sel]
+            questions = [questions[i] for i in sel]
+            print(f" >> selected {len(rows)} prompts by question_ids")
+        elif limit:
             rows = rows[:limit]
             questions = questions[:limit]
         print(f" >> {len(rows)} prompts (prompt_style={style})")
 
-        # add question token truncation
+        # Token truncation for overly long questions
         max_q_tokens = self.bench_args.get("max_question_tokens")
         if max_q_tokens:
             n_before = sum(len(tokenizer(q, add_special_tokens=False)["input_ids"]) > max_q_tokens for q in questions)
@@ -76,15 +174,25 @@ class LLMAsJudgeBench(Bench):
             ]
             print(f" >> truncated {n_before}/{len(questions)} questions to {max_q_tokens} tokens")
 
+        # Optional adversarial suffix: the model sees question+suffix, but the judge
+        # and logged records keep the original question.
+        if suffix:
+            user_turns = [f"{q} {suffix}" for q in questions]
+            print(f" >> appending suffix to each prompt: {suffix!r}")
+        else:
+            user_turns = questions
+
+        # Generate model response
         prompts = [
             tokenizer.apply_chat_template(
-                [{"role": "user", "content": q}],
+                [{"role": "user", "content": t}],
                 tokenize=False, add_generation_prompt=True, **chat_kwargs,
             )
-            for q in questions
+            for t in user_turns
         ]
         responses = self._generate(tokenizer, model, prompts, max_new_tokens, batch_size, desc="generating")
-        
+
+        # Load judge and score outputs
         judge_tokenizer = AutoTokenizer.from_pretrained(judge_name, token=token)
         judge_model = AutoModelForCausalLM.from_pretrained(
             judge_name, torch_dtype=torch.bfloat16, device_map="auto", token=token,
@@ -111,20 +219,25 @@ class LLMAsJudgeBench(Bench):
             print(f" >> WARNING: {n_invalid}/{len(scores)} judge verdicts unparseable; "
                   f"excluded from {self.METRIC_NAME}")
 
+        # Free GPU memory from judge model
         del judge_model, judge_tokenizer
         gc.collect()
         torch.cuda.empty_cache()
 
+        # Optional benchmark-specific scoring of the responses (e.g. RE-Judge)
+        extra_fields, extra_metrics = self.score_responses(rows, questions, responses)
+
+        # Compute category metrics and save results
         per_category: dict[Any, list[float]] = defaultdict(list)
         records = []
         for idx, (row, q, resp, score) in enumerate(zip(rows, questions, responses, scores)):
             category = row.get(self.CATEGORY_COLUMN) if self.CATEGORY_COLUMN else None
-            
+
             if score is not None and category is not None:
                 per_category[category].append(score)
-            
+
             question_id = row.get(self.ID_COLUMN) if (self.ID_COLUMN in row) else f"{idx}"
-            
+
             records.append({
                 "question_id": question_id,
                 "category": category,
@@ -132,6 +245,7 @@ class LLMAsJudgeBench(Bench):
                 "question": q,
                 "response": resp,
                 "score": score,
+                **extra_fields[idx],
             })
 
         valid = [s for s in scores if s is not None]
@@ -150,6 +264,8 @@ class LLMAsJudgeBench(Bench):
                 cat: sum(s) / len(s) for cat, s in sorted(per_category.items())
             }
 
+        metric_results.update(extra_metrics)
+
         summary = {
             "results": {
                 self.BENCHMARK_NAME: metric_results
@@ -160,6 +276,8 @@ class LLMAsJudgeBench(Bench):
                 "judge_model": judge_name,
                 "max_new_tokens": max_new_tokens,
                 "limit": limit,
+                "suffix": suffix,
+                "n_question_ids": len(question_ids) if question_ids is not None else None,
             },
         }
 
@@ -174,8 +292,23 @@ class LLMAsJudgeBench(Bench):
         return summary
 
     @staticmethod
-    def _generate(tokenizer, model, prompts, max_new_tokens: int, batch_size: int,
+    def _generate(tokenizer: PreTrainedTokenizerBase, model: GenerationMixin, prompts: list[str] , max_new_tokens: int, batch_size: int,
                 enable_thinking: bool = False, desc: str = "generating") -> list[str]:
+        """ Helper utility for greedy batched generation
+
+        Args:
+            tokenizer: The Huggingface tokenizer matching the target model.
+            model: The target model that gets evaluated.
+            prompts: A list of the given prompts
+            max_new_tokens: Limit cap to the length of the generation
+            batch_size: Total amount of prompt rows feed per iteration
+            enable_thinking: If True, extends the token limit by 512 to allow for longer thinking generation.
+                Defaults to False.
+            desc: Custom description label for the tqdm loading bar. Defaults to 'generating'
+
+        Returns:
+            A list of processed response strings stripped of their initial prompt
+        """
         
         old_side = tokenizer.padding_side
         tokenizer.padding_side = "left"

@@ -9,6 +9,11 @@ from ..utils import load_yaml_config, save_jsonl, save_json
 
 
 class Bench(ABC):
+    """Abstract base interface for all benchmark runners.
+
+    Attributes:
+        bench_args: The arguments loaded from the .yaml template
+    """
 
     def __init__(self, bench_args: dict[str, Any]):
         self.bench_args = bench_args
@@ -16,6 +21,16 @@ class Bench(ABC):
     @abstractmethod
     def eval(self, tokenizer: PreTrainedTokenizerBase, model: GenerationMixin,
              output_dir: Path) -> dict[str, Any]:
+        """Abstract pipeline to evaluate model predictions.
+
+        Args:
+            tokenizer: Huggingface tokenizer matching the target model.
+            model: The target model to evaluate.
+            output_dir: Directory where evaluation results will be saved to.
+
+        Returns:
+            A dictionary of compiled evaluation data.
+        """
         ...
 
 LM_EVAL_TASKS: dict[str, str] = {
@@ -40,6 +55,17 @@ LM_EVAL_INCLUDE_PATH = str(Path(__file__).parent / "lm_eval_tasks")
 
 
 def bench_factory(bench_args: dict[str, Any] | str | Path) -> Bench:
+    """ Instantiates the benchmark instance.
+
+    Args:
+        bench_args: Bench arguments from the loaded .yaml config or a string showing to the .yaml config
+
+    Returns:
+        An instance of a Bench subclass configurated for an evaluation run.
+
+    Raises:
+          ValueError: If the provided benchmark does not map to any registered benchmark
+    """
 
     print(" >> Benchmark Factory for", bench_args)
 
@@ -70,12 +96,25 @@ def bench_factory(bench_args: dict[str, Any] | str | Path) -> Bench:
         raise ValueError("Invalid Benchmark Name: ", bench_name)    
 
 class LM_EVAL(Bench):
+    """ Benchmark wrapper evaluating tasks from the lm evaluation harness framework.
+
+    Wraps the evaluation pipeline using the lm evaluation harness.
+    Fixes hendrycks ETHICS evaluation and utilizes custom seed for reproducibility.
+    """
     def __init__(self, bench_args: dict[str, Any], task: str):
+        """ Initializes the harness interface with target task. """
         super().__init__(bench_args)
         self.task = task
 
     def eval(self, tokenizer: PreTrainedTokenizerBase, model: GenerationMixin,
              output_dir: Path) -> dict[str, Any]:
+        """ Runs evaluation for benchmarks included in the lm evaluation harness.
+
+        For detailed specifications see 'Bench.eval'.
+
+        Raises:
+            RuntimeError: If lm evaluation does not return any results.
+        """
         
         print(" >> Evaluating. Will output to", output_dir)
 

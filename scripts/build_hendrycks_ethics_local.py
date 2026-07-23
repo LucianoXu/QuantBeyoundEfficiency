@@ -1,6 +1,9 @@
 """
-The HF Hendrycks ETHICS dataset has code execution and is not consistent with latest transformers convention.
-We manually download and rebuild the dataset.
+Downloads and converts the HF Hendrycks ETHICS dataset into local Parquet files.
+
+The dataset contains code execution and is not consistent with latest transformers conventions.
+This script downloads the raw CSV files directly from Huggingface,
+applies a standard schema across subsets and exports these as Parquet files.
 """
 
 import csv
@@ -15,6 +18,7 @@ SUBSETS = ["commonsense", "deontology", "justice", "utilitarianism", "virtue"]
 
 
 def read_rows(subset: str, split: str) -> list[dict]:
+    """ Fetches the hendrycks/ethics CSV split from Huggingface and parses it into typed dicts. """
     path = hf_hub_download(REPO, f"data/{subset}/{split}.csv", repo_type="dataset")
     out: list[dict] = []
     with open(path, newline="") as f:
@@ -41,6 +45,7 @@ def read_rows(subset: str, split: str) -> list[dict]:
 
 
 def main() -> None:
+    """ Iterates through all subsets and splits, processes the rows and saves them as Parquet files. """
     for subset in SUBSETS:
         for split in ["train", "test"]:
             rows = read_rows(subset, split)

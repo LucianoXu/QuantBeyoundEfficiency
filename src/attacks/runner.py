@@ -16,9 +16,8 @@ from .eval import evaluate_on_model
 
 
 def run_attack(args: dict[str, Any]) -> dict[str, Any]:
-    '''
-    prepare the attack -> run the attack -> evaluation
-    '''
+    """ Runs the attack pipeline including data preparation, optimizing the adversarial suffix and evaluate the results."""
+
     output_dir = Path(args["output_dir"])
 
     output_dir.mkdir(parents=True, exist_ok=False)
@@ -103,7 +102,35 @@ def run_attack(args: dict[str, Any]) -> dict[str, Any]:
         optimizer = build_optimizer(opt_name, objective, disallowed, atk)
 
         print(f" >> Optimizing with {opt_name} (objective={objective_kind}, m_train={len(train)}) ...")
-        result = optimizer.run(init_suffix, train)
+
+
+        ckpt_dir = output_dir / "checkpoints"
+
+        def checkpoint_fn(snap: dict[str, Any]) -> None:
+            finite_best = snap["best_loss"] != float("inf")
+            suf_ids = (snap["best_suffix"] if finite_best else snap["cur_suffix"]).detach().cpu()
+            loss = snap["best_loss"] if finite_best else snap["cur_loss"]
+            text = tokenizer.decode(suf_ids)
+
+            ckpt_dir.mkdir(parents=True, exist_ok=True)
+            payload = {
+                "step": snap["step"],
+                "suffix": text,
+                "suffix_ids": suf_ids.tolist(),
+                "best_loss": snap["best_loss"],
+                "cur_loss": snap["cur_loss"],
+                "is_best": finite_best,
+                "n_steps": snap["n_steps"],
+                "active_final": snap["active_final"],
+            }
+
+            save_json(payload, output_dir / "suffix.json")
+            save_jsonl(snap["trajectory"], output_dir / "trajectory.jsonl")
+
+            save_json(payload, ckpt_dir / f"suffix_step{snap['step']:05d}.json")
+            print(f" >> [checkpoint step {snap['step']}] loss={loss:.4f} suffix={text!r}")
+
+        result = optimizer.run(init_suffix, train, checkpoint_fn=checkpoint_fn)
 
         best_suffix = result["best_suffix"].detach().cpu()
         suffix_text = tokenizer.decode(best_suffix)

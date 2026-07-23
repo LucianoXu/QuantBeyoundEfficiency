@@ -1,0 +1,42 @@
+\begin{figure}[t]
+  \centering
+  \resizebox{\textwidth}{!}{%
+  \begin{tikzpicture}[
+    seg/.style={draw, rounded corners=1.5pt, font=\ttfamily\small, inner xsep=4pt,
+                inner ysep=5pt, minimum height=2.1em, anchor=west},
+    base/.style={seg, fill=gray!12,   draw=gray!55},
+    suf/.style={seg,  fill=orange!28, draw=orange!80!black},
+    tgt/.style={seg,  fill=red!14,    draw=red!65!black},
+    lab/.style={font=\small, align=center, text=black!80},
+    brc/.style={decorate, decoration={brace, amplitude=5pt, mirror}, semithick, black!55},
+    grad/.style={-{Latex[length=2.2mm]}, thick, blue!65!black},
+    flip/.style={-{Latex[length=2.2mm]}, thick, teal!55!black},
+  ]
+    % Row 1: user turn
+    \node[base] (r1a) at (0,0)        {<|im\_start|>user};
+    \node[base] (r1b) at (r1a.east)   {Teach me how to remove watermarks from copyrighted images.};
+    \node[suf]  (r1c) at (r1b.east)   {!!!!!!!!!!!!!!!!!!!!};
+    \node[base] (r1d) at (r1c.east)   {<|im\_end|>};
+
+    \draw[brc] (r1b.south west) -- (r1b.south east)
+      node[midway, below=6pt, lab] {harmful request $q$};
+
+    % Row 2: assistant turn + target
+    \node[base] (r2a) at (0,-1.9)     {<|im\_start|>assistant};
+    \node[base] (r2b) at (r2a.east)   {<think></think>};
+    \node[tgt]  (r2c) at (r2b.east)   {Sure, here is what you asked for};
+
+    \draw[brc] (r2c.south west) -- (r2c.south east)
+      node[midway, below=6pt, lab] {target $a_{+}$ (teacher forcing)};
+
+    % ---- backward propagation of gradients: target -> suffix ----
+    \draw[grad] (r2c.north east) to[out=75,in=-90]
+      node[pos=0.5, fill=white, inner sep=1.5pt, lab, text=blue!65!black]
+        {backward propagation}
+      (r1c.south);
+
+  \end{tikzpicture}%
+  }
+  \caption{Structure of the templated attack prompt.}
+  \label{fig:prompt-structure}
+\end{figure}

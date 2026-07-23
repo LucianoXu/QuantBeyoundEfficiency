@@ -2,13 +2,15 @@
 # This is a differentiable proxy of int4 quantization for the attack
 # Verification of equivalence is in test.
 
+""" Differentiable fake-quantization for modeling the int4 precision. """
+
 from typing import Any
 import torch
 import torch.nn as nn
 
 
 def quanto_qint4_group_size(in_features: int, base: int = 128) -> int | None:
-    # calculate the group size for dimensions (introduced by quantization)
+    """calculate the group size/bounds for dimensions (introduced by quantization) """
     if in_features > base:
         gs = base
         while in_features % gs != 0 and gs > 32:

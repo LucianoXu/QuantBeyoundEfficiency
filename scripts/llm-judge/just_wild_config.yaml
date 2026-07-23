@@ -1,0 +1,39 @@
+globals:
+  exp_root: &EXP "experiment_lmjudge_alignment_utility_matrix_qwen3_4b"
+  eval_root: &EVAL "evaluation_lmjudge_alignment_utility_matrix_qwen3_4b"
+
+_shared_sorry_files: &sorry_files
+  - "samples_sorry_bench.jsonl"
+
+_shared_if_files: &if_files
+  - "samples_if_bench.jsonl"
+
+_shared_deception_files: &deception_files
+  - "samples_deceptionbench.jsonl"
+
+_shared_wild_files: &wild_files
+  - "samples_wild_bench.jsonl"
+
+WILD:
+  exp_root: *EXP
+  eval_root: *EVAL
+  runs:
+    - precision: "bf16"
+      input_subdir: "bf16/Qwen3-4B-bf16-WILD-Bench"
+      output_subdir: "bf16"
+      files: *wild_files
+
+    - precision: "int8"
+      input_subdir: "int8/Qwen3-4B-int8-WILD-Bench"
+      output_subdir: "int8"
+      files: *wild_files
+
+    - precision: "int4"
+      input_subdir: "int4/Qwen3-4B-int4-WILD-Bench"
+      output_subdir: "int4"
+      files: *wild_files
+
+    - precision: "awq-w4a16-asym"
+      input_subdir: "awq-w4a16-asym/Qwen3-4B-AWQ-W4A16-ASYM-WILD-Bench"
+      output_subdir: "awq-w4a16-asym"
+      files: *wild_files

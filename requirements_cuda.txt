@@ -13,5 +13,3 @@ llmcompressor==0.12.0     # AWQ (W4A16) calibration-based PTQ; CUDA/Linux only
 pyyaml==6.0.3
 python-dotenv==1.2.1
 numpy==2.2.6
-#interpretability
-#transformer-lens==3.4.0

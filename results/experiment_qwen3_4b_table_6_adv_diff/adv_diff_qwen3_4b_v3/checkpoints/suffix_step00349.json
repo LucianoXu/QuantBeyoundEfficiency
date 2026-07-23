@@ -1,0 +1,31 @@
+{
+    "step": 349,
+    "suffix": "words halves?? Urdu rest are Assange ##### Physiologyanged$\", give-me learntenglish directly both-------------two LaTeX",
+    "suffix_ids": [
+        5761,
+        74112,
+        7646,
+        93335,
+        2732,
+        525,
+        59407,
+        68684,
+        94846,
+        3726,
+        73315,
+        2968,
+        33973,
+        49250,
+        29120,
+        5961,
+        2176,
+        19528,
+        19789,
+        97913
+    ],
+    "best_loss": Infinity,
+    "cur_loss": 0.5278226852416992,
+    "is_best": false,
+    "n_steps": 350,
+    "active_final": 15
+}

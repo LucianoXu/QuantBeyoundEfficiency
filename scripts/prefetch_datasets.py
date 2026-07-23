@@ -1,18 +1,14 @@
 """
+Downloads all benchmark datasets into the Huggingface cache to avoid race conditions during parallel evaluation.
 
-re-download all benchmark datasets into the shared HuggingFace cache.
-
-This step avoids data racing for concurrent evaluation. For single process it is not necessary.
-
-python scripts/prefetch_datasets.py
-
+This step is not necessary at single process evaluation.
 """
 
 from src.benches.factory import LM_EVAL_TASKS
 
 
-if __name__ == "__main__":
-
+def prefetch_datasets() -> None:
+    """ Loads all lm-evaluation-harness tasks to load download datasets into the huggingface cache. """
     bench_names = set(LM_EVAL_TASKS)
 
     task_ids = sorted({LM_EVAL_TASKS[n] for n in bench_names})
@@ -38,3 +34,6 @@ if __name__ == "__main__":
         exit(1)
 
     print("\n >> All datasets prefetched. Safe to submit the parallel array job.")
+
+if __name__ == "__main__":
+    prefetch_datasets()

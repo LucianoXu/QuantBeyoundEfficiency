@@ -15,6 +15,20 @@ SUPPORTED_MODELS = {
 }
 
 def model_factory(model_args: dict[str, Any] | str | Path, seed: int = None) -> tuple[PreTrainedTokenizerBase, GenerationMixin]:
+    """ Builds and dispatches language models based in input arguments loaded from the config .yaml
+
+    Args:
+        model_args: Model arguments from the loaded .yaml config or a string showing to the .yaml config
+        seed: Randomization seed if AWQ quantization method is chosen. Defaults to None.
+
+    Returns:
+        A tuple containing two lists:
+            - The tokenizer matching the target model
+            - The configured and instiated target model
+
+    Raises:
+        ValueError: If the provided model does not map to any registered model
+    """
     print(" >> Model Factory for", model_args)
 
     if isinstance(model_args, (str, Path)):
@@ -29,7 +43,22 @@ def model_factory(model_args: dict[str, Any] | str | Path, seed: int = None) -> 
     
 
 def HF_standard_model_factory(model_args: dict[str, Any], seed: int = None) -> tuple[PreTrainedTokenizerBase, GenerationMixin]:
+    """ Laods a Huggingface model and optionally applies the quantization from the model_args.
 
+    Args:
+        model_args: Configuration properties loaded from the .yaml file. Must include 'model_name',
+        'quant_type' and 'device_map'.
+        seed: Randomization seed if AWQ quantization method is chosen. Defaults to None.
+
+
+    Returns:
+    A tuple containing two lists:
+        - The tokenizer matching the target model
+        - The configured and instiated target model
+
+    Raises:
+        ValueError: If the provided quantization/precision does not map to any registered quantization/precision.
+    """
     model_name = model_args["model_name"]
     quant_type = model_args["quant_type"]
 
